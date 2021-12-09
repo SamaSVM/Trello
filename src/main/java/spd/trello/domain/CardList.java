@@ -5,5 +5,5 @@ import java.util.List;
 public class CardList {
     private String name;
     private List<Card> cards;
-    private Boolean isArchived = false;
+    private Boolean archived = false;
 }

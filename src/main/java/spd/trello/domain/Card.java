@@ -10,7 +10,7 @@ public class Card {
     private List<Member> assignedMembers = new ArrayList<>();
     private List<Label> labels;
     private List<Attachment> attachments;
-    private Boolean isArchived;
+    private Boolean archived;
     private List<Comment> comments;
     private Reminder reminder;
     private List<Checklist> checklists;
