@@ -1,9 +1,12 @@
 package spd.trello.domain;
 
+import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class Card {
     private String name;
     private String description;
