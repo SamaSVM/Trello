@@ -1,3 +1,5 @@
+package spd.trello.domain;
+
 import java.time.LocalDateTime;
 import java.util.List;
 

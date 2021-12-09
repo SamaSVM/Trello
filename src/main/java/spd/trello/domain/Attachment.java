@@ -1,3 +1,5 @@
+package spd.trello.domain;
+
 import java.io.File;
 
 public class Attachment {
