@@ -2,7 +2,6 @@ package spd.trello.domain;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,5 +16,4 @@ public class Card {
     private List<Comment> comments;
     private Reminder reminder;
     private List<Checklist> checklists;
-    private LocalDateTime creationDate;
 }
