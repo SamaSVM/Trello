@@ -2,9 +2,9 @@ package spd.trello.domain;
 
 import java.time.LocalDateTime;
 
-public class Resource {
-    private Number createdBy;
-    private Number updatedBy;
-    private final LocalDateTime cratedDate = LocalDateTime.now();
-    private LocalDateTime updatedDate;
+public class Resource extends Domain {
+    Number createdBy;
+    Number updatedBy;
+    final LocalDateTime cratedDate = LocalDateTime.now();
+    LocalDateTime updatedDate;
 }
