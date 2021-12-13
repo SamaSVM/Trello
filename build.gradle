@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'com.spd'
+group 'spd.trello'
 version '1.0-SNAPSHOT'
 
 repositories {
