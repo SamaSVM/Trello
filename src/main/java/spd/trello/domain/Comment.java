@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class Comment extends Resource{
+public class Comment extends Resource {
     private Member member;
     private String text;
     private LocalDateTime date;

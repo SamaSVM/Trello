@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class Checklist extends Resource{
+public class Checklist extends Resource {
     private String name;
     private List<CheckableItem> items;
 

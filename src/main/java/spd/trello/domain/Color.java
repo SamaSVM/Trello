@@ -3,7 +3,7 @@ package spd.trello.domain;
 import lombok.Data;
 
 @Data
-public class Color extends Domain{
+public class Color extends Domain {
     private Integer red = 0;
     private Integer green = 0;
     private Integer blue = 0;

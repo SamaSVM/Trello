@@ -4,7 +4,7 @@ import spd.trello.domain.Card;
 
 import java.util.Scanner;
 
-public class CardService extends AbstractService<Card>{
+public class CardService extends AbstractService<Card> {
     @Override
     public Card create(Scanner scanner) {
         Card result = new Card();

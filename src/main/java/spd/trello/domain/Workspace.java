@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class Workspace extends Resource{
+public class Workspace extends Resource {
     private String name;
     private List<Board> boards;
     private List<Member> members = new ArrayList<>();

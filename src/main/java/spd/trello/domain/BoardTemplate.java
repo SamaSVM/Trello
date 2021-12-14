@@ -3,7 +3,7 @@ package spd.trello.domain;
 import lombok.Data;
 
 @Data
-public class BoardTemplate extends Resource{
+public class BoardTemplate extends Resource {
     private String name;
 
     @Override

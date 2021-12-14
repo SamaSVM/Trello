@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class Board extends Resource{
+public class Board extends Resource {
     private String name;
     private String description;
     private List<CardList> cardLists;

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class Card extends Resource{
+public class Card extends Resource {
     private String name;
     private String description;
     private List<Member> assignedMembers = new ArrayList<>();

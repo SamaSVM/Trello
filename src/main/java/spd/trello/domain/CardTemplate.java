@@ -3,7 +3,7 @@ package spd.trello.domain;
 import lombok.Data;
 
 @Data
-public class CardTemplate extends Resource{
+public class CardTemplate extends Resource {
     private String title;
 
     @Override

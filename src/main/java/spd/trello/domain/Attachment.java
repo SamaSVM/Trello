@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.File;
 
 @Data
-public class Attachment extends Resource{
+public class Attachment extends Resource {
     private String name;
     private String link;
     private File file;

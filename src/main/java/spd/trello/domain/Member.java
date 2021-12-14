@@ -3,7 +3,7 @@ package spd.trello.domain;
 import lombok.Data;
 
 @Data
-public class Member extends Resource{
+public class Member extends Resource {
     private User user;
     private MemberRole memberRole = MemberRole.GUEST;
 

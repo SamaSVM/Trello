@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CardList extends Resource{
+public class CardList extends Resource {
     private String name;
     private List<Card> cards;
     private Boolean archived = false;

@@ -3,7 +3,7 @@ package spd.trello.domain;
 import lombok.Data;
 
 @Data
-public class CheckableItem extends Resource{
+public class CheckableItem extends Resource {
     private String name;
     private Boolean checked = false;
 
