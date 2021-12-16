@@ -1,9 +1,12 @@
 package spd.trello.domain;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Board {
+@Data
+public class Board extends Resource {
     private String name;
     private String description;
     private List<CardList> cardLists;
@@ -11,4 +14,22 @@ public class Board {
     private BoardVisibility visibility = BoardVisibility.PRIVATE;
     private Boolean favourite = false;
     private Boolean archived = false;
+
+    @Override
+    public String toString() {
+        return "Board{" +
+                "id=" + id +
+                ", createdBy=" + createdBy +
+                ", updatedBy=" + updatedBy +
+                ", cratedDate=" + cratedDate +
+                ", updatedDate=" + updatedDate +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", cardLists=" + cardLists +
+                ", members=" + members +
+                ", visibility=" + visibility +
+                ", favourite=" + favourite +
+                ", archived=" + archived +
+                '}';
+    }
 }
