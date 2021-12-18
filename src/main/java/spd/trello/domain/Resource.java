@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 
 @Getter
 public class Resource extends Domain {
-    private Number createdBy;
-    private Number updatedBy;
+    private String createdBy;
+    private String updatedBy;
     private final LocalDateTime cratedDate = LocalDateTime.now();
     private LocalDateTime updatedDate;
 }
