@@ -10,7 +10,7 @@ public class Label extends Domain {
     @Override
     public String toString() {
         return "Label{" +
-                "id=" + id +
+                "id=" + super.getId() +
                 ", name='" + name + '\'' +
                 ", color=" + color +
                 '}';

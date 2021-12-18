@@ -1,10 +1,13 @@
 package spd.trello.domain;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 
+@Getter
 public class Resource extends Domain {
-    Number createdBy;
-    Number updatedBy;
-    final LocalDateTime cratedDate = LocalDateTime.now();
-    LocalDateTime updatedDate;
+    private String createdBy;
+    private String updatedBy;
+    private final LocalDateTime cratedDate = LocalDateTime.now();
+    private LocalDateTime updatedDate;
 }

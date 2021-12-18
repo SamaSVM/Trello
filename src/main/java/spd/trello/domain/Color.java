@@ -11,7 +11,7 @@ public class Color extends Domain {
     @Override
     public String toString() {
         return "Color{" +
-                "id=" + id +
+                "id=" + super.getId() +
                 ", red=" + red +
                 ", green=" + green +
                 ", blue=" + blue +
