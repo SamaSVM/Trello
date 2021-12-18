@@ -1,7 +1,10 @@
 package spd.trello.domain;
 
-import java.util.UUID;
 
+import lombok.Getter;
+
+import java.util.UUID;
+@Getter
 public class Domain {
-    final UUID id = UUID.randomUUID();
+    private final UUID id = UUID.randomUUID();
 }

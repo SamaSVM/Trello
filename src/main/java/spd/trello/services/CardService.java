@@ -4,15 +4,15 @@ import spd.trello.domain.Card;
 
 import java.util.Scanner;
 
-public class CardService extends AbstractService<Card> {
+public class CardService extends AbstractService<Card ,Scanner> {
     @Override
-    public Card create(Scanner scanner) {
+    public Card create(Scanner source) {
         Card result = new Card();
-        scanner.next();
+        source.next();
         System.out.println("Введіть назву картки!");
-        result.setName(scanner.next());
+        result.setName(source.next());
         System.out.println("Введіть опис картки!");
-        result.setDescription(scanner.next());
+        result.setDescription(source.next());
         return result;
     }
 }

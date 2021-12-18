@@ -4,15 +4,16 @@ import spd.trello.domain.Board;
 
 import java.util.Scanner;
 
-public class BoardService extends AbstractService<Board> {
+public class BoardService extends AbstractService<Board, Scanner> {
+
     @Override
-    public Board create(Scanner scanner) {
+    public Board create(Scanner source) {
         Board result = new Board();
-        scanner.next();
+        source.next();
         System.out.println("Введіть назву доски!");
-        result.setName(scanner.next());
+        result.setName(source.next());
         System.out.println("Введіть опис доски!");
-        result.setDescription(scanner.next());
+        result.setDescription(source.next());
         return result;
     }
 }
