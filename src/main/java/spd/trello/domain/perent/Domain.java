@@ -1,4 +1,4 @@
-package spd.trello.domain;
+package spd.trello.domain.perent;
 
 
 import lombok.Getter;

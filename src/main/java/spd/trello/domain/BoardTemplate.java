@@ -1,6 +1,7 @@
 package spd.trello.domain;
 
 import lombok.Data;
+import spd.trello.domain.perent.Resource;
 
 @Data
 public class BoardTemplate extends Resource {
