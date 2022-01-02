@@ -1,4 +1,4 @@
-CREATE TABLE comments
+CREATE TABLE IF NOT EXISTS comments
 (
     id           UUID PRIMARY KEY NOT NULL,
     created_by   VARCHAR(100)     NOT NULL,

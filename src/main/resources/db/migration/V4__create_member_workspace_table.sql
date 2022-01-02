@@ -1,4 +1,4 @@
-CREATE TABLE member_workspace
+CREATE TABLE IF NOT EXISTS member_workspace
 (
     member_id    UUID NOT NULL,
     workspace_id UUID NOT NULL,

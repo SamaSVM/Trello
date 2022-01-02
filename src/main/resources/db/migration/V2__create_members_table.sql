@@ -1,4 +1,4 @@
-CREATE TABLE members
+CREATE TABLE IF NOT EXISTS members
 (
     id           UUID PRIMARY KEY NOT NULL,
     created_by   VARCHAR(100)     NOT NULL,

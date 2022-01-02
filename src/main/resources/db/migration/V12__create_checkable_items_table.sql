@@ -1,4 +1,4 @@
-CREATE TABLE checkable_items
+CREATE TABLE IF NOT EXISTS checkable_items
 (
     id            UUID PRIMARY KEY NOT NULL,
     name          VARCHAR(255)     NOT NULL,

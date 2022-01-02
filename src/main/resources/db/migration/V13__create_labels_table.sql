@@ -1,4 +1,4 @@
-CREATE TABLE labels
+CREATE TABLE IF NOT EXISTS labels
 (
     id      UUID PRIMARY KEY NOT NULL,
     name    VARCHAR(255)     NOT NULL,

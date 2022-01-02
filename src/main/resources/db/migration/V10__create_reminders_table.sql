@@ -1,4 +1,4 @@
-CREATE TABLE reminders
+CREATE TABLE IF NOT EXISTS reminders
 (
     id           UUID PRIMARY KEY NOT NULL,
     created_by   VARCHAR(100)     NOT NULL,

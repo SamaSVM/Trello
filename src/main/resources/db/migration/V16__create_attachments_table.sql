@@ -1,4 +1,4 @@
-CREATE TABLE attachments
+CREATE TABLE IF NOT EXISTS attachments
 (
     id           UUID PRIMARY KEY NOT NULL,
     created_by   VARCHAR(100)     NOT NULL,

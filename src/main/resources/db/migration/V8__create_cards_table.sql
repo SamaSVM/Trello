@@ -1,4 +1,4 @@
-CREATE TABLE cards
+CREATE TABLE IF NOT EXISTS cards
 (
     id           UUID PRIMARY KEY NOT NULL,
     created_by   VARCHAR(100)     NOT NULL,

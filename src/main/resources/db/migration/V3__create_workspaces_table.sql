@@ -1,4 +1,4 @@
-CREATE TABLE workspaces
+CREATE TABLE IF NOT EXISTS workspaces
 (
     id           UUID PRIMARY KEY NOT NULL,
     created_by   VARCHAR(100)     NOT NULL,

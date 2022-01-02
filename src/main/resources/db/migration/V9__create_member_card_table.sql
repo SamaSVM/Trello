@@ -1,4 +1,4 @@
-CREATE TABLE member_card
+CREATE TABLE IF NOT EXISTS member_card
 (
     member_id UUID NOT NULL,
     card_id  UUID NOT NULL,
