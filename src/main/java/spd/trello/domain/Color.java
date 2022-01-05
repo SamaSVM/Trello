@@ -1,6 +1,7 @@
 package spd.trello.domain;
 
 import lombok.Data;
+import spd.trello.domain.perent.Domain;
 
 @Data
 public class Color extends Domain {
