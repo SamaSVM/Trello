@@ -21,7 +21,7 @@ public class Workspace extends Resource {
                 "id=" + super.getId() +
                 ", createdBy=" + super.getCreatedBy() +
                 ", updatedBy=" + super.getUpdatedBy() +
-                ", cratedDate=" + super.getCratedDate() +
+                ", cratedDate=" + super.getCreatedDate() +
                 ", updatedDate=" + super.getUpdatedDate() +
                 ", name='" + name + '\'' +
                 ", boards=" + boards +
