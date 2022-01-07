@@ -66,45 +66,23 @@ public class UserTest extends BaseTest {
 
     @Test
     public void testUpdate() {
-        User testUser = service.create("updateFirstName", "updateLastName", "update@email");
-        assertNotNull(testUser);
-        UUID id = testUser.getId();
-        User updateUser = new User();
-
-        updateUser.setId(testUser.getId());
-        updateUser.setFirstName("newFirstName");
-        service.update(updateUser);
-        assertAll(
-                () -> assertEquals("newFirstName", service.findById(id).getFirstName())
-        );
-        updateUser.setFirstName(null);
-
-        updateUser.setLastName("newLastName");
-        service.update(updateUser);
-        assertAll(
-                () -> assertEquals("newFirstName", service.findById(id).getFirstName()),
-                () -> assertEquals("newLastName", service.findById(id).getLastName())
-        );
-        updateUser.setLastName(null);
-
-        updateUser.setEmail("new@email");
-        service.update(updateUser);
-        assertAll(
-                () -> assertEquals("newFirstName", service.findById(id).getFirstName()),
-                () -> assertEquals("newLastName", service.findById(id).getLastName()),
-                () -> assertEquals("new@email", service.findById(id).getEmail())
-        );
-        updateUser.setEmail(null);
-
-        updateUser.setTimeZone("Europe/Paris");
-        service.update(updateUser);
+        User user = service.create("updateFirstName", "updateLastName", "update@email");
+        assertNotNull(user);
+        UUID id = user.getId();
+        User testUser = new User();
+        testUser.setId(user.getId());
+        testUser.setFirstName("newFirstName");
+        testUser.setLastName("newLastName");
+        testUser.setEmail("new@email");
+        testUser.setTimeZone("Europe/Paris");
+        service.update(testUser);
         assertAll(
                 () -> assertEquals("newFirstName", service.findById(id).getFirstName()),
                 () -> assertEquals("newLastName", service.findById(id).getLastName()),
                 () -> assertEquals("new@email", service.findById(id).getEmail()),
                 () -> assertEquals("Europe/Paris", service.findById(id).getTimeZone())
         );
-        service.delete(testUser.getId());
+        service.delete(user.getId());
     }
 
     @Test
