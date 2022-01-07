@@ -1,7 +1,12 @@
 package spd.trello.services;
 
-import spd.trello.domain.Resource;
+import spd.trello.domain.perent.Domain;
+import spd.trello.repository.InterfaceRepository;
 
-public abstract class AbstractService<T extends Resource, S> {
-    public abstract T create(S source);
+public abstract class AbstractService<T extends Domain> {
+    protected InterfaceRepository<T> repository;
+
+    public AbstractService(InterfaceRepository<T> repository) {
+        this.repository = repository;
+    }
 }

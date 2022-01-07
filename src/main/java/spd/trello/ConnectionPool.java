@@ -14,19 +14,21 @@ public class ConnectionPool {
 
     private static DataSource dataSource;
 
-    public static Connection getConnection() throws IOException, SQLException {
+    public static Connection getConnection() throws SQLException {
         if(dataSource == null){
             dataSource = createDataSource();
         }
         return dataSource.getConnection();
     }
 
-    public static DataSource createDataSource() throws IOException {
+    public static DataSource createDataSource() {
         if(dataSource != null){
             return dataSource;
         }
 
-        Properties properties = loadProperties();
+        Properties properties = null;
+        properties = loadProperties();
+
         HikariConfig config = new HikariConfig();
 
         config.setJdbcUrl(properties.getProperty("jdbc.url"));
@@ -36,12 +38,16 @@ public class ConnectionPool {
         return new HikariDataSource(config);
     }
 
-    private static Properties loadProperties() throws IOException {
+    private static Properties loadProperties() {
         InputStream inputStream = ConnectionPool.class.getClassLoader()
                 .getResourceAsStream("database.properties");
 
         Properties result = new Properties();
-        result.load(inputStream);
+        try {
+            result.load(inputStream);
+        } catch (IOException e) {
+            throw new IllegalStateException("Properties not loaded!");
+        }
 
         return result;
     }
