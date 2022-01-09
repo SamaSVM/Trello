@@ -1,31 +1,43 @@
 package spd.trello.repository;
 
+import spd.trello.ConnectionPool;
+import spd.trello.domain.Board;
+import spd.trello.domain.Member;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.WorkspaceVisibility;
+import spd.trello.services.MemberWorkspaceService;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class WorkspaceRepository implements InterfaceRepository<Workspace> {
+    public WorkspaceRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     private final DataSource dataSource;
+
+    private final MemberWorkspaceService MWService
+            = new MemberWorkspaceService(new MemberWorkspaceRepository(ConnectionPool.createDataSource()));
+
     private final String CREATE_STMT =
             "INSERT INTO workspaces (id, created_by, created_date, name, description, visibility)" +
                     "VALUES (?, ?, ?, ?, ?, ?);";
 
     private final String FIND_BY_ID_STMT = "SELECT * FROM workspaces WHERE id=?;";
 
+    private final String FIND_ALL_STMT = "SELECT * FROM workspaces;";
+
     private final String DELETE_BY_ID_STMT = "DELETE FROM workspaces WHERE id=?;";
 
     private final String UPDATE_BY_ENTITY_STMT =
             "UPDATE workspaces SET updated_by=?, updated_date=?, name=?, description=?, visibility=? WHERE id=?;";
-
-    public WorkspaceRepository(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
 
     @Override
     public Workspace findById(UUID id) {
@@ -40,6 +52,24 @@ public class WorkspaceRepository implements InterfaceRepository<Workspace> {
             throw new IllegalStateException("WorkspaceRepository::findMemberById failed", e);
         }
         throw new IllegalStateException("Workspace with ID: " + id.toString() + " doesn't exists");
+    }
+
+    @Override
+    public List<Workspace> findAll() {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(FIND_ALL_STMT)) {
+            List<Workspace> result = new ArrayList<>();
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                result.add(map(resultSet));
+            }
+            if (!result.isEmpty()) {
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("WorkspaceRepository::findAll failed", e);
+        }
+        throw new IllegalStateException("Table workspaces is empty!");
     }
 
 
@@ -82,6 +112,8 @@ public class WorkspaceRepository implements InterfaceRepository<Workspace> {
             }
             statement.setObject(6, entity.getId());
             statement.executeUpdate();
+
+
         } catch (SQLException e) {
             throw new IllegalStateException("Workspace with ID: " + entity.getId().toString() + " doesn't updates");
         }
@@ -109,6 +141,12 @@ public class WorkspaceRepository implements InterfaceRepository<Workspace> {
         workspace.setName(rs.getString("name"));
         workspace.setDescription(rs.getString("description"));
         workspace.setVisibility(WorkspaceVisibility.valueOf(rs.getString("visibility")));
+        workspace.setBoards(getBoardsForWorkspace(workspace.getId()));
+        workspace.setMembers(MWService.findMembersByWorkspaceId(workspace.getId()));
         return workspace;
+    }
+
+    private List<Board> getBoardsForWorkspace(UUID workspaceId) {
+        return new ArrayList<>();
     }
 }

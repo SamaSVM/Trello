@@ -9,6 +9,7 @@ import spd.trello.repository.MemberWorkspaceRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public class WorkspaceService extends AbstractService<Workspace> {
@@ -23,12 +24,17 @@ public class WorkspaceService extends AbstractService<Workspace> {
         return repository.findById(id);
     }
 
+    public List<Workspace> findAll() {
+        return repository.findAll();
+    }
+
     public Workspace create(Member member, String name, String description) {
         Workspace workspace = new Workspace();
         workspace.setId(UUID.randomUUID());
         workspace.setCreatedBy(member.getCreatedBy());
         workspace.setCreatedDate(Date.valueOf(LocalDate.now()));
         workspace.setName(name);
+        workspace.getMembers().add(member);
         if (description != null) {
             workspace.setDescription(description);
         }
@@ -45,6 +51,11 @@ public class WorkspaceService extends AbstractService<Workspace> {
         }
         entity.setUpdatedBy(member.getCreatedBy());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        for(Member m: entity.getMembers()){
+            if (!memberWorkspaceService.findByIds(m.getId(), entity.getId())) {
+                memberWorkspaceService.create(m.getId(), entity.getId());
+            }
+        }
         return repository.update(entity);
     }
 

@@ -11,6 +11,7 @@ import spd.trello.services.WorkspaceService;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,7 +27,7 @@ public class WorkspaceTest extends BaseTest {
 
     @Test
     public void successCreate() {
-        User user = getNewUser();
+        User user = getNewUser("test@mail");
         Member member = getNewMember(user);
         Workspace testWorkspace = service.create(member, "testWorkspace", "testDescription");
         assertNotNull(testWorkspace);
@@ -45,8 +46,28 @@ public class WorkspaceTest extends BaseTest {
     }
 
     @Test
+    public void testFindAll() {
+        User user = getNewUser("test@mail");
+        Member member = getNewMember(user);
+        Workspace testFirstWorkspace = service.create(member, "1Name", "1Des");
+        Workspace testSecondWorkspace = service.create(member, "2Name", "2Des");
+        assertNotNull(testFirstWorkspace);
+        assertNotNull(testSecondWorkspace);
+        List<Workspace> testWorkspace = service.findAll();
+        assertAll(
+                () -> assertTrue(testWorkspace.contains(testFirstWorkspace)),
+                () -> assertTrue(testWorkspace.contains(testSecondWorkspace))
+        );
+        for (Workspace workspace : testWorkspace) {
+            service.delete(workspace.getId());
+        }
+        deleteMember(member.getId());
+        deleteUser(user.getId());
+    }
+
+    @Test
     public void createFailure() {
-        User user = getNewUser();
+        User user = getNewUser("test@mail");
         Member member = getNewMember(user);
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
@@ -71,7 +92,7 @@ public class WorkspaceTest extends BaseTest {
 
     @Test
     public void testDelete() {
-        User user = getNewUser();
+        User user = getNewUser("test@mail");
         Member member = getNewMember(user);
         Workspace testWorkspace = service.create(member, "testWorkspace", "testDescription");
         assertNotNull(testWorkspace);
@@ -86,7 +107,7 @@ public class WorkspaceTest extends BaseTest {
 
     @Test
     public void testUpdate() {
-        User user = getNewUser();
+        User user = getNewUser("test@mail");
         Member member = getNewMember(user);
         Workspace workspace = service.create(member, "testWorkspace", "testDescription");
         assertNotNull(workspace);
