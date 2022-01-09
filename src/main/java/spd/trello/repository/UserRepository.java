@@ -5,20 +5,29 @@ import spd.trello.domain.User;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class UserRepository implements InterfaceRepository<User> {
-    private final DataSource dataSource;
-    private final String CREATE_STMT =
-            "INSERT INTO users (id, first_name, last_name, email, time_zone) VALUES (?, ?, ?, ?, ?);";
-    private final String FIND_BY_ID_STMT = "SELECT * FROM users WHERE id=?;";
-    private final String DELETE_BY_ID_STMT = "DELETE FROM users WHERE id=?;";
-    private final String UPDATE_BY_ENTITY_STMT =
-            "UPDATE users SET first_name=?, last_name=?, email=?, time_zone=? WHERE id=?;";
-
     public UserRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
+
+    private final DataSource dataSource;
+
+    private final String CREATE_STMT =
+            "INSERT INTO users (id, first_name, last_name, email, time_zone) VALUES (?, ?, ?, ?, ?);";
+
+    private final String FIND_BY_ID_STMT = "SELECT * FROM users WHERE id=?;";
+
+    private final String FIND_ALL_STMT = "SELECT * FROM users;";
+
+    private final String DELETE_BY_ID_STMT = "DELETE FROM users WHERE id=?;";
+
+
+    private final String UPDATE_BY_ENTITY_STMT =
+            "UPDATE users SET first_name=?, last_name=?, email=?, time_zone=? WHERE id=?;";
 
     @Override
     public User findById(UUID id) {
@@ -33,6 +42,24 @@ public class UserRepository implements InterfaceRepository<User> {
             throw new IllegalStateException("UserRepository::findUserById failed", e);
         }
         throw new IllegalStateException("User with ID: " + id.toString() + " doesn't exists");
+    }
+
+    @Override
+    public List<User> findAll() {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(FIND_ALL_STMT)) {
+            List<User> result = new ArrayList<>();
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                result.add(map(resultSet));
+            }
+            if(!result.isEmpty()){
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("UserRepository::findAll failed", e);
+        }
+        throw new IllegalStateException("Table users is empty!");
     }
 
     @Override

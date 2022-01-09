@@ -7,6 +7,7 @@ import spd.trello.services.UserService;
 
 
 import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,6 +31,22 @@ public class UserTest extends BaseTest {
                 () -> assertEquals(ZoneId.systemDefault().toString(), testUser.getTimeZone())
         );
         service.delete(testUser.getId());
+    }
+
+    @Test
+    public void testFindAll() {
+        User testFirstUser = service.create("1FirstName", "1LastName", "1@email");
+        User testSecondUser = service.create("2FirstName", "2LastName", "2@email");
+        assertNotNull(testFirstUser);
+        assertNotNull(testSecondUser);
+        List<User> testUsers = service.findAll();
+        assertAll(
+                () -> assertTrue(testUsers.contains(testFirstUser)),
+                () -> assertTrue(testUsers.contains(testSecondUser))
+        );
+        for(User user: testUsers){
+            service.delete(user.getId());
+        }
     }
 
     @Test

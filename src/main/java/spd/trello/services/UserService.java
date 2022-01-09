@@ -4,6 +4,7 @@ import spd.trello.domain.User;
 import spd.trello.repository.InterfaceRepository;
 
 import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 
 public class UserService extends AbstractService<User> {
@@ -14,6 +15,10 @@ public class UserService extends AbstractService<User> {
 
     public User findById(UUID id) {
         return repository.findById(id);
+    }
+
+    public List<User> findAll() {
+        return repository.findAll();
     }
 
     public User create(String firstName, String lastName, String email) {
