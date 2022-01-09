@@ -7,11 +7,8 @@ import spd.trello.domain.User;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.BoardVisibility;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.domain.enums.WorkspaceVisibility;
 import spd.trello.repository.BoardRepository;
-import spd.trello.repository.WorkspaceRepository;
 import spd.trello.services.BoardService;
-import spd.trello.services.WorkspaceService;
 
 import java.sql.Date;
 import java.time.LocalDate;
