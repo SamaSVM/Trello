@@ -7,6 +7,7 @@ import spd.trello.repository.InterfaceRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public class MemberService extends AbstractService<Member> {
@@ -16,6 +17,10 @@ public class MemberService extends AbstractService<Member> {
 
     public Member findById(UUID id) {
         return repository.findById(id);
+    }
+
+    public List<Member> findAll() {
+        return repository.findAll();
     }
 
     public Member create(User user, MemberRole memberRole) {

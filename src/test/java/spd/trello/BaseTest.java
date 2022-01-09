@@ -1,13 +1,13 @@
 package spd.trello;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.BeforeAll;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 
 public abstract class BaseTest {
 
-    protected static DataSource dataSource;
+    protected static HikariDataSource dataSource;
 
     @BeforeAll
     public static void init() {

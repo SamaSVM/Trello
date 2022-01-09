@@ -9,6 +9,7 @@ import spd.trello.services.MemberService;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,7 +26,7 @@ public class MemberTest extends BaseTest {
 
     @Test
     public void successCreate() {
-        User user = getNewUser();
+        User user = getNewUser("test@mail");
         Member testMember = service.create(user, MemberRole.MEMBER);
         assertNotNull(testMember);
         assertAll(
@@ -35,6 +36,24 @@ public class MemberTest extends BaseTest {
                 () -> assertEquals(user.getId(), testMember.getUserId())
         );
         service.delete(testMember.getId());
+        deleteUser(user.getId());
+    }
+
+    @Test
+    public void testFindAll() {
+        User user = getNewUser("test@mail");
+        Member testFirstMember = service.create(user, MemberRole.MEMBER);
+        Member testSecondMember = service.create(user, MemberRole.ADMIN);
+        assertNotNull(testFirstMember);
+        assertNotNull(testSecondMember);
+        List<Member> testMembers = service.findAll();
+        assertAll(
+                () -> assertTrue(testMembers.contains(testFirstMember)),
+                () -> assertTrue(testMembers.contains(testSecondMember))
+        );
+        for (Member member : testMembers) {
+            service.delete(member.getId());
+        }
         deleteUser(user.getId());
     }
 
@@ -61,7 +80,7 @@ public class MemberTest extends BaseTest {
 
     @Test
     public void testDelete() {
-        User user = getNewUser();
+        User user = getNewUser("test@mail");
         Member testMember = service.create(user, MemberRole.MEMBER);
         assertNotNull(testMember);
         UUID id = testMember.getId();
@@ -74,7 +93,7 @@ public class MemberTest extends BaseTest {
 
     @Test
     public void testUpdate() {
-        User user = getNewUser();
+        User user = getNewUser("test@mail");
         Member testMember = service.create(user, MemberRole.MEMBER);
         assertNotNull(testMember);
         testMember.setMemberRole(MemberRole.ADMIN);

@@ -3,7 +3,6 @@ package spd.trello;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -12,7 +11,7 @@ import java.util.Properties;
 
 public class ConnectionPool {
 
-    private static DataSource dataSource;
+    private static HikariDataSource dataSource;
 
     public static Connection getConnection() throws SQLException {
         if(dataSource == null){
@@ -21,14 +20,11 @@ public class ConnectionPool {
         return dataSource.getConnection();
     }
 
-    public static DataSource createDataSource() {
+    public static HikariDataSource createDataSource() {
         if(dataSource != null){
             return dataSource;
         }
-
-        Properties properties = null;
-        properties = loadProperties();
-
+        Properties properties = loadProperties();
         HikariConfig config = new HikariConfig();
 
         config.setJdbcUrl(properties.getProperty("jdbc.url"));

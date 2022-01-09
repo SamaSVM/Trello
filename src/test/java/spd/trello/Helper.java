@@ -20,8 +20,8 @@ public class Helper {
     private static final MemberService memberService = new MemberService(new MemberRepository(dataSource));
     private static final WorkspaceService workspaceService = new WorkspaceService(new WorkspaceRepository(dataSource));
 
-    public static User getNewUser() {
-        return userService.create("testFirstName", "testLastName", "test@mail");
+    public static User getNewUser(String email) {
+        return userService.create("testFirstName", "testLastName", email);
     }
 
     public static boolean deleteUser(UUID uuid) {

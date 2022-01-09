@@ -1,6 +1,7 @@
 package spd.trello.repository;
 
 import spd.trello.domain.Member;
+import spd.trello.domain.User;
 import spd.trello.domain.enums.MemberRole;
 
 import javax.sql.DataSource;
@@ -8,21 +9,29 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class MemberRepository implements InterfaceRepository<Member> {
-    private final DataSource dataSource;
-    private final String CREATE_STMT =
-            "INSERT INTO members (id, created_by,  created_date,  member_role, user_id) " +
-                    "VALUES (?, ?, ?, ?, ?);";
-    private final String FIND_BY_ID_STMT = "SELECT * FROM members WHERE id=?;";
-    private final String DELETE_BY_ID_STMT = "DELETE FROM members WHERE id=?;";
-    private final String UPDATE_BY_ENTITY_STMT =
-            "UPDATE members SET updated_by=?, updated_date=?, member_role=? WHERE id=?;";
-
     public MemberRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
+
+    private final DataSource dataSource;
+
+    private final String CREATE_STMT =
+            "INSERT INTO members (id, created_by,  created_date,  member_role, user_id) " +
+                    "VALUES (?, ?, ?, ?, ?);";
+
+    private final String FIND_BY_ID_STMT = "SELECT * FROM members WHERE id=?;";
+
+    private final String FIND_ALL_STMT = "SELECT * FROM members;";
+
+    private final String DELETE_BY_ID_STMT = "DELETE FROM members WHERE id=?;";
+
+    private final String UPDATE_BY_ENTITY_STMT =
+            "UPDATE members SET updated_by=?, updated_date=?, member_role=? WHERE id=?;";
 
     @Override
     public Member findById(UUID id) {
@@ -37,6 +46,24 @@ public class MemberRepository implements InterfaceRepository<Member> {
             throw new IllegalStateException("MemberRepository::findMemberById failed", e);
         }
         throw new IllegalStateException("Member with ID: " + id.toString() + " doesn't exists");
+    }
+
+    @Override
+    public List<Member> findAll() {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(FIND_ALL_STMT)) {
+            List<Member> result = new ArrayList<>();
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                result.add(map(resultSet));
+            }
+            if (!result.isEmpty()) {
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("MemberRepository::findAll failed", e);
+        }
+        throw new IllegalStateException("Table members is empty!");
     }
 
     @Override
