@@ -6,6 +6,7 @@ import spd.trello.domain.perent.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class Board extends Resource {
@@ -16,6 +17,7 @@ public class Board extends Resource {
     private BoardVisibility visibility = BoardVisibility.PRIVATE;
     private Boolean favourite = false;
     private Boolean archived = false;
+    private UUID workspaceId;
 
     @Override
     public String toString() {
@@ -32,6 +34,7 @@ public class Board extends Resource {
                 ", visibility=" + visibility +
                 ", favourite=" + favourite +
                 ", archived=" + archived +
+                ", workspaceId=" + workspaceId +
                 '}';
     }
 }
