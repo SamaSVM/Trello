@@ -87,8 +87,6 @@ public class BoardRepository implements InterfaceRepository<Board> {
         } catch (SQLException e) {
             throw new IllegalStateException("Board doesn't creates");
         }
-//        "(id, created_by, created_date, name, description, visibility, favourite, archived, workspace_id)" +
-//                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
     }
 
     @Override
