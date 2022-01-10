@@ -4,6 +4,7 @@ import spd.trello.ConnectionPool;
 import spd.trello.domain.Board;
 import spd.trello.domain.CardList;
 import spd.trello.domain.enums.BoardVisibility;
+import spd.trello.services.CardListService;
 import spd.trello.services.MemberBoardService;
 
 import javax.sql.DataSource;
@@ -24,6 +25,10 @@ public class BoardRepository implements InterfaceRepository<Board> {
 
     private final MemberBoardService MBService
             = new MemberBoardService(new MemberBoardRepository(ConnectionPool.createDataSource()));
+
+    //    private final CardListService cardListService
+//            = new CardListService(new CardListRepository(ConnectionPool.createDataSource()));
+    private final CardListRepository cardListRepository = new CardListRepository(ConnectionPool.createDataSource());
 
     private final String CREATE_STMT = "INSERT INTO boards " +
                     "(id, created_by, created_date, name, description, visibility, favourite, archived, workspace_id)" +
@@ -153,12 +158,8 @@ public class BoardRepository implements InterfaceRepository<Board> {
         board.setFavourite(rs.getBoolean("favourite"));
         board.setArchived(rs.getBoolean("archived"));
         board.setWorkspaceId(UUID.fromString(rs.getString("workspace_id")));
-        board.setCardLists(getCardListsForBoard(board.getId()));
+        board.setCardLists(cardListRepository.findAllForBoard(board.getId()));
         board.setMembers(MBService.findMembersByBoardId(board.getId()));
         return board;
-    }
-
-    private List<CardList> getCardListsForBoard(UUID boardId) {
-        return new ArrayList<>();
     }
 }

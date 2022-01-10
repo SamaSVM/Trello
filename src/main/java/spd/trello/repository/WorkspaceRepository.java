@@ -49,7 +49,7 @@ public class WorkspaceRepository implements InterfaceRepository<Workspace> {
                 return map(resultSet);
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("WorkspaceRepository::findMemberById failed", e);
+            throw new IllegalStateException("WorkspaceRepository::findWorkspaceById failed", e);
         }
         throw new IllegalStateException("Workspace with ID: " + id.toString() + " doesn't exists");
     }
@@ -72,7 +72,7 @@ public class WorkspaceRepository implements InterfaceRepository<Workspace> {
         throw new IllegalStateException("Table workspaces is empty!");
     }
 
-
+    @Override
     public void create(Workspace entity) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(CREATE_STMT)) {
