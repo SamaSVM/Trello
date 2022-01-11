@@ -28,31 +28,15 @@ public class Helper {
         return userService.create("testFirstName", "testLastName", email);
     }
 
-    public static boolean deleteUser(UUID uuid) {
-        return userService.delete(uuid);
-    }
-
     public static Member getNewMember(User user) {
         return memberService.create(user, MemberRole.ADMIN);
-    }
-
-    public static boolean deleteMember(UUID uuid) {
-        return memberService.delete(uuid);
     }
 
     public static Workspace getNewWorkspace(Member member) {
         return workspaceService.create(member, "MemberName", "description");
     }
 
-    public static boolean deleteWorkspace(UUID uuid) {
-        return workspaceService.delete(uuid);
-    }
-
     public static Board getNewBoard(Member member, UUID workspaceId) {
         return boardService.create(member, workspaceId,"BoardName", "description");
-    }
-
-    public static boolean deleteBoard(UUID uuid) {
-        return boardService.delete(uuid);
     }
 }

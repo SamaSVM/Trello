@@ -18,24 +18,23 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static spd.trello.Helper.*;
-import static spd.trello.Helper.deleteUser;
 
 public class BoardTest extends BaseTest{
-    private final BoardService service;
-
     public BoardTest() {
         service = new BoardService(new BoardRepository(dataSource));
     }
 
+    private final BoardService service;
+
     @Test
     public void successCreate() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test9@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
         Board testBoard = service.create(member, workspace.getId(), "testBoard", "testDescription");
         assertNotNull(testBoard);
         assertAll(
-                () -> assertEquals("test@mail", testBoard.getCreatedBy()),
+                () -> assertEquals("test9@mail", testBoard.getCreatedBy()),
                 () -> assertNull(testBoard.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testBoard.getCreatedDate()),
                 () -> assertNull(testBoard.getUpdatedDate()),
@@ -47,15 +46,11 @@ public class BoardTest extends BaseTest{
                 () -> assertFalse(testBoard.getArchived()),
                 () -> assertEquals(workspace.getId(), testBoard.getWorkspaceId())
                 );
-        service.delete(testBoard.getId());
-        deleteWorkspace(workspace.getId());
-        deleteMember(member.getId());
-        deleteUser(user.getId());
     }
 
     @Test
     public void testFindAll() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test10@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
         Board testFirstBoard = service.create(member, workspace.getId(), "1Board", "1Description");
@@ -67,17 +62,11 @@ public class BoardTest extends BaseTest{
                 () -> assertTrue(testBoard.contains(testFirstBoard)),
                 () -> assertTrue(testBoard.contains(testSecondBoard))
         );
-        for (Board board : testBoard) {
-            service.delete(board.getId());
-        }
-        deleteWorkspace(workspace.getId());
-        deleteMember(member.getId());
-        deleteUser(user.getId());
     }
 
     @Test
     public void createFailure() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test11@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
         IllegalStateException ex = assertThrows(
@@ -86,9 +75,6 @@ public class BoardTest extends BaseTest{
                 "expected to throw  IllegalStateException, but it didn't"
         );
         assertEquals("Board doesn't creates", ex.getMessage());
-        deleteWorkspace(workspace.getId());
-        deleteMember(member.getId());
-        deleteUser(user.getId());
     }
 
     @Test
@@ -104,7 +90,7 @@ public class BoardTest extends BaseTest{
 
     @Test
     public void testDelete() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test12@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
         Board testBoard = service.create(member,workspace.getId(), "testBoard", "testDescription");
@@ -114,14 +100,11 @@ public class BoardTest extends BaseTest{
                 () -> assertTrue(service.delete(id)),
                 () -> assertFalse(service.delete(id))
         );
-        deleteWorkspace(workspace.getId());
-        deleteMember(member.getId());
-        deleteUser(user.getId());
     }
 
     @Test
     public void testUpdate() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test13@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
         Board board = service.create(member, workspace.getId(), "name", "description");
@@ -133,8 +116,8 @@ public class BoardTest extends BaseTest{
         board.setArchived(true);
         Board testBoard = service.update(member, board);
         assertAll(
-                () -> assertEquals("test@mail", testBoard.getCreatedBy()),
-                () -> assertEquals("test@mail", testBoard.getUpdatedBy()),
+                () -> assertEquals("test13@mail", testBoard.getCreatedBy()),
+                () -> assertEquals("test13@mail", testBoard.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testBoard.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testBoard.getUpdatedDate()),
                 () -> assertEquals("newBoard", testBoard.getName()),
@@ -145,10 +128,6 @@ public class BoardTest extends BaseTest{
                 () -> assertTrue(testBoard.getArchived()),
                 () -> assertEquals(workspace.getId(), testBoard.getWorkspaceId())
         );
-        service.delete(testBoard.getId());
-        deleteWorkspace(workspace.getId());
-        deleteMember(member.getId());
-        deleteUser(user.getId());
     }
 
     @Test

@@ -2,11 +2,8 @@ package spd.trello;
 
 import org.junit.jupiter.api.Test;
 import spd.trello.domain.*;
-import spd.trello.domain.enums.BoardVisibility;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.BoardRepository;
 import spd.trello.repository.CardListRepository;
-import spd.trello.services.BoardService;
 import spd.trello.services.CardListService;
 
 import java.sql.Date;
@@ -16,25 +13,24 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static spd.trello.Helper.*;
-import static spd.trello.Helper.deleteUser;
 
 public class CardListTest extends BaseTest{
-    private final CardListService service;
-
     public CardListTest() {
         service = new CardListService(new CardListRepository(dataSource));
     }
 
+    private final CardListService service;
+
     @Test
     public void successCreate() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test14@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
         Board board = getNewBoard(member, workspace.getId());
         CardList testCardList = service.create(member, board.getId(), "testCardList");
         assertNotNull(testCardList);
         assertAll(
-                () -> assertEquals("test@mail", testCardList.getCreatedBy()),
+                () -> assertEquals("test14@mail", testCardList.getCreatedBy()),
                 () -> assertNull(testCardList.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testCardList.getCreatedDate()),
                 () -> assertNull(testCardList.getUpdatedDate()),
@@ -42,16 +38,11 @@ public class CardListTest extends BaseTest{
                 () -> assertFalse(testCardList.getArchived()),
                 () -> assertEquals(board.getId(), testCardList.getBoardId())
         );
-        service.delete(testCardList.getId());
-        deleteBoard(board.getId());
-        deleteWorkspace(workspace.getId());
-        deleteMember(member.getId());
-        deleteUser(user.getId());
     }
 
     @Test
     public void testFindAll() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test15@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
         Board board = getNewBoard(member, workspace.getId());
@@ -67,15 +58,11 @@ public class CardListTest extends BaseTest{
         for (CardList cardList : testCardLists) {
             service.delete(cardList.getId());
         }
-        deleteBoard(board.getId());
-        deleteWorkspace(workspace.getId());
-        deleteMember(member.getId());
-        deleteUser(user.getId());
     }
 
     @Test
     public void createFailure() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test16@mail");
         Member member = getNewMember(user);
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
@@ -83,8 +70,6 @@ public class CardListTest extends BaseTest{
                 "expected to throw  IllegalStateException, but it didn't"
         );
         assertEquals("CardList doesn't creates", ex.getMessage());
-        deleteMember(member.getId());
-        deleteUser(user.getId());
     }
 
     @Test
@@ -100,7 +85,7 @@ public class CardListTest extends BaseTest{
 
     @Test
     public void testDelete() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test17@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
         Board board = getNewBoard(member, workspace.getId());
@@ -111,15 +96,11 @@ public class CardListTest extends BaseTest{
                 () -> assertTrue(service.delete(id)),
                 () -> assertFalse(service.delete(id))
         );
-        deleteBoard(board.getId());
-        deleteWorkspace(workspace.getId());
-        deleteMember(member.getId());
-        deleteUser(user.getId());
     }
 
     @Test
     public void testUpdate() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test18@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
         Board board = getNewBoard(member, workspace.getId());
@@ -129,19 +110,14 @@ public class CardListTest extends BaseTest{
         cardList.setArchived(true);
         CardList testCardList = service.update(member, cardList);
         assertAll(
-                () -> assertEquals("test@mail", testCardList.getCreatedBy()),
-                () -> assertEquals("test@mail", testCardList.getUpdatedBy()),
+                () -> assertEquals("test18@mail", testCardList.getCreatedBy()),
+                () -> assertEquals("test18@mail", testCardList.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testCardList.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testCardList.getUpdatedDate()),
                 () -> assertEquals("newCardList", testCardList.getName()),
                 () -> assertTrue(testCardList.getArchived()),
                 () -> assertEquals(board.getId(), testCardList.getBoardId())
         );
-        service.delete(testCardList.getId());
-        deleteBoard(board.getId());
-        deleteWorkspace(workspace.getId());
-        deleteMember(member.getId());
-        deleteUser(user.getId());
     }
 
     @Test

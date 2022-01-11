@@ -13,16 +13,14 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static spd.trello.Helper.*;
-import static spd.trello.Helper.deleteUser;
 
 public class MemberTest extends BaseTest {
-    private final MemberService service;
-
     public MemberTest() {
         service = new MemberService(new MemberRepository(dataSource));
     }
+
+    private final MemberService service;
 
     @Test
     public void successCreate() {
@@ -35,13 +33,11 @@ public class MemberTest extends BaseTest {
                 () -> assertEquals(MemberRole.MEMBER, testMember.getMemberRole()),
                 () -> assertEquals(user.getId(), testMember.getUserId())
         );
-        service.delete(testMember.getId());
-        deleteUser(user.getId());
     }
 
     @Test
     public void testFindAll() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test1@mail");
         Member testFirstMember = service.create(user, MemberRole.MEMBER);
         Member testSecondMember = service.create(user, MemberRole.ADMIN);
         assertNotNull(testFirstMember);
@@ -51,10 +47,6 @@ public class MemberTest extends BaseTest {
                 () -> assertTrue(testMembers.contains(testFirstMember)),
                 () -> assertTrue(testMembers.contains(testSecondMember))
         );
-        for (Member member : testMembers) {
-            service.delete(member.getId());
-        }
-        deleteUser(user.getId());
     }
 
     @Test
@@ -80,7 +72,7 @@ public class MemberTest extends BaseTest {
 
     @Test
     public void testDelete() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test2@mail");
         Member testMember = service.create(user, MemberRole.MEMBER);
         assertNotNull(testMember);
         UUID id = testMember.getId();
@@ -88,26 +80,23 @@ public class MemberTest extends BaseTest {
                 () -> assertTrue(service.delete(id)),
                 () -> assertFalse(service.delete(id))
         );
-        deleteUser(user.getId());
     }
 
     @Test
     public void testUpdate() {
-        User user = getNewUser("test@mail");
+        User user = getNewUser("test3@mail");
         Member testMember = service.create(user, MemberRole.MEMBER);
         assertNotNull(testMember);
         testMember.setMemberRole(MemberRole.ADMIN);
         UUID id = service.update(user, testMember).getId();
         assertAll(
-                () -> assertEquals("test@mail", service.findById(id).getCreatedBy()),
-                () -> assertEquals("test@mail", service.findById(id).getUpdatedBy()),
+                () -> assertEquals("test3@mail", service.findById(id).getCreatedBy()),
+                () -> assertEquals("test3@mail", service.findById(id).getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), service.findById(id).getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), service.findById(id).getUpdatedDate()),
                 () -> assertEquals(MemberRole.ADMIN, service.findById(id).getMemberRole()),
                 () -> assertEquals(user.getId(), service.findById(id).getUserId())
         );
-        service.delete(testMember.getId());
-        deleteUser(user.getId());
     }
 
     @Test

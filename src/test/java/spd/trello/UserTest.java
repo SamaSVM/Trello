@@ -13,12 +13,11 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserTest extends BaseTest {
-
-    private final UserService service;
-
     public UserTest() {
         service = new UserService(new UserRepository(dataSource));
     }
+
+    private final UserService service;
 
     @Test
     public void successCreate() {
@@ -30,7 +29,6 @@ public class UserTest extends BaseTest {
                 () -> assertEquals("create@email", testUser.getEmail()),
                 () -> assertEquals(ZoneId.systemDefault().toString(), testUser.getTimeZone())
         );
-        service.delete(testUser.getId());
     }
 
     @Test
@@ -44,9 +42,6 @@ public class UserTest extends BaseTest {
                 () -> assertTrue(testUsers.contains(testFirstUser)),
                 () -> assertTrue(testUsers.contains(testSecondUser))
         );
-        for(User user: testUsers){
-            service.delete(user.getId());
-        }
     }
 
     @Test
@@ -99,7 +94,6 @@ public class UserTest extends BaseTest {
                 () -> assertEquals("new@email", service.findById(id).getEmail()),
                 () -> assertEquals("Europe/Paris", service.findById(id).getTimeZone())
         );
-        service.delete(user.getId());
     }
 
     @Test

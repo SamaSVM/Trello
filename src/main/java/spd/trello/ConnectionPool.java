@@ -11,7 +11,7 @@ import java.util.Properties;
 
 public class ConnectionPool {
 
-    private static HikariDataSource dataSource;
+    static HikariDataSource dataSource;
 
     public static Connection getConnection() throws SQLException {
         if(dataSource == null){
@@ -30,8 +30,10 @@ public class ConnectionPool {
         config.setJdbcUrl(properties.getProperty("jdbc.url"));
         config.setUsername(properties.getProperty("jdbc.username"));
         config.setPassword(properties.getProperty("jdbc.password"));
-
-        return new HikariDataSource(config);
+        int maxPool = Integer.parseInt(properties.getProperty("jdbc.pool.max"));
+        config.setMaximumPoolSize(maxPool);
+        dataSource = new HikariDataSource(config);
+        return dataSource;
     }
 
     private static Properties loadProperties() {
@@ -46,5 +48,8 @@ public class ConnectionPool {
         }
 
         return result;
+    }
+    public void setDataSource(HikariDataSource dataSource){
+        ConnectionPool.dataSource = dataSource;
     }
 }
