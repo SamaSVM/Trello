@@ -1,9 +1,7 @@
 package spd.trello.services;
 
-import spd.trello.domain.Card;
 import spd.trello.domain.CardList;
 import spd.trello.domain.Member;
-import spd.trello.domain.User;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.InterfaceRepository;
 

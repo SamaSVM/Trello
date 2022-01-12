@@ -55,9 +55,6 @@ public class CardListTest extends BaseTest{
                 () -> assertTrue(testCardLists.contains(testFirstCardList)),
                 () -> assertTrue(testCardLists.contains(testSecondCardList))
         );
-        for (CardList cardList : testCardLists) {
-            service.delete(cardList.getId());
-        }
     }
 
     @Test
