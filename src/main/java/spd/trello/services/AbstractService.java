@@ -16,10 +16,6 @@ public abstract class AbstractService<T extends Domain> {
     public AbstractService(InterfaceRepository<T> repository) {
         this.repository = repository;
     }
-protected HikariDataSource dataSource;
-    public AbstractService() {
-        this.dataSource = (HikariDataSource) ConnectionPool.createDataSource().getDataSource();
-    }
 
     public T findById(UUID id) {
         return repository.findById(id);
