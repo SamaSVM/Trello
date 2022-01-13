@@ -18,7 +18,6 @@ public abstract class BaseTest {
         dataSource = new HikariDataSource(cfg);
         Flyway flyway = Flyway.configure().dataSource(dataSource).load();
         flyway.migrate();
-        ConnectionPool cp = new ConnectionPool();
-        cp.setDataSource(dataSource);
+        ConnectionPool.setDataSource(dataSource);
     }
 }

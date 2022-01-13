@@ -10,8 +10,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class ConnectionPool {
-
-    static HikariDataSource dataSource;
+    private static HikariDataSource dataSource;
 
     public static Connection getConnection() throws SQLException {
         if(dataSource == null){
@@ -49,7 +48,8 @@ public class ConnectionPool {
 
         return result;
     }
-    public void setDataSource(HikariDataSource dataSource){
+
+    public static void setDataSource(HikariDataSource dataSource){
         ConnectionPool.dataSource = dataSource;
     }
 }
