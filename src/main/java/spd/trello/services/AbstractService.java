@@ -1,7 +1,5 @@
 package spd.trello.services;
 
-import com.zaxxer.hikari.HikariDataSource;
-import spd.trello.ConnectionPool;
 import spd.trello.domain.Member;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.domain.perent.Domain;
