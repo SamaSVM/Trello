@@ -5,13 +5,13 @@ import spd.trello.domain.perent.Resource;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class Comment extends Resource {
-    private Member member;
     private String text;
-    private LocalDateTime date;
     private List<Attachment> attachments;
+    private UUID cardId;
 
     @Override
     public String toString() {
@@ -21,10 +21,9 @@ public class Comment extends Resource {
                 ", updatedBy=" + super.getUpdatedBy() +
                 ", cratedDate=" + super.getCreatedDate() +
                 ", updatedDate=" + super.getUpdatedDate() +
-                ", member=" + member +
                 ", text='" + text + '\'' +
-                ", date=" + date +
                 ", attachments=" + attachments +
+                ", cardId=" + cardId +
                 '}';
     }
 }
