@@ -140,6 +140,43 @@ public class CardTest extends BaseTest{
                 () -> service.update(member, testCard),
                 "expected to throw Illegal state exception, but it didn't"
         );
-        assertEquals("Card with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
+        assertEquals("This member cannot update card!", ex.getMessage());
+    }
+
+    @Test
+    public void addAndDeleteSecondMember() {
+        User firstUser = getNewUser("addAndDeleteSecondMember1@CT");
+        User secondUser = getNewUser("addAndDeleteSecondMember2@CT");
+        Member firstMember = getNewMember(firstUser);
+        Member secondMember = getNewMember(secondUser);
+        Workspace workspace = getNewWorkspace(firstMember);
+        Board board = getNewBoard(firstMember, workspace.getId());
+        CardList cardList = getNewCardList(firstMember, board.getId());
+        Card testCard = service.create(firstMember, cardList.getId(), "testCard", "testDescription");
+        assertNotNull(testCard);
+        assertAll(
+                () -> assertTrue(service.addMember(firstMember, secondMember.getId(), testCard.getId())),
+                () -> assertTrue(service.deleteMember(firstMember, secondMember.getId(), testCard.getId()))
+        );
+    }
+
+    @Test
+    public void getAllMembersForCard() {
+        User firstUser = getNewUser("getAllMembersForCard1@CT");
+        User secondUser = getNewUser("getAllMembersForCard2@CT");
+        Member firstMember = getNewMember(firstUser);
+        Member secondMember = getNewMember(secondUser);
+        Workspace workspace = getNewWorkspace(firstMember);
+        Board board = getNewBoard(firstMember, workspace.getId());
+        CardList cardList = getNewCardList(firstMember, board.getId());
+        Card testCard = service.create(firstMember, cardList.getId(), "testCard", "testDescription");
+        service.addMember(firstMember, secondMember.getId(), testCard.getId());
+        assertNotNull(testCard);
+        List<Member> members = service.getAllMembers(firstMember, testCard.getId());
+        assertAll(
+                () -> assertTrue(members.contains(firstMember)),
+                () -> assertTrue(members.contains(secondMember)),
+                () -> assertEquals(2, members.size())
+        );
     }
 }

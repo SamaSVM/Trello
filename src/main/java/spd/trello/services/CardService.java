@@ -1,10 +1,11 @@
 package spd.trello.services;
 
+import spd.trello.db.ConnectionPool;
 import spd.trello.domain.Card;
-import spd.trello.domain.CardList;
 import spd.trello.domain.Member;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.InterfaceRepository;
+import spd.trello.repository.MemberCardRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -16,13 +17,8 @@ public class CardService extends AbstractService<Card> {
         super(repository);
     }
 
-    public Card findById(UUID id) {
-        return repository.findById(id);
-    }
-
-    public List<Card> findAll() {
-        return repository.findAll();
-    }
+    private final MemberCardService memberCardService =
+            new MemberCardService(new MemberCardRepository(ConnectionPool.createDataSource()));
 
     public Card create(Member member, UUID cardListId, String name, String description) {
         Card card = new Card();
@@ -33,13 +29,14 @@ public class CardService extends AbstractService<Card> {
         card.setDescription(description);
         card.setCardListId(cardListId);
         repository.create(card);
+        if (!memberCardService.create(member.getId(), card.getId())) {
+            delete(card.getId());
+        }
         return repository.findById(card.getId());
     }
 
     public Card update(Member member, Card entity) {
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This user cannot update workspace!");
-        }
+        checkMember(member, entity.getId());
         Card oldCard = repository.findById(entity.getId());
         entity.setUpdatedBy(member.getCreatedBy());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
@@ -55,7 +52,31 @@ public class CardService extends AbstractService<Card> {
         return repository.update(entity);
     }
 
+    @Override
     public boolean delete(UUID id) {
+        memberCardService.deleteAllMembersForCard(id);
         return repository.delete(id);
+    }
+
+    public boolean addMember(Member member, UUID newMemberId, UUID cardId) {
+        checkMember(member, cardId);
+        return memberCardService.create(newMemberId, cardId);
+    }
+
+    public boolean deleteMember(Member member, UUID memberId, UUID cardId) {
+        checkMember(member, cardId);
+        return memberCardService.delete(memberId, cardId);
+    }
+
+    public List<Member> getAllMembers(Member member, UUID cardId) {
+        checkMember(member, cardId);
+        return memberCardService.findMembersByCardId(cardId);
+    }
+
+    private void checkMember(Member member, UUID cardId) {
+        if (member.getMemberRole() == MemberRole.GUEST ||
+                !memberCardService.findByIds(member.getId(), cardId)) {
+            throw new IllegalStateException("This member cannot update card!");
+        }
     }
 }
