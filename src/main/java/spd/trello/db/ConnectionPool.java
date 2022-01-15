@@ -1,4 +1,4 @@
-package spd.trello;
+package spd.trello.db;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

@@ -1,10 +1,7 @@
 package spd.trello;
 
 import org.junit.jupiter.api.Test;
-import spd.trello.domain.Board;
-import spd.trello.domain.Member;
-import spd.trello.domain.User;
-import spd.trello.domain.Workspace;
+import spd.trello.domain.*;
 import spd.trello.domain.enums.BoardVisibility;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.BoardRepository;
@@ -19,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static spd.trello.Helper.*;
 
-public class BoardTest extends BaseTest{
+public class BoardTest extends BaseTest {
     public BoardTest() {
         service = new BoardService(new BoardRepository(dataSource));
     }
@@ -40,12 +37,11 @@ public class BoardTest extends BaseTest{
                 () -> assertNull(testBoard.getUpdatedDate()),
                 () -> assertEquals("testBoard", testBoard.getName()),
                 () -> assertEquals("testDescription", testBoard.getDescription()),
-                () -> assertTrue(testBoard.getMembers().contains(member)),
                 () -> assertEquals(BoardVisibility.PRIVATE, testBoard.getVisibility()),
                 () -> assertFalse(testBoard.getFavourite()),
                 () -> assertFalse(testBoard.getArchived()),
                 () -> assertEquals(workspace.getId(), testBoard.getWorkspaceId())
-                );
+        );
     }
 
     @Test
@@ -93,7 +89,7 @@ public class BoardTest extends BaseTest{
         User user = getNewUser("test12@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
-        Board testBoard = service.create(member,workspace.getId(), "testBoard", "testDescription");
+        Board testBoard = service.create(member, workspace.getId(), "testBoard", "testDescription");
         assertNotNull(testBoard);
         UUID id = testBoard.getId();
         assertAll(
@@ -122,7 +118,6 @@ public class BoardTest extends BaseTest{
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testBoard.getUpdatedDate()),
                 () -> assertEquals("newBoard", testBoard.getName()),
                 () -> assertEquals("newDescription", testBoard.getDescription()),
-                () -> assertTrue(testBoard.getMembers().contains(member)),
                 () -> assertEquals(BoardVisibility.PUBLIC, testBoard.getVisibility()),
                 () -> assertTrue(testBoard.getFavourite()),
                 () -> assertTrue(testBoard.getArchived()),
@@ -142,6 +137,56 @@ public class BoardTest extends BaseTest{
                 () -> service.update(member, testBoard),
                 "expected to throw Illegal state exception, but it didn't"
         );
-        assertEquals("Board with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
+        assertEquals("This member cannot update board!", ex.getMessage());
+    }
+
+    @Test
+    public void addAndDeleteSecondMember() {
+        User firstUser = getNewUser("addAndDeleteSecondMember1@BT");
+        User secondUser = getNewUser("addAndDeleteSecondMember2@BT");
+        Member firstMember = getNewMember(firstUser);
+        Member secondMember = getNewMember(secondUser);
+        Workspace workspace = getNewWorkspace(firstMember);
+        Board testBoard = service.create(firstMember, workspace.getId(), "testBoard", "testDescription");
+        assertNotNull(testBoard);
+        assertAll(
+                () -> assertTrue(service.addMember(firstMember, secondMember.getId(), testBoard.getId())),
+                () -> assertTrue(service.deleteMember(firstMember, secondMember.getId(), testBoard.getId()))
+        );
+    }
+
+    @Test
+    public void getAllMembersForBoard() {
+        User firstUser = getNewUser("getAllMembersForBoard1@BT");
+        User secondUser = getNewUser("getAllMembersForBoard2@BT");
+        Member firstMember = getNewMember(firstUser);
+        Member secondMember = getNewMember(secondUser);
+        Workspace workspace = getNewWorkspace(firstMember);
+        Board testBoard = service.create(firstMember, workspace.getId(), "testBoard", "testDescription");
+        service.addMember(firstMember, secondMember.getId(), testBoard.getId());
+        assertNotNull(testBoard);
+        List<Member> members = service.getAllMembers(firstMember, testBoard.getId());
+        assertAll(
+                () -> assertTrue(members.contains(firstMember)),
+                () -> assertTrue(members.contains(secondMember)),
+                () -> assertEquals(2, members.size())
+        );
+    }
+
+    @Test
+    public void getAllCardListsForBoard() {
+        User user = getNewUser("getAllCardListsForBoard@BT");
+        Member member = getNewMember(user);
+        Workspace workspace = getNewWorkspace(member);
+        Board testBoard = service.create(member, workspace.getId(), "testBoard", "testDescription");
+        CardList firstBoard = getNewCardList(member, testBoard.getId());
+        CardList secondBoard = getNewCardList(member, testBoard.getId());
+        assertNotNull(testBoard);
+        List<CardList> boards = service.getAllCardLists(member, testBoard.getId());
+        assertAll(
+                () -> assertTrue(boards.contains(firstBoard)),
+                () -> assertTrue(boards.contains(secondBoard)),
+                () -> assertEquals(2, boards.size())
+        );
     }
 }

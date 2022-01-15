@@ -1,6 +1,6 @@
 package spd.trello.services;
 
-import spd.trello.ConnectionPool;
+import spd.trello.db.ConnectionPool;
 import spd.trello.domain.Board;
 import spd.trello.domain.Member;
 import spd.trello.domain.Workspace;

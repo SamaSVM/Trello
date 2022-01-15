@@ -1,6 +1,6 @@
 package spd.trello.services;
 
-import spd.trello.ConnectionPool;
+import spd.trello.db.ConnectionPool;
 import spd.trello.domain.Card;
 import spd.trello.domain.CardList;
 import spd.trello.domain.Member;
