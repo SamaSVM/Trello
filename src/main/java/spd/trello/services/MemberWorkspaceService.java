@@ -25,8 +25,12 @@ public class MemberWorkspaceService {
         return repository.create(memberId, workspaceId);
     }
 
-    public boolean delete(UUID workspaceId) {
-        return repository.delete(workspaceId);
+    public boolean delete(UUID memberId, UUID workspaceId) {
+        return repository.delete(memberId, workspaceId);
+    }
+
+    public boolean deleteAllMembersForWorkspace(UUID workspaceId) {
+        return repository.deleteAllMembersForWorkspace(workspaceId);
     }
 }
 

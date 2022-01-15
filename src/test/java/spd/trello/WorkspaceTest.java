@@ -1,6 +1,7 @@
 package spd.trello;
 
 import org.junit.jupiter.api.Test;
+import spd.trello.domain.Board;
 import spd.trello.domain.Member;
 import spd.trello.domain.User;
 import spd.trello.domain.Workspace;
@@ -42,7 +43,7 @@ public class WorkspaceTest extends BaseTest {
     }
 
     @Test
-    public void testFindAll() {
+    public void findAll() {
         User user = getNewUser("test5@mail");
         Member member = getNewMember(user);
         Workspace testFirstWorkspace = service.create(member, "1Name", "1Des");
@@ -69,7 +70,7 @@ public class WorkspaceTest extends BaseTest {
     }
 
     @Test
-    public void testFindById() {
+    public void findById() {
         UUID uuid = UUID.randomUUID();
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
@@ -80,7 +81,7 @@ public class WorkspaceTest extends BaseTest {
     }
 
     @Test
-    public void testDelete() {
+    public void delete() {
         User user = getNewUser("test7@mail");
         Member member = getNewMember(user);
         Workspace testWorkspace = service.create(member, "testWorkspace", "testDescription");
@@ -93,7 +94,7 @@ public class WorkspaceTest extends BaseTest {
     }
 
     @Test
-    public void testUpdate() {
+    public void update() {
         User user = getNewUser("test8@mail");
         Member member = getNewMember(user);
         Workspace workspace = service.create(member, "testWorkspace", "testDescription");
@@ -125,6 +126,53 @@ public class WorkspaceTest extends BaseTest {
                 () -> service.update(member, testWorkspace),
                 "expected to throw Illegal state exception, but it didn't"
         );
-        assertEquals("Workspace with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
+        assertEquals("This member cannot update workspace!", ex.getMessage());
+    }
+
+    @Test
+    public void addAndDeleteSecondMember() {
+        User firstUser = getNewUser("addAndDeleteSecondMember1@WT");
+        User secondUser = getNewUser("addAndDeleteSecondMember2@WT");
+        Member firstMember = getNewMember(firstUser);
+        Member secondMember = getNewMember(secondUser);
+        Workspace testWorkspace = service.create(firstMember, "testWorkspace", "testDescription");
+        assertNotNull(testWorkspace);
+        assertAll(
+                () -> assertTrue(service.addMember(firstMember, secondMember.getId(), testWorkspace.getId())),
+                () -> assertTrue(service.deleteMember(firstMember, secondMember.getId(), testWorkspace.getId()))
+        );
+    }
+
+    @Test
+    public void getAllMembersForWorkspace() {
+        User firstUser = getNewUser("getAllMembersForWorkspace1@WT");
+        User secondUser = getNewUser("getAllMembersForWorkspace2@WT");
+        Member firstMember = getNewMember(firstUser);
+        Member secondMember = getNewMember(secondUser);
+        Workspace testWorkspace = service.create(firstMember, "testWorkspace", "testDescription");
+        service.addMember(firstMember, secondMember.getId(), testWorkspace.getId());
+        assertNotNull(testWorkspace);
+        List<Member> members = service.getAllMembers(firstMember, testWorkspace.getId());
+        assertAll(
+                () -> assertTrue(members.contains(firstMember)),
+                () -> assertTrue(members.contains(secondMember)),
+                () -> assertEquals(2, members.size())
+        );
+    }
+
+    @Test
+    public void getAllBoardsForWorkspace() {
+        User user = getNewUser("getAllBoardsForWorkspace@WT");
+        Member member = getNewMember(user);
+        Workspace testWorkspace = service.create(member, "testWorkspace", "testDescription");
+        Board firstBoard = getNewBoard(member, testWorkspace.getId());
+        Board secondBoard = getNewBoard(member, testWorkspace.getId());
+        assertNotNull(testWorkspace);
+        List<Board> boards = service.getAllBoards(member, testWorkspace.getId());
+        assertAll(
+                () -> assertTrue(boards.contains(firstBoard)),
+                () -> assertTrue(boards.contains(secondBoard)),
+                () -> assertEquals(2, boards.size())
+        );
     }
 }

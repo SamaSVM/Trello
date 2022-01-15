@@ -20,7 +20,7 @@ public class CardRepository implements InterfaceRepository<Card> {
 
     private final String CREATE_STMT =
             "INSERT INTO cards (id, created_by, created_date, name, description, archived, card_list_id)" +
-            "VALUES (?, ?, ?, ?, ?, ?, ?);";
+                    "VALUES (?, ?, ?, ?, ?, ?, ?);";
 
     private final String FIND_BY_ID_STMT = "SELECT * FROM cards WHERE id=?;";
 
@@ -120,31 +120,6 @@ public class CardRepository implements InterfaceRepository<Card> {
         card.setDescription(rs.getString("description"));
         card.setArchived(rs.getBoolean("archived"));
         card.setCardListId(UUID.fromString(rs.getString("card_list_id")));
-        card.setAssignedMembers(getMembersForCard(card.getId()));
-        card.setLabels(getLabelsForCard(card.getId()));
-        card.setAttachments(getAttachmentsForCard(card.getId()));
-        card.setComments(getCommentsForCard(card.getId()));
-        card.setChecklists(getCheckListsForCard(card.getId()));
         return card;
-    }
-
-    private List<Checklist> getCheckListsForCard(UUID cardId) {
-        return new ArrayList<>();
-    }
-
-    private List<Comment> getCommentsForCard(UUID cardId) {
-        return new ArrayList<>();
-    }
-
-    private List<Attachment> getAttachmentsForCard(UUID cardId) {
-        return new ArrayList<>();
-    }
-
-    private List<Label> getLabelsForCard(UUID cardId) {
-        return new ArrayList<>();
-    }
-
-    private List<Member> getMembersForCard(UUID cardId) {
-        return new ArrayList<>();
     }
 }

@@ -1,11 +1,6 @@
 package spd.trello.repository;
 
-import spd.trello.domain.Board;
-import spd.trello.domain.Card;
 import spd.trello.domain.CardList;
-import spd.trello.domain.Member;
-import spd.trello.domain.enums.BoardVisibility;
-import spd.trello.domain.enums.MemberRole;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -24,14 +19,11 @@ public class CardListRepository implements InterfaceRepository<CardList> {
     private final DataSource dataSource;
 
     private final String CREATE_STMT = "INSERT INTO card_lists " +
-            "(id, created_by, created_date, name, archived, board_id)" +
-            "VALUES (?, ?, ?, ?, ?, ?);";
+            "(id, created_by, created_date, name, archived, board_id) VALUES (?, ?, ?, ?, ?, ?);";
 
     private final String FIND_BY_ID_STMT = "SELECT * FROM card_lists WHERE id=?;";
 
     private final String FIND_ALL_STMT = "SELECT * FROM card_lists;";
-
-    private final String FIND_ALL_FOR_BOARD_STMT = "SELECT * FROM card_lists WHERE board_id=?;";
 
     private final String DELETE_BY_ID_STMT = "DELETE FROM card_lists WHERE id=?;";
 
@@ -71,21 +63,6 @@ public class CardListRepository implements InterfaceRepository<CardList> {
         throw new IllegalStateException("Table card_lists is empty!");
     }
 
-    public List<CardList> findAllForBoard(UUID boardId){
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(FIND_ALL_FOR_BOARD_STMT)) {
-            statement.setObject(1, boardId);
-            List<CardList> result = new ArrayList<>();
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                result.add(map(resultSet));
-            }
-            return result;
-        } catch (SQLException e) {
-            throw new IllegalStateException("CardListRepository::findAllForBoard failed", e);
-        }
-    }
-
     @Override
     public void create(CardList entity) {
         try (Connection connection = dataSource.getConnection();
@@ -106,14 +83,9 @@ public class CardListRepository implements InterfaceRepository<CardList> {
     public CardList update(CardList entity) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(UPDATE_BY_ENTITY_STMT)) {
-            CardList oldCardList = findById(entity.getId());
             statement.setString(1, entity.getUpdatedBy());
             statement.setDate(2, entity.getUpdatedDate());
-            if (entity.getName() == null) {
-                statement.setString(3, oldCardList.getName());
-            } else {
-                statement.setString(3, entity.getName());
-            }
+            statement.setString(3, entity.getName());
             statement.setBoolean(4, entity.getArchived());
             statement.setObject(5, entity.getId());
             statement.executeUpdate();
@@ -144,11 +116,6 @@ public class CardListRepository implements InterfaceRepository<CardList> {
         cardList.setName(rs.getString("name"));
         cardList.setArchived(rs.getBoolean("archived"));
         cardList.setBoardId(UUID.fromString(rs.getString("board_id")));
-        cardList.setCards(getCardsForCardLists(cardList.getId()));
         return cardList;
-    }
-
-    private List<Card> getCardsForCardLists(UUID cardListId) {
-        return new ArrayList<>();
     }
 }

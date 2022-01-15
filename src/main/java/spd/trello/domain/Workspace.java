@@ -4,14 +4,9 @@ import lombok.Data;
 import spd.trello.domain.enums.WorkspaceVisibility;
 import spd.trello.domain.perent.Resource;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
 public class Workspace extends Resource {
     private String name;
-    private List<Board> boards;
-    private List<Member> members = new ArrayList<>();
     private String description;
     private WorkspaceVisibility visibility = WorkspaceVisibility.PRIVATE;
 
@@ -24,8 +19,6 @@ public class Workspace extends Resource {
                 ", cratedDate=" + super.getCreatedDate() +
                 ", updatedDate=" + super.getUpdatedDate() +
                 ", name='" + name + '\'' +
-                ", boards=" + boards +
-                ", members=" + members +
                 ", description='" + description + '\'' +
                 ", visibility=" + visibility +
                 '}';

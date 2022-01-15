@@ -3,14 +3,11 @@ package spd.trello.domain;
 import lombok.Data;
 import spd.trello.domain.perent.Resource;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Data
 public class Comment extends Resource {
     private String text;
-    private List<Attachment> attachments;
     private UUID cardId;
 
     @Override
@@ -22,7 +19,6 @@ public class Comment extends Resource {
                 ", cratedDate=" + super.getCreatedDate() +
                 ", updatedDate=" + super.getUpdatedDate() +
                 ", text='" + text + '\'' +
-                ", attachments=" + attachments +
                 ", cardId=" + cardId +
                 '}';
     }

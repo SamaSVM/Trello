@@ -2,7 +2,6 @@ package spd.trello.services;
 
 import spd.trello.domain.Member;
 import spd.trello.repository.MemberBoardRepository;
-import spd.trello.repository.MemberWorkspaceRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,19 +13,23 @@ public class MemberBoardService {
         this.repository = repository;
     }
 
-    public boolean findByIds(UUID memberId, UUID workspaceId) {
-        return repository.findByIds(memberId, workspaceId);
+    public boolean findByIds(UUID memberId, UUID boardId) {
+        return repository.findByIds(memberId, boardId);
     }
 
-    public List<Member> findMembersByBoardId(UUID workspaceId) {
-        return repository.findMembersByBoardId(workspaceId);
+    public List<Member> findMembersByBoardId(UUID boardId) {
+        return repository.findMembersByBoardId(boardId);
     }
 
     public boolean create(UUID memberId, UUID boardId) {
         return repository.create(memberId, boardId);
     }
 
-    public boolean delete(UUID boardId) {
-        return repository.delete(boardId);
+    public boolean deleteAllMembersForBoard(UUID boardId) {
+        return repository.deleteAllMembersForBoard(boardId);
+    }
+
+    public boolean delete(UUID memberId, UUID boardId) {
+        return repository.delete(memberId, boardId);
     }
 }

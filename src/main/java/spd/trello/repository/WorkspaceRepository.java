@@ -1,11 +1,7 @@
 package spd.trello.repository;
 
-import spd.trello.ConnectionPool;
-import spd.trello.domain.Board;
-import spd.trello.domain.Member;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.WorkspaceVisibility;
-import spd.trello.services.MemberWorkspaceService;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -22,9 +18,6 @@ public class WorkspaceRepository implements InterfaceRepository<Workspace> {
     }
 
     private final DataSource dataSource;
-
-    private final MemberWorkspaceService MWService
-            = new MemberWorkspaceService(new MemberWorkspaceRepository(ConnectionPool.createDataSource()));
 
     private final String CREATE_STMT =
             "INSERT INTO workspaces (id, created_by, created_date, name, description, visibility)" +
@@ -141,12 +134,6 @@ public class WorkspaceRepository implements InterfaceRepository<Workspace> {
         workspace.setName(rs.getString("name"));
         workspace.setDescription(rs.getString("description"));
         workspace.setVisibility(WorkspaceVisibility.valueOf(rs.getString("visibility")));
-        workspace.setBoards(getBoardsForWorkspace(workspace.getId()));
-        workspace.setMembers(MWService.findMembersByWorkspaceId(workspace.getId()));
         return workspace;
-    }
-
-    private List<Board> getBoardsForWorkspace(UUID workspaceId) {
-        return new ArrayList<>();
     }
 }

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class CommentRepository implements InterfaceRepository<Comment> {
-
     public CommentRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -20,8 +19,7 @@ public class CommentRepository implements InterfaceRepository<Comment> {
     private final DataSource dataSource;
 
     private final String CREATE_STMT =
-            "INSERT INTO comments (id, created_by, created_date, text, card_id)" +
-                    "VALUES (?, ?, ?, ?, ?);";
+            "INSERT INTO comments (id, created_by, created_date, text, card_id) VALUES (?, ?, ?, ?, ?);";
 
     private final String FIND_BY_ID_STMT = "SELECT * FROM comments WHERE id=?;";
 
@@ -29,8 +27,7 @@ public class CommentRepository implements InterfaceRepository<Comment> {
 
     private final String DELETE_BY_ID_STMT = "DELETE FROM comments WHERE id=?;";
 
-    private final String UPDATE_BY_ENTITY_STMT =
-            "UPDATE comments SET updated_by=?, updated_date=?, text=? WHERE id=?;";
+    private final String UPDATE_BY_ENTITY_STMT = "UPDATE comments SET updated_by=?, updated_date=?, text=? WHERE id=?;";
 
     @Override
     public Comment findById(UUID id) {
@@ -115,11 +112,6 @@ public class CommentRepository implements InterfaceRepository<Comment> {
         comment.setUpdatedDate(rs.getDate("updated_date"));
         comment.setText(rs.getString("text"));
         comment.setCardId(UUID.fromString(rs.getString("card_id")));
-        comment.setAttachments(getAttachmentsForComment(comment.getId()));
         return comment;
-    }
-
-    private List<Attachment> getAttachmentsForComment(UUID cardId) {
-        return new ArrayList<>();
     }
 }

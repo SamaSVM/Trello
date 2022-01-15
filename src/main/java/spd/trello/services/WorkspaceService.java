@@ -1,9 +1,11 @@
 package spd.trello.services;
 
 import spd.trello.ConnectionPool;
+import spd.trello.domain.Board;
 import spd.trello.domain.Member;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.MemberRole;
+import spd.trello.repository.BoardWorkspaceRepository;
 import spd.trello.repository.InterfaceRepository;
 import spd.trello.repository.MemberWorkspaceRepository;
 
@@ -13,20 +15,15 @@ import java.util.List;
 import java.util.UUID;
 
 public class WorkspaceService extends AbstractService<Workspace> {
-    private final MemberWorkspaceService memberWorkspaceService =
-            new MemberWorkspaceService(new MemberWorkspaceRepository(ConnectionPool.createDataSource()));
-
     public WorkspaceService(InterfaceRepository<Workspace> repository) {
         super(repository);
     }
 
-    public Workspace findById(UUID id) {
-        return repository.findById(id);
-    }
+    private final MemberWorkspaceService memberWorkspaceService =
+            new MemberWorkspaceService(new MemberWorkspaceRepository(ConnectionPool.createDataSource()));
 
-    public List<Workspace> findAll() {
-        return repository.findAll();
-    }
+    private final BoardWorkspaceService boardWorkspaceService =
+            new BoardWorkspaceService(new BoardWorkspaceRepository(ConnectionPool.createDataSource()));
 
     public Workspace create(Member member, String name, String description) {
         Workspace workspace = new Workspace();
@@ -34,7 +31,6 @@ public class WorkspaceService extends AbstractService<Workspace> {
         workspace.setCreatedBy(member.getCreatedBy());
         workspace.setCreatedDate(Date.valueOf(LocalDate.now()));
         workspace.setName(name);
-        workspace.getMembers().add(member);
         if (description != null) {
             workspace.setDescription(description);
         }
@@ -46,21 +42,41 @@ public class WorkspaceService extends AbstractService<Workspace> {
     }
 
     public Workspace update(Member member, Workspace entity) {
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This user cannot update workspace!");
-        }
+        checkMember(member, entity.getId());
         entity.setUpdatedBy(member.getCreatedBy());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
-        for(Member m: entity.getMembers()){
-            if (!memberWorkspaceService.findByIds(m.getId(), entity.getId())) {
-                memberWorkspaceService.create(m.getId(), entity.getId());
-            }
-        }
         return repository.update(entity);
     }
 
     public boolean delete(UUID id) {
-        memberWorkspaceService.delete(id);
+        memberWorkspaceService.deleteAllMembersForWorkspace(id);
         return repository.delete(id);
+    }
+
+    public boolean addMember(Member member, UUID newMemberId, UUID workspaceId) {
+        checkMember(member, workspaceId);
+        return memberWorkspaceService.create(newMemberId, workspaceId);
+    }
+
+    public boolean deleteMember(Member member, UUID memberId, UUID workspaceId) {
+        checkMember(member, workspaceId);
+        return memberWorkspaceService.delete(memberId, workspaceId);
+    }
+
+    public List<Member> getAllMembers(Member member, UUID workspaceId) {
+        checkMember(member, workspaceId);
+        return memberWorkspaceService.findMembersByWorkspaceId(workspaceId);
+    }
+
+    public List<Board> getAllBoards(Member member, UUID workspaceId) {
+        checkMember(member, workspaceId);
+        return boardWorkspaceService.getAllBoardsForWorkspace(workspaceId);
+    }
+
+    private void checkMember(Member member, UUID workspaceId) {
+        if (member.getMemberRole() == MemberRole.GUEST ||
+                !memberWorkspaceService.findByIds(member.getId(), workspaceId)) {
+            throw new IllegalStateException("This member cannot update workspace!");
+        }
     }
 }

@@ -131,4 +131,22 @@ public class CardListTest extends BaseTest{
         );
         assertEquals("CardList with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
     }
+
+    @Test
+    public void getAllCardsForCardList() {
+        User firstUser = getNewUser("getAllCardsForCardList@CLT");
+        Member firstMember = getNewMember(firstUser);
+        Workspace workspace = getNewWorkspace(firstMember);
+        Board board = getNewBoard(firstMember, workspace.getId());
+        CardList testCardList = service.create(firstMember, board.getId(), "testCardList");
+        Card firstCard = getNewCard(firstMember, testCardList.getId());
+        Card secondCard = getNewCard(firstMember, testCardList.getId());
+        assertNotNull(testCardList);
+        List<Card> cards = service.getAllCards(firstMember, testCardList.getId());
+        assertAll(
+                () -> assertTrue(cards.contains(firstCard)),
+                () -> assertTrue(cards.contains(secondCard)),
+                () -> assertEquals(2, cards.size())
+        );
+    }
 }

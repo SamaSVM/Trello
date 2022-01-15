@@ -15,6 +15,8 @@ public class Helper {
     private static final WorkspaceService workspaceService = new WorkspaceService(new WorkspaceRepository(dataSource));
     private static final BoardService boardService = new BoardService(new BoardRepository(dataSource));
     private static final CardListService cardListService = new CardListService(new CardListRepository(dataSource));
+    private static final CardService cardService = new CardService(new CardRepository(dataSource));
+    private static final CommentService commentService = new CommentService(new CommentRepository(dataSource));
 
     public static User getNewUser(String email) {
         return userService.create("testFirstName", "testLastName", email);
@@ -34,5 +36,9 @@ public class Helper {
 
     public static CardList getNewCardList(Member member, UUID boardId) {
         return cardListService.create(member, boardId, "CardListName");
+    }
+
+    public static Card getNewCard(Member member, UUID cardListId) {
+        return cardService.create(member, cardListId, "CardName", "description");
     }
 }
