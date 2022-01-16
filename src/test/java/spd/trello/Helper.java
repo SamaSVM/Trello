@@ -5,6 +5,8 @@ import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.*;
 import spd.trello.services.*;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import static spd.trello.BaseTest.dataSource;
@@ -17,6 +19,7 @@ public class Helper {
     private static final CardListService cardListService = new CardListService(new CardListRepository(dataSource));
     private static final CardService cardService = new CardService(new CardRepository(dataSource));
     private static final CommentService commentService = new CommentService(new CommentRepository(dataSource));
+    private static final ReminderService reminderService = new ReminderService(new ReminderRepository(dataSource));
 
     public static User getNewUser(String email) {
         return userService.create("testFirstName", "testLastName", email);
@@ -44,5 +47,14 @@ public class Helper {
 
     public static Comment getNewComment(Member member, UUID cardId) {
         return commentService.create(member, cardId, "testComment");
+    }
+
+    public static Reminder getNewReminder(Member member, UUID cardId) {
+        return reminderService.create(
+                member,
+                cardId,
+                Date.valueOf(LocalDate.of(2222, 1, 1)),
+                Date.valueOf(LocalDate.of(2222, 1, 1))
+        );
     }
 }

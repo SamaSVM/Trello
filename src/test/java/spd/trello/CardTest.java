@@ -198,4 +198,23 @@ public class CardTest extends BaseTest{
                 () -> assertEquals(2, comments.size())
         );
     }
+
+    @Test
+    public void getAllRemindersForCard() {
+        User user = getNewUser("getAllRemindersForCard@CT");
+        Member member = getNewMember(user);
+        Workspace workspace = getNewWorkspace(member);
+        Board board = getNewBoard(member, workspace.getId());
+        CardList cardList = getNewCardList(member, board.getId());
+        Card card = service.create(member, cardList.getId(), "testCard", "testDescription");
+        Reminder firstReminder = getNewReminder(member, card.getId());
+        Reminder secondReminder = getNewReminder(member, card.getId());
+        assertNotNull(card);
+        List<Reminder> comments = service.getAllReminders(member, card.getId());
+        assertAll(
+                () -> assertTrue(comments.contains(firstReminder)),
+                () -> assertTrue(comments.contains(secondReminder)),
+                () -> assertEquals(2, comments.size())
+        );
+    }
 }

@@ -29,13 +29,17 @@ public abstract class AbstractService<T extends Domain> {
     }
 
     public T update(Member member, T entity) {
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This user cannot update!");
-        }
+        checkMember(member);
         return repository.update(entity);
     }
 
     public boolean delete(UUID id) {
         return repository.delete(id);
+    }
+
+    private void checkMember(Member member) {
+        if (member.getMemberRole() == MemberRole.GUEST) {
+            throw new IllegalStateException("This user cannot delete!");
+        }
     }
 }
