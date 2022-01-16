@@ -58,8 +58,7 @@ public class CommentTest extends BaseTest {
         List<Comment> testComments = service.findAll();
         assertAll(
                 () -> assertTrue(testComments.contains(testFirstComment)),
-                () -> assertTrue(testComments.contains(testSecondComment)),
-                () -> assertEquals(2, testComments.size())
+                () -> assertTrue(testComments.contains(testSecondComment))
         );
     }
 
