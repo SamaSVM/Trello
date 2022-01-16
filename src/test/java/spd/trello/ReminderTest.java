@@ -80,7 +80,7 @@ public class ReminderTest extends BaseTest {
 
     @Test
     public void createFailure() {
-        User user = getNewUser("test26@mail");
+        User user = getNewUser("createFailure@RT");
         Member member = getNewMember(user);
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
@@ -106,7 +106,7 @@ public class ReminderTest extends BaseTest {
 
     @Test
     public void delete() {
-        User user = getNewUser("test27@mail");
+        User user = getNewUser("delete@RT");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
         Board board = getNewBoard(member, workspace.getId());
