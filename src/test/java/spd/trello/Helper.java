@@ -41,4 +41,8 @@ public class Helper {
     public static Card getNewCard(Member member, UUID cardListId) {
         return cardService.create(member, cardListId, "CardName", "description");
     }
+
+    public static Comment getNewComment(Member member, UUID cardId) {
+        return commentService.create(member, cardId, "testComment");
+    }
 }

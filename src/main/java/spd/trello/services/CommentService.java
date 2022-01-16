@@ -26,10 +26,10 @@ public class CommentService extends AbstractService<Comment> {
     }
 
     public Comment update(Member member, Comment entity) {
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This user cannot update comment!");
-        }
         Comment oldCard = repository.findById(entity.getId());
+        if (!member.getCreatedBy().equals(oldCard.getCreatedBy())) {
+            throw new IllegalStateException("This member cannot update comment!");
+        }
         entity.setUpdatedBy(member.getCreatedBy());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         if (entity.getText() == null) {

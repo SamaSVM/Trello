@@ -179,4 +179,23 @@ public class CardTest extends BaseTest{
                 () -> assertEquals(2, members.size())
         );
     }
+
+    @Test
+    public void getAllCommentsForCard() {
+        User user = getNewUser("getAllCommentsForCard@CT");
+        Member member = getNewMember(user);
+        Workspace workspace = getNewWorkspace(member);
+        Board board = getNewBoard(member, workspace.getId());
+        CardList cardList = getNewCardList(member, board.getId());
+        Card card = service.create(member, cardList.getId(), "testCard", "testDescription");
+        Comment firstComment = getNewComment(member, card.getId());
+        Comment secondComment = getNewComment(member, card.getId());
+        assertNotNull(card);
+        List<Comment> comments = service.getAllComments(member, card.getId());
+        assertAll(
+                () -> assertTrue(comments.contains(firstComment)),
+                () -> assertTrue(comments.contains(secondComment)),
+                () -> assertEquals(2, comments.size())
+        );
+    }
 }

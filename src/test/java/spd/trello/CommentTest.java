@@ -8,6 +8,7 @@ import spd.trello.services.CommentService;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,23 +43,25 @@ public class CommentTest extends BaseTest {
         );
     }
 
-//    @Test
-//    public void testFindAll() {
-//        User user = getNewUser("test25@mail");
-//        Member member = getNewMember(user);
-//        Workspace workspace = getNewWorkspace(member);
-//        Board board = getNewBoard(member, workspace.getId());
-//        CardList cardList = getNewCardList(member, board.getId());
-//        Card testFirstCard = service.create(member, cardList.getId(), "1Card", "description");
-//        Card testSecondCard = service.create(member, cardList.getId(), "2Card", "description");
-//        assertNotNull(testFirstCard);
-//        assertNotNull(testSecondCard);
-//        List<Card> testCard = service.findAll();
-//        assertAll(
-//                () -> assertTrue(testCard.contains(testFirstCard)),
-//                () -> assertTrue(testCard.contains(testSecondCard))
-//        );
-//    }
+    @Test
+    public void findAll() {
+        User user = getNewUser("test25@mail");
+        Member member = getNewMember(user);
+        Workspace workspace = getNewWorkspace(member);
+        Board board = getNewBoard(member, workspace.getId());
+        CardList cardList = getNewCardList(member, board.getId());
+        Card card = getNewCard(member, cardList.getId());
+        Comment testFirstComment = service.create(member, card.getId(), "1Comment");
+        Comment testSecondComment = service.create(member, card.getId(), "2Comment");
+        assertNotNull(testFirstComment);
+        assertNotNull(testSecondComment);
+        List<Comment> testComments = service.findAll();
+        assertAll(
+                () -> assertTrue(testComments.contains(testFirstComment)),
+                () -> assertTrue(testComments.contains(testSecondComment)),
+                () -> assertEquals(2, testComments.size())
+        );
+    }
 
     @Test
     public void createFailure() {
@@ -73,7 +76,7 @@ public class CommentTest extends BaseTest {
     }
 
     @Test
-    public void testFindById() {
+    public void findById() {
         UUID uuid = UUID.randomUUID();
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
@@ -84,7 +87,7 @@ public class CommentTest extends BaseTest {
     }
 
     @Test
-    public void testDelete() {
+    public void delete() {
         User user = getNewUser("test27@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
@@ -101,7 +104,7 @@ public class CommentTest extends BaseTest {
     }
 
     @Test
-    public void testUpdate() {
+    public void update() {
         User user = getNewUser("test28@mail");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);

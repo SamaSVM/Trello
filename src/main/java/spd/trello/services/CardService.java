@@ -2,8 +2,10 @@ package spd.trello.services;
 
 import spd.trello.db.ConnectionPool;
 import spd.trello.domain.Card;
+import spd.trello.domain.Comment;
 import spd.trello.domain.Member;
 import spd.trello.domain.enums.MemberRole;
+import spd.trello.repository.CommentCardRepository;
 import spd.trello.repository.InterfaceRepository;
 import spd.trello.repository.MemberCardRepository;
 
@@ -19,6 +21,9 @@ public class CardService extends AbstractService<Card> {
 
     private final MemberCardService memberCardService =
             new MemberCardService(new MemberCardRepository(ConnectionPool.createDataSource()));
+
+    private final CommentCardService commentCardService =
+            new CommentCardService(new CommentCardRepository(ConnectionPool.createDataSource()));
 
     public Card create(Member member, UUID cardListId, String name, String description) {
         Card card = new Card();
@@ -71,6 +76,11 @@ public class CardService extends AbstractService<Card> {
     public List<Member> getAllMembers(Member member, UUID cardId) {
         checkMember(member, cardId);
         return memberCardService.findMembersByCardId(cardId);
+    }
+
+    public List<Comment> getAllComments(Member member, UUID cardId) {
+        checkMember(member, cardId);
+        return commentCardService.getAllCommentsForCard(cardId);
     }
 
     private void checkMember(Member member, UUID cardId) {
