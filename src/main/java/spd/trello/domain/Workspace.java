@@ -1,10 +1,12 @@
 package spd.trello.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import spd.trello.domain.enums.WorkspaceVisibility;
 import spd.trello.domain.perent.Resource;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Workspace extends Resource {
     private String name;
     private String description;

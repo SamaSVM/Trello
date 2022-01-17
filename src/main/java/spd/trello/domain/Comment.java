@@ -1,11 +1,13 @@
 package spd.trello.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import spd.trello.domain.perent.Resource;
 
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Comment extends Resource {
     private String text;
     private UUID cardId;

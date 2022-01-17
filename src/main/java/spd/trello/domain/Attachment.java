@@ -1,11 +1,13 @@
 package spd.trello.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import spd.trello.domain.perent.Resource;
 
 import java.io.File;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Attachment extends Resource {
     private String name;
     private String link;

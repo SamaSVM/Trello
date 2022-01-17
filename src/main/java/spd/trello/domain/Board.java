@@ -1,12 +1,14 @@
 package spd.trello.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import spd.trello.domain.enums.BoardVisibility;
 import spd.trello.domain.perent.Resource;
 
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Board extends Resource {
     private String name;
     private String description;
