@@ -3,12 +3,12 @@ package spd.trello.domain;
 import lombok.Data;
 import spd.trello.domain.perent.Resource;
 
-import java.util.List;
+import java.util.UUID;
 
 @Data
 public class Checklist extends Resource {
     private String name;
-    private List<CheckableItem> items;
+    private UUID cardId;
 
     @Override
     public String toString() {
@@ -19,7 +19,7 @@ public class Checklist extends Resource {
                 ", cratedDate=" + super.getCreatedDate() +
                 ", updatedDate=" + super.getUpdatedDate() +
                 ", name='" + name + '\'' +
-                ", items=" + items +
+                ", cardId=" + cardId +
                 '}';
     }
 }

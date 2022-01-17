@@ -217,4 +217,23 @@ public class CardTest extends BaseTest{
                 () -> assertEquals(2, comments.size())
         );
     }
+
+    @Test
+    public void getAllChecklistsForCard() {
+        User user = getNewUser("getAllChecklistsForCard@CT");
+        Member member = getNewMember(user);
+        Workspace workspace = getNewWorkspace(member);
+        Board board = getNewBoard(member, workspace.getId());
+        CardList cardList = getNewCardList(member, board.getId());
+        Card card = service.create(member, cardList.getId(), "testCard", "testDescription");
+        Checklist firstChecklist = getNewChecklist(member, card.getId());
+        Checklist secondChecklist = getNewChecklist(member, card.getId());
+        assertNotNull(card);
+        List<Checklist> comments = service.getAllChecklists(member, card.getId());
+        assertAll(
+                () -> assertTrue(comments.contains(firstChecklist)),
+                () -> assertTrue(comments.contains(secondChecklist)),
+                () -> assertEquals(2, comments.size())
+        );
+    }
 }

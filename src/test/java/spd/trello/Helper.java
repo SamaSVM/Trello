@@ -20,6 +20,7 @@ public class Helper {
     private static final CardService cardService = new CardService(new CardRepository(dataSource));
     private static final CommentService commentService = new CommentService(new CommentRepository(dataSource));
     private static final ReminderService reminderService = new ReminderService(new ReminderRepository(dataSource));
+    private static final ChecklistService checklistService = new ChecklistService(new ChecklistRepository(dataSource));
 
     public static User getNewUser(String email) {
         return userService.create("testFirstName", "testLastName", email);
@@ -56,5 +57,9 @@ public class Helper {
                 Date.valueOf(LocalDate.of(2222, 1, 1)),
                 Date.valueOf(LocalDate.of(2222, 1, 1))
         );
+    }
+
+    public static Checklist getNewChecklist(Member member, UUID cardId) {
+        return checklistService.create(member, cardId, "testChecklist");
     }
 }

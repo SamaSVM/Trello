@@ -1,15 +1,9 @@
 package spd.trello.services;
 
 import spd.trello.db.ConnectionPool;
-import spd.trello.domain.Card;
-import spd.trello.domain.Comment;
-import spd.trello.domain.Member;
-import spd.trello.domain.Reminder;
+import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.CommentCardRepository;
-import spd.trello.repository.InterfaceRepository;
-import spd.trello.repository.MemberCardRepository;
-import spd.trello.repository.ReminderCardRepository;
+import spd.trello.repository.*;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -29,6 +23,9 @@ public class CardService extends AbstractService<Card> {
 
     private final ReminderCardService reminderCardService =
             new ReminderCardService(new ReminderCardRepository(ConnectionPool.createDataSource()));
+
+    private final ChecklistCardService checklistCardService =
+            new ChecklistCardService(new ChecklistCardRepository(ConnectionPool.createDataSource()));
 
     public Card create(Member member, UUID cardListId, String name, String description) {
         Card card = new Card();
@@ -91,6 +88,11 @@ public class CardService extends AbstractService<Card> {
     public List<Reminder> getAllReminders(Member member, UUID cardId) {
         checkMember(member, cardId);
         return reminderCardService.getAllCommentsForCard(cardId);
+    }
+
+    public List<Checklist> getAllChecklists(Member member, UUID cardId) {
+        checkMember(member, cardId);
+        return checklistCardService.getAllChecklistsForCard(cardId);
     }
 
     private void checkMember(Member member, UUID cardId) {
