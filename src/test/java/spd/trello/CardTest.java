@@ -239,7 +239,7 @@ public class CardTest extends BaseTest{
 
     @Test
     public void getAllLabelsForCard() {
-        User user = getNewUser("getAllChecklistsForCard@CT");
+        User user = getNewUser("getAllLabelsForCard@CT");
         Member member = getNewMember(user);
         Workspace workspace = getNewWorkspace(member);
         Board board = getNewBoard(member, workspace.getId());
