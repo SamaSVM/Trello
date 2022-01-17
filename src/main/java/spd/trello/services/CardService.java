@@ -27,6 +27,9 @@ public class CardService extends AbstractService<Card> {
     private final ChecklistCardService checklistCardService =
             new ChecklistCardService(new ChecklistCardRepository(ConnectionPool.createDataSource()));
 
+    private final LabelCardService labelCardService =
+            new LabelCardService(new LabelCardRepository(ConnectionPool.createDataSource()));
+
     public Card create(Member member, UUID cardListId, String name, String description) {
         Card card = new Card();
         card.setId(UUID.randomUUID());
@@ -93,6 +96,11 @@ public class CardService extends AbstractService<Card> {
     public List<Checklist> getAllChecklists(Member member, UUID cardId) {
         checkMember(member, cardId);
         return checklistCardService.getAllChecklistsForCard(cardId);
+    }
+
+    public List<Label> getAllLabels(Member member, UUID cardId) {
+        checkMember(member, cardId);
+        return labelCardService.getAllLabelsForCard(cardId);
     }
 
     private void checkMember(Member member, UUID cardId) {

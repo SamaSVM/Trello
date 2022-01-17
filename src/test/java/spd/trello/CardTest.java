@@ -236,4 +236,23 @@ public class CardTest extends BaseTest{
                 () -> assertEquals(2, comments.size())
         );
     }
+
+    @Test
+    public void getAllLabelsForCard() {
+        User user = getNewUser("getAllChecklistsForCard@CT");
+        Member member = getNewMember(user);
+        Workspace workspace = getNewWorkspace(member);
+        Board board = getNewBoard(member, workspace.getId());
+        CardList cardList = getNewCardList(member, board.getId());
+        Card card = service.create(member, cardList.getId(), "testCard", "testDescription");
+        Label firstLabel = getNewLabel(member, card.getId());
+        Label secondLabel = getNewLabel(member, card.getId());
+        assertNotNull(card);
+        List<Label> labels = service.getAllLabels(member, card.getId());
+        assertAll(
+                () -> assertTrue(labels.contains(firstLabel)),
+                () -> assertTrue(labels.contains(secondLabel)),
+                () -> assertEquals(2, labels.size())
+        );
+    }
 }
