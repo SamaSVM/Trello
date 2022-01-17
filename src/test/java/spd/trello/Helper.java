@@ -21,6 +21,8 @@ public class Helper {
     private static final CommentService commentService = new CommentService(new CommentRepository(dataSource));
     private static final ReminderService reminderService = new ReminderService(new ReminderRepository(dataSource));
     private static final ChecklistService checklistService = new ChecklistService(new ChecklistRepository(dataSource));
+    private static final CheckableItemService checkableItemService = new CheckableItemService(new CheckableItemRepository(dataSource));
+
 
     public static User getNewUser(String email) {
         return userService.create("testFirstName", "testLastName", email);
@@ -61,5 +63,9 @@ public class Helper {
 
     public static Checklist getNewChecklist(Member member, UUID cardId) {
         return checklistService.create(member, cardId, "testChecklist");
+    }
+
+    public static CheckableItem getNewCheckableItem(Member member, UUID checklistId) {
+        return checkableItemService.create(member, checklistId, "CheckableItem");
     }
 }

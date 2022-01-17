@@ -135,4 +135,24 @@ public class ChecklistTest extends BaseTest{
         );
         assertEquals("Checklist with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
     }
+
+    @Test
+    public void getAllCheckableItemsForChecklist() {
+        User user = getNewUser("getAllCheckableItemsForChecklist@CLT");
+        Member member = getNewMember(user);
+        Workspace workspace = getNewWorkspace(member);
+        Board board = getNewBoard(member, workspace.getId());
+        CardList cardList = getNewCardList(member, board.getId());
+        Card card = getNewCard(member, cardList.getId());
+        Checklist checklist = service.create(member, card.getId(), "Checklist");
+        CheckableItem firstCheckableItem = getNewCheckableItem(member, checklist.getId());
+        CheckableItem secondCheckableItem = getNewCheckableItem(member, checklist.getId());
+        assertNotNull(checklist);
+        List<CheckableItem> comments = service.getCheckableItems(member, checklist.getId());
+        assertAll(
+                () -> assertTrue(comments.contains(firstCheckableItem)),
+                () -> assertTrue(comments.contains(secondCheckableItem)),
+                () -> assertEquals(2, comments.size())
+        );
+    }
 }
