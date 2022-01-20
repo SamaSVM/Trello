@@ -7,17 +7,17 @@ import spd.trello.services.UserService;
 
 
 import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserTest extends BaseTest {
-
-    private final UserService service;
-
     public UserTest() {
         service = new UserService(new UserRepository(dataSource));
     }
+
+    private final UserService service;
 
     @Test
     public void successCreate() {
@@ -29,7 +29,19 @@ public class UserTest extends BaseTest {
                 () -> assertEquals("create@email", testUser.getEmail()),
                 () -> assertEquals(ZoneId.systemDefault().toString(), testUser.getTimeZone())
         );
-        service.delete(testUser.getId());
+    }
+
+    @Test
+    public void testFindAll() {
+        User testFirstUser = service.create("1FirstName", "1LastName", "1@email");
+        User testSecondUser = service.create("2FirstName", "2LastName", "2@email");
+        assertNotNull(testFirstUser);
+        assertNotNull(testSecondUser);
+        List<User> testUsers = service.findAll();
+        assertAll(
+                () -> assertTrue(testUsers.contains(testFirstUser)),
+                () -> assertTrue(testUsers.contains(testSecondUser))
+        );
     }
 
     @Test
@@ -66,45 +78,22 @@ public class UserTest extends BaseTest {
 
     @Test
     public void testUpdate() {
-        User testUser = service.create("updateFirstName", "updateLastName", "update@email");
-        assertNotNull(testUser);
-        UUID id = testUser.getId();
-        User updateUser = new User();
-
-        updateUser.setId(testUser.getId());
-        updateUser.setFirstName("newFirstName");
-        service.update(updateUser);
-        assertAll(
-                () -> assertEquals("newFirstName", service.findById(id).getFirstName())
-        );
-        updateUser.setFirstName(null);
-
-        updateUser.setLastName("newLastName");
-        service.update(updateUser);
-        assertAll(
-                () -> assertEquals("newFirstName", service.findById(id).getFirstName()),
-                () -> assertEquals("newLastName", service.findById(id).getLastName())
-        );
-        updateUser.setLastName(null);
-
-        updateUser.setEmail("new@email");
-        service.update(updateUser);
-        assertAll(
-                () -> assertEquals("newFirstName", service.findById(id).getFirstName()),
-                () -> assertEquals("newLastName", service.findById(id).getLastName()),
-                () -> assertEquals("new@email", service.findById(id).getEmail())
-        );
-        updateUser.setEmail(null);
-
-        updateUser.setTimeZone("Europe/Paris");
-        service.update(updateUser);
+        User user = service.create("updateFirstName", "updateLastName", "update@email");
+        assertNotNull(user);
+        UUID id = user.getId();
+        User testUser = new User();
+        testUser.setId(user.getId());
+        testUser.setFirstName("newFirstName");
+        testUser.setLastName("newLastName");
+        testUser.setEmail("new@email");
+        testUser.setTimeZone("Europe/Paris");
+        service.update(testUser);
         assertAll(
                 () -> assertEquals("newFirstName", service.findById(id).getFirstName()),
                 () -> assertEquals("newLastName", service.findById(id).getLastName()),
                 () -> assertEquals("new@email", service.findById(id).getEmail()),
                 () -> assertEquals("Europe/Paris", service.findById(id).getTimeZone())
         );
-        service.delete(testUser.getId());
     }
 
     @Test

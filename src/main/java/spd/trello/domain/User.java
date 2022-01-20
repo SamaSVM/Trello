@@ -1,10 +1,12 @@
 package spd.trello.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import spd.trello.domain.perent.Domain;
 
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class User extends Domain {
     private String firstName;
     private String lastName;

@@ -1,12 +1,14 @@
 package spd.trello.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.domain.perent.Resource;
 
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Member extends Resource {
     private UUID userId;
     private MemberRole memberRole = MemberRole.GUEST;

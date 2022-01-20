@@ -1,4 +1,4 @@
-package spd.trello;
+package spd.trello.db;
 
 import org.flywaydb.core.Flyway;
 

@@ -1,15 +1,17 @@
 package spd.trello.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import spd.trello.domain.perent.Resource;
 
-import java.util.List;
+import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class CardList extends Resource {
     private String name;
-    private List<Card> cards;
     private Boolean archived = false;
+    private UUID boardId;
 
     @Override
     public String toString() {
@@ -17,10 +19,9 @@ public class CardList extends Resource {
                 "id=" + super.getId() +
                 ", createdBy=" + super.getCreatedBy() +
                 ", updatedBy=" + super.getUpdatedBy() +
-                ", cratedDate=" + super.getCratedDate() +
+                ", cratedDate=" + super.getCreatedDate() +
                 ", updatedDate=" + super.getUpdatedDate() +
                 ", name='" + name + '\'' +
-                ", cards=" + cards +
                 ", archived=" + archived +
                 '}';
     }

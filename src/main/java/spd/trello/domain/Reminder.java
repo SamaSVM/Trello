@@ -1,16 +1,20 @@
 package spd.trello.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import spd.trello.domain.perent.Resource;
 
-import java.time.LocalDateTime;
+import java.sql.Date;
+import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Reminder extends Resource {
-    private LocalDateTime start;
-    private LocalDateTime end;
-    private LocalDateTime remindOn;
-    private Boolean active = false;
+    private Date start;
+    private Date end;
+    private Date remindOn;
+    private Boolean active = true;
+    private UUID cardId;
 
     @Override
     public String toString() {
@@ -18,12 +22,13 @@ public class Reminder extends Resource {
                 "id=" + super.getId() +
                 ", createdBy=" + super.getCreatedBy() +
                 ", updatedBy=" + super.getUpdatedBy() +
-                ", cratedDate=" + super.getCratedDate() +
+                ", cratedDate=" + super.getCreatedDate() +
                 ", updatedDate=" + super.getUpdatedDate() +
                 ", start=" + start +
                 ", end=" + end +
                 ", remindOn=" + remindOn +
                 ", active=" + active +
+                ", cardId=" + cardId +
                 '}';
     }
 }

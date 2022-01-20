@@ -9,33 +9,54 @@ import spd.trello.services.MemberService;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static spd.trello.Helper.*;
-import static spd.trello.Helper.deleteUser;
 
 public class MemberTest extends BaseTest {
-    private final MemberService service;
-
     public MemberTest() {
         service = new MemberService(new MemberRepository(dataSource));
     }
 
+    private final MemberService service;
+
     @Test
     public void successCreate() {
-        User testUser = getNewUser();
-        Member testMember = service.create(testUser, MemberRole.MEMBER);
+        User user = getNewUser("test@mail");
+        Member testMember = service.create(user, MemberRole.MEMBER);
         assertNotNull(testMember);
         assertAll(
                 () -> assertEquals("test@mail", testMember.getCreatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testMember.getCreatedDate()),
                 () -> assertEquals(MemberRole.MEMBER, testMember.getMemberRole()),
-                () -> assertEquals(testUser.getId(), testMember.getUserId())
+                () -> assertEquals(user.getId(), testMember.getUserId())
         );
-        service.delete(testMember.getId());
-        deleteUser(testUser.getId());
+    }
+
+    @Test
+    public void testFindAll() {
+        User user = getNewUser("test1@mail");
+        Member testFirstMember = service.create(user, MemberRole.MEMBER);
+        Member testSecondMember = service.create(user, MemberRole.ADMIN);
+        assertNotNull(testFirstMember);
+        assertNotNull(testSecondMember);
+        List<Member> testMembers = service.findAll();
+        assertAll(
+                () -> assertTrue(testMembers.contains(testFirstMember)),
+                () -> assertTrue(testMembers.contains(testSecondMember))
+        );
+    }
+
+    @Test
+    public void createFailure() {
+        NullPointerException ex = assertThrows(
+                NullPointerException.class,
+                () -> service.create(null, MemberRole.ADMIN),
+                "expected to throw INullPointException, but it didn't"
+        );
+        assertEquals("Cannot invoke \"spd.trello.domain.User.getEmail()\" because \"user\" is null", ex.getMessage());
     }
 
     @Test
@@ -51,33 +72,43 @@ public class MemberTest extends BaseTest {
 
     @Test
     public void testDelete() {
-        User testUser = getNewUser();
-        Member testMember = service.create(testUser, MemberRole.MEMBER);
+        User user = getNewUser("test2@mail");
+        Member testMember = service.create(user, MemberRole.MEMBER);
         assertNotNull(testMember);
         UUID id = testMember.getId();
         assertAll(
                 () -> assertTrue(service.delete(id)),
                 () -> assertFalse(service.delete(id))
         );
-        deleteUser(testUser.getId());
     }
 
     @Test
     public void testUpdate() {
-        User testUser = getNewUser();
-        Member testMember = service.create(testUser, MemberRole.MEMBER);
+        User user = getNewUser("test3@mail");
+        Member testMember = service.create(user, MemberRole.MEMBER);
         assertNotNull(testMember);
         testMember.setMemberRole(MemberRole.ADMIN);
-        UUID id = service.update(testUser, testMember).getId();
+        UUID id = service.update(user, testMember).getId();
         assertAll(
-                () -> assertEquals("test@mail", service.findById(id).getCreatedBy()),
-                () -> assertEquals("test@mail", service.findById(id).getUpdatedBy()),
+                () -> assertEquals("test3@mail", service.findById(id).getCreatedBy()),
+                () -> assertEquals("test3@mail", service.findById(id).getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), service.findById(id).getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), service.findById(id).getUpdatedDate()),
                 () -> assertEquals(MemberRole.ADMIN, service.findById(id).getMemberRole()),
-                () -> assertEquals(testUser.getId(), service.findById(id).getUserId())
+                () -> assertEquals(user.getId(), service.findById(id).getUserId())
         );
-        service.delete(testMember.getId());
-        deleteUser(testUser.getId());
+    }
+
+    @Test
+    public void updateFailure() {
+        User user = new User();
+        Member testMember = new Member();
+        testMember.setId(UUID.fromString("e3aa391f-2192-4f2a-bf6e-a235459e78e5"));
+        IllegalStateException ex = assertThrows(
+                IllegalStateException.class,
+                () -> service.update(user, testMember),
+                "expected to throw Illegal state exception, but it didn't"
+        );
+        assertEquals("Member with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
     }
 }
