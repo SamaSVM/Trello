@@ -1,5 +1,6 @@
 package spd.trello.configuration;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -10,11 +11,15 @@ import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan(basePackages = {"spd.trello.services", "spd.trello.repository"})
-public class Config {
+public class Config implements InitializingBean {
 
     @Bean
     public DataSource dataSource(){
-        FlywayMigrate.doMigrate();
         return ConnectionPool.createDataSource();
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        FlywayMigrate.doMigrate();
     }
 }
