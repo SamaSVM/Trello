@@ -3,7 +3,6 @@ package spd.trello;
 import org.junit.jupiter.api.Test;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.CheckableItemRepository;
 import spd.trello.services.CheckableItemService;
 
 import java.util.List;
@@ -13,11 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static spd.trello.Helper.*;
 
 public class CheckableItemTest extends BaseTest{
-    public  CheckableItemTest() {
-        service = new  CheckableItemService(new CheckableItemRepository(dataSource));
-    }
-
-    private final CheckableItemService service;
+    private final CheckableItemService service = context.getBean(CheckableItemService.class);
 
     @Test
     public void successCreate() {

@@ -1,6 +1,7 @@
 package spd.trello.services;
 
-import spd.trello.db.ConnectionPool;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.*;
@@ -10,25 +11,22 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class CardService extends AbstractService<Card> {
     public CardService(InterfaceRepository<Card> repository) {
         super(repository);
     }
 
-    private final MemberCardService memberCardService =
-            new MemberCardService(new MemberCardRepository(ConnectionPool.createDataSource()));
-
-    private final CommentCardService commentCardService =
-            new CommentCardService(new CommentCardRepository(ConnectionPool.createDataSource()));
-
-    private final ReminderCardService reminderCardService =
-            new ReminderCardService(new ReminderCardRepository(ConnectionPool.createDataSource()));
-
-    private final ChecklistCardService checklistCardService =
-            new ChecklistCardService(new ChecklistCardRepository(ConnectionPool.createDataSource()));
-
-    private final LabelCardService labelCardService =
-            new LabelCardService(new LabelCardRepository(ConnectionPool.createDataSource()));
+    @Autowired
+    private MemberCardService memberCardService;
+    @Autowired
+    private CommentCardService commentCardService;
+    @Autowired
+    private ReminderCardService reminderCardService;
+    @Autowired
+    private ChecklistCardService checklistCardService;
+    @Autowired
+    private LabelCardService labelCardService;
 
     public Card create(Member member, UUID cardListId, String name, String description) {
         Card card = new Card();

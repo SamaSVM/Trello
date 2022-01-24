@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.BoardVisibility;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.BoardRepository;
 import spd.trello.services.BoardService;
 
 import java.sql.Date;
@@ -17,11 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static spd.trello.Helper.*;
 
 public class BoardTest extends BaseTest {
-    public BoardTest() {
-        service = new BoardService(new BoardRepository(dataSource));
-    }
 
-    private final BoardService service;
+    private final BoardService service = context.getBean(BoardService.class);
 
     @Test
     public void successCreate() {

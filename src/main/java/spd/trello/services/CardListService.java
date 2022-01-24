@@ -1,11 +1,11 @@
 package spd.trello.services;
 
-import spd.trello.db.ConnectionPool;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Card;
 import spd.trello.domain.CardList;
 import spd.trello.domain.Member;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.CardCardListRepository;
 import spd.trello.repository.InterfaceRepository;
 
 import java.sql.Date;
@@ -13,13 +13,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class CardListService extends AbstractService<CardList> {
     public CardListService(InterfaceRepository<CardList> repository) {
         super(repository);
     }
 
-    CardCardListService cardCardListService =
-            new CardCardListService(new CardCardListRepository(ConnectionPool.createDataSource()));
+    @Autowired
+    CardCardListService cardCardListService;
 
     public CardList create(Member member, UUID boardId, String name) {
         CardList cardList = new CardList();

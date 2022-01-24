@@ -1,5 +1,6 @@
 package spd.trello.repository;
 
+import org.springframework.stereotype.Repository;
 import spd.trello.domain.Checklist;
 
 import javax.sql.DataSource;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
+@Repository
 public class ChecklistCardRepository {
     public ChecklistCardRepository(DataSource dataSource) {
         this.dataSource = dataSource;

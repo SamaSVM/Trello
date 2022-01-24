@@ -1,5 +1,6 @@
 package spd.trello.services;
 
+import org.springframework.stereotype.Service;
 import spd.trello.domain.User;
 import spd.trello.repository.InterfaceRepository;
 
@@ -7,6 +8,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class UserService extends AbstractService<User> {
 
     public UserService(InterfaceRepository<User> repository) {

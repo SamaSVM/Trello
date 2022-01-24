@@ -2,27 +2,27 @@ package spd.trello;
 
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.*;
 import spd.trello.services.*;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import static spd.trello.BaseTest.dataSource;
+import static spd.trello.BaseTest.context;
+
 
 public class Helper {
-    private static final UserService userService = new UserService(new UserRepository(dataSource));
-    private static final MemberService memberService = new MemberService(new MemberRepository(dataSource));
-    private static final WorkspaceService workspaceService = new WorkspaceService(new WorkspaceRepository(dataSource));
-    private static final BoardService boardService = new BoardService(new BoardRepository(dataSource));
-    private static final CardListService cardListService = new CardListService(new CardListRepository(dataSource));
-    private static final CardService cardService = new CardService(new CardRepository(dataSource));
-    private static final CommentService commentService = new CommentService(new CommentRepository(dataSource));
-    private static final ReminderService reminderService = new ReminderService(new ReminderRepository(dataSource));
-    private static final ChecklistService checklistService = new ChecklistService(new ChecklistRepository(dataSource));
-    private static final CheckableItemService checkableItemService = new CheckableItemService(new CheckableItemRepository(dataSource));
-    private static final LabelService labelService = new LabelService(new LabelRepository(dataSource));
+    private static final UserService userService = context.getBean(UserService.class);
+    private static final MemberService memberService = context.getBean(MemberService.class);
+    private static final WorkspaceService workspaceService = context.getBean(WorkspaceService.class);
+    private static final BoardService boardService = context.getBean(BoardService.class);
+    private static final CardListService cardListService = context.getBean(CardListService.class);
+    private static final CardService cardService = context.getBean(CardService.class);
+    private static final CommentService commentService = context.getBean(CommentService.class);
+    private static final ReminderService reminderService = context.getBean(ReminderService.class);
+    private static final ChecklistService checklistService = context.getBean(ChecklistService.class);
+    private static final CheckableItemService checkableItemService = context.getBean(CheckableItemService.class);
+    private static final LabelService labelService = context.getBean(LabelService.class);
 
 
     public static User getNewUser(String email) {

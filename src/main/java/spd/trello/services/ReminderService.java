@@ -1,6 +1,6 @@
 package spd.trello.services;
 
-
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Member;
 import spd.trello.domain.Reminder;
 import spd.trello.domain.enums.MemberRole;
@@ -10,6 +10,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Service
 public class ReminderService extends AbstractService<Reminder>{
     public ReminderService(InterfaceRepository<Reminder> repository) {
         super(repository);

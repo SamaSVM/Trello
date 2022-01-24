@@ -1,11 +1,13 @@
 package spd.trello.services;
 
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Reminder;
 import spd.trello.repository.ReminderCardRepository;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class ReminderCardService {
     public  ReminderCardService( ReminderCardRepository repository) {
         this.repository = repository;

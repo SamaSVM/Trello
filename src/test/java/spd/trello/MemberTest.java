@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import spd.trello.domain.Member;
 import spd.trello.domain.User;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.MemberRepository;
 import spd.trello.services.MemberService;
 
 import java.sql.Date;
@@ -16,11 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static spd.trello.Helper.*;
 
 public class MemberTest extends BaseTest {
-    public MemberTest() {
-        service = new MemberService(new MemberRepository(dataSource));
-    }
-
-    private final MemberService service;
+    private final MemberService service = context.getBean(MemberService.class);
 
     @Test
     public void successCreate() {

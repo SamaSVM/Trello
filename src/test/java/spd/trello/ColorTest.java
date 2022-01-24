@@ -15,11 +15,7 @@ import static spd.trello.Helper.*;
 import static spd.trello.Helper.getNewCard;
 
 public class ColorTest extends BaseTest{
-    public ColorTest() {
-        service = new ColorService(new ColorRepository(dataSource));
-    }
-
-    private final ColorService service;
+    private final ColorService service = context.getBean(ColorService.class);
 
     @Test
     public void successCreate() {

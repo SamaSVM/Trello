@@ -1,29 +1,29 @@
 package spd.trello.services;
 
-import spd.trello.db.ConnectionPool;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Board;
 import spd.trello.domain.CardList;
 import spd.trello.domain.Member;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.CardListBoardRepository;
 import spd.trello.repository.InterfaceRepository;
-import spd.trello.repository.MemberBoardRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class BoardService extends AbstractService<Board> {
     public BoardService(InterfaceRepository<Board> repository) {
         super(repository);
     }
 
-    private final MemberBoardService memberBoardService =
-            new MemberBoardService(new MemberBoardRepository(ConnectionPool.createDataSource()));
+    @Autowired
+    private MemberBoardService memberBoardService;
 
-    private final CardListBoardService cardListBoardService =
-            new CardListBoardService(new CardListBoardRepository(ConnectionPool.createDataSource()));
+    @Autowired
+    private CardListBoardService cardListBoardService;
 
     public Board create(Member member, UUID workspaceId, String name, String description) {
         Board board = new Board();

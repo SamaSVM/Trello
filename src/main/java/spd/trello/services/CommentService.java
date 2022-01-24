@@ -1,14 +1,15 @@
 package spd.trello.services;
 
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Comment;
 import spd.trello.domain.Member;
-import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.InterfaceRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Service
 public class CommentService extends AbstractService<Comment> {
     public CommentService(InterfaceRepository<Comment> repository) {
         super(repository);

@@ -1,5 +1,6 @@
 package spd.trello.services;
 
+import org.springframework.stereotype.Service;
 import spd.trello.domain.CheckableItem;
 import spd.trello.domain.Member;
 import spd.trello.domain.enums.MemberRole;
@@ -7,6 +8,7 @@ import spd.trello.repository.InterfaceRepository;
 
 import java.util.UUID;
 
+@Service
 public class CheckableItemService extends AbstractService<CheckableItem>{
     public CheckableItemService(InterfaceRepository<CheckableItem> repository) {
         super(repository);

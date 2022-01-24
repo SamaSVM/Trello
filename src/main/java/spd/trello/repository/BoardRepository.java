@@ -1,5 +1,6 @@
 package spd.trello.repository;
 
+import org.springframework.stereotype.Repository;
 import spd.trello.domain.Board;
 import spd.trello.domain.enums.BoardVisibility;
 
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Repository
 public class BoardRepository implements InterfaceRepository<Board> {
     public BoardRepository(DataSource dataSource) {
         this.dataSource = dataSource;

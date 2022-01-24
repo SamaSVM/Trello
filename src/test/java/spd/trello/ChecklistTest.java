@@ -15,11 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static spd.trello.Helper.*;
 
 public class ChecklistTest extends BaseTest{
-    public ChecklistTest() {
-        service = new ChecklistService(new ChecklistRepository(dataSource));
-    }
-
-    private final ChecklistService service;
+    private final ChecklistService service = context.getBean(ChecklistService.class);
 
     @Test
     public void successCreate() {

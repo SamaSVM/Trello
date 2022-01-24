@@ -1,7 +1,7 @@
 package spd.trello.repository;
 
+import org.springframework.stereotype.Repository;
 import spd.trello.domain.Member;
-import spd.trello.domain.User;
 import spd.trello.domain.enums.MemberRole;
 
 import javax.sql.DataSource;
@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Repository
 public class MemberRepository implements InterfaceRepository<Member> {
     public MemberRepository(DataSource dataSource) {
         this.dataSource = dataSource;

@@ -1,5 +1,6 @@
 package spd.trello.services;
 
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Member;
 import spd.trello.domain.User;
 import spd.trello.domain.enums.MemberRole;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class MemberService extends AbstractService<Member> {
     public MemberService(InterfaceRepository<Member> repository) {
         super(repository);

@@ -15,11 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static spd.trello.Helper.*;
 
 public class ReminderTest extends BaseTest {
-    public ReminderTest() {
-        service = new ReminderService(new ReminderRepository(dataSource));
-    }
-
-    private final ReminderService service;
+    private final ReminderService service = context.getBean(ReminderService.class);
 
     @Test
     public void successCreate() {

@@ -1,6 +1,6 @@
 package spd.trello.repository;
 
-import spd.trello.domain.CardList;
+import org.springframework.stereotype.Repository;
 import spd.trello.domain.Comment;
 
 import javax.sql.DataSource;
@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Repository
 public class CommentCardRepository {
     public CommentCardRepository(DataSource dataSource) {
         this.dataSource = dataSource;

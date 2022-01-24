@@ -7,7 +7,6 @@ import spd.trello.domain.User;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.domain.enums.WorkspaceVisibility;
-import spd.trello.repository.WorkspaceRepository;
 import spd.trello.services.WorkspaceService;
 
 import java.sql.Date;
@@ -19,11 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static spd.trello.Helper.*;
 
 public class WorkspaceTest extends BaseTest {
-    public WorkspaceTest() {
-        service = new WorkspaceService(new WorkspaceRepository(dataSource));
-    }
-
-    private final WorkspaceService service;
+    private final WorkspaceService service = context.getBean(WorkspaceService.class);
 
     @Test
     public void successCreate() {

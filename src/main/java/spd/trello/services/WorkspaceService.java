@@ -1,29 +1,29 @@
 package spd.trello.services;
 
-import spd.trello.db.ConnectionPool;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Board;
 import spd.trello.domain.Member;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.BoardWorkspaceRepository;
 import spd.trello.repository.InterfaceRepository;
-import spd.trello.repository.MemberWorkspaceRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class WorkspaceService extends AbstractService<Workspace> {
     public WorkspaceService(InterfaceRepository<Workspace> repository) {
         super(repository);
     }
 
-    private final MemberWorkspaceService memberWorkspaceService =
-            new MemberWorkspaceService(new MemberWorkspaceRepository(ConnectionPool.createDataSource()));
+    @Autowired
+    private MemberWorkspaceService memberWorkspaceService ;
 
-    private final BoardWorkspaceService boardWorkspaceService =
-            new BoardWorkspaceService(new BoardWorkspaceRepository(ConnectionPool.createDataSource()));
+    @Autowired
+    private BoardWorkspaceService boardWorkspaceService ;
 
     public Workspace create(Member member, String name, String description) {
         Workspace workspace = new Workspace();

@@ -1,7 +1,7 @@
 package spd.trello.repository;
 
+import org.springframework.stereotype.Repository;
 import spd.trello.domain.CheckableItem;
-import spd.trello.domain.Checklist;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Repository
 public class CheckableItemChecklistRepository {
     public CheckableItemChecklistRepository(DataSource dataSource) {
         this.dataSource = dataSource;

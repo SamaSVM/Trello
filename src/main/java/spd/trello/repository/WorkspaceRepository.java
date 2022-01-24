@@ -1,5 +1,6 @@
 package spd.trello.repository;
 
+import org.springframework.stereotype.Repository;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.WorkspaceVisibility;
 
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Repository
 public class WorkspaceRepository implements InterfaceRepository<Workspace> {
     public WorkspaceRepository(DataSource dataSource) {
         this.dataSource = dataSource;

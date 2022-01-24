@@ -1,7 +1,7 @@
 package spd.trello.repository;
 
+import org.springframework.stereotype.Repository;
 import spd.trello.domain.Color;
-import spd.trello.domain.Comment;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Repository
 public class ColorRepository implements InterfaceRepository<Color>{
     public ColorRepository(DataSource dataSource) {
         this.dataSource = dataSource;

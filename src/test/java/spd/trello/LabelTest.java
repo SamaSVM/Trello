@@ -3,13 +3,8 @@ package spd.trello;
 import org.junit.jupiter.api.Test;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.CommentRepository;
-import spd.trello.repository.LabelRepository;
-import spd.trello.services.CommentService;
 import spd.trello.services.LabelService;
 
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,11 +14,7 @@ import static spd.trello.Helper.*;
 import static spd.trello.Helper.getNewCard;
 
 public class LabelTest extends BaseTest{
-    public LabelTest() {
-        service = new LabelService(new LabelRepository(dataSource));
-    }
-
-    private final LabelService service;
+    private final LabelService service = context.getBean(LabelService.class);
 
     @Test
     public void successCreate() {

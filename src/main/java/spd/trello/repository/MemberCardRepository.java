@@ -1,5 +1,6 @@
 package spd.trello.repository;
 
+import org.springframework.stereotype.Repository;
 import spd.trello.db.ConnectionPool;
 import spd.trello.domain.Member;
 import spd.trello.services.MemberService;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Repository
 public class MemberCardRepository {
     public MemberCardRepository(DataSource dataSource) {
         this.dataSource = dataSource;

@@ -3,7 +3,6 @@ package spd.trello;
 import org.junit.jupiter.api.Test;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.CardListRepository;
 import spd.trello.services.CardListService;
 
 import java.sql.Date;
@@ -15,11 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static spd.trello.Helper.*;
 
 public class CardListTest extends BaseTest{
-    public CardListTest() {
-        service = new CardListService(new CardListRepository(dataSource));
-    }
-
-    private final CardListService service;
+    private final CardListService service  = context.getBean(CardListService.class);
 
     @Test
     public void successCreate() {

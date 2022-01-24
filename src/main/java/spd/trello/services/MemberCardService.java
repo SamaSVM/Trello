@@ -1,11 +1,13 @@
 package spd.trello.services;
 
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Member;
 import spd.trello.repository.MemberCardRepository;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class MemberCardService{
     private final MemberCardRepository repository;
 

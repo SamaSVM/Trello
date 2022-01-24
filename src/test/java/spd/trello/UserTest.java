@@ -2,7 +2,6 @@ package spd.trello;
 
 import org.junit.jupiter.api.Test;
 import spd.trello.domain.User;
-import spd.trello.repository.UserRepository;
 import spd.trello.services.UserService;
 
 
@@ -13,11 +12,9 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserTest extends BaseTest {
-    public UserTest() {
-        service = new UserService(new UserRepository(dataSource));
-    }
 
-    private final UserService service;
+
+    private final UserService service = context.getBean(UserService.class);
 
     @Test
     public void successCreate() {

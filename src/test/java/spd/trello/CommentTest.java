@@ -17,11 +17,7 @@ import static spd.trello.Helper.*;
 import static spd.trello.Helper.getNewCardList;
 
 public class CommentTest extends BaseTest {
-    public CommentTest() {
-        service = new CommentService(new CommentRepository(dataSource));
-    }
-
-    private final CommentService service;
+    private final CommentService service = context.getBean(CommentService.class);
 
     @Test
     public void successCreate() {
