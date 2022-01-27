@@ -39,8 +39,12 @@ public class MemberService extends AbstractService<Member> {
     }
 
     public Member update(User user, Member entity) {
+        Member oldMember = findById(entity.getId());
         entity.setUpdatedBy(user.getEmail());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        if (entity.getMemberRole() == null) {
+            entity.setMemberRole(oldMember.getMemberRole());
+        }
         return repository.update(entity);
     }
 
