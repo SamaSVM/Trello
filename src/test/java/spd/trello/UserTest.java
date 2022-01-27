@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import spd.trello.domain.User;
 import spd.trello.services.UserService;
 
-
 import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
@@ -12,8 +11,6 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserTest extends BaseTest {
-
-
     private final UserService service = context.getBean(UserService.class);
 
     @Test
@@ -52,7 +49,7 @@ public class UserTest extends BaseTest {
     }
 
     @Test
-    public void testFindById() {
+    public void findByIdFailure() {
         UUID uuid = UUID.randomUUID();
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
