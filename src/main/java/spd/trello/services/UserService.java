@@ -10,17 +10,8 @@ import java.util.UUID;
 
 @Service
 public class UserService extends AbstractService<User> {
-
     public UserService(InterfaceRepository<User> repository) {
         super(repository);
-    }
-
-    public User findById(UUID id) {
-        return repository.findById(id);
-    }
-
-    public List<User> findAll() {
-        return repository.findAll();
     }
 
     public User create(String firstName, String lastName, String email) {
@@ -35,6 +26,19 @@ public class UserService extends AbstractService<User> {
     }
 
     public User update(User entity) {
+        User oldUser = findById(entity.getId());
+        if (entity.getFirstName() == null) {
+            entity.setFirstName(oldUser.getFirstName());
+        }
+        if (entity.getLastName() == null) {
+            entity.setLastName(oldUser.getLastName());
+        }
+        if (entity.getEmail() == null) {
+            entity.setEmail(oldUser.getEmail());
+        }
+        if (entity.getTimeZone() == null) {
+            entity.setTimeZone(oldUser.getTimeZone());
+        }
         return repository.update(entity);
     }
 

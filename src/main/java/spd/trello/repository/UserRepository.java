@@ -54,7 +54,7 @@ public class UserRepository implements InterfaceRepository<User> {
             while (resultSet.next()) {
                 result.add(map(resultSet));
             }
-            if(!result.isEmpty()){
+            if (!result.isEmpty()) {
                 return result;
             }
         } catch (SQLException e) {
@@ -82,31 +82,10 @@ public class UserRepository implements InterfaceRepository<User> {
     public User update(User entity) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(UPDATE_BY_ENTITY_STMT)) {
-            User oldUser = findById(entity.getId());
-            if (entity.getFirstName() == null) {
-                statement.setString(1, oldUser.getFirstName());
-            } else {
-                statement.setString(1, entity.getFirstName());
-            }
-
-            if (entity.getLastName() == null) {
-                statement.setString(2, oldUser.getLastName());
-            } else {
-                statement.setString(2, entity.getLastName());
-            }
-
-            if (entity.getEmail() == null) {
-                statement.setString(3, oldUser.getEmail());
-            } else {
-                statement.setString(3, entity.getEmail());
-            }
-
-            if (entity.getTimeZone() == null) {
-                statement.setString(4, oldUser.getTimeZone());
-            } else {
-                statement.setString(4, entity.getTimeZone());
-            }
-
+            statement.setString(1, entity.getFirstName());
+            statement.setString(2, entity.getLastName());
+            statement.setString(3, entity.getEmail());
+            statement.setString(4, entity.getTimeZone());
             statement.setObject(5, entity.getId());
             statement.executeUpdate();
         } catch (SQLException e) {

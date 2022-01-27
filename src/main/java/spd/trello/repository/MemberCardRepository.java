@@ -1,7 +1,7 @@
 package spd.trello.repository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import spd.trello.db.ConnectionPool;
 import spd.trello.domain.Member;
 import spd.trello.services.MemberService;
 
@@ -22,8 +22,8 @@ public class MemberCardRepository {
 
     private final DataSource dataSource;
 
-    private final MemberService memberService =
-            new MemberService(new MemberRepository(ConnectionPool.createDataSource()));
+    @Autowired
+    private MemberService memberService;
 
     private final String CREATE_STMT = "INSERT INTO member_card (member_id, card_id) VALUES (?, ?);";
 
