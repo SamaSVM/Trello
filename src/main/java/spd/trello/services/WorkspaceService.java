@@ -43,8 +43,19 @@ public class WorkspaceService extends AbstractService<Workspace> {
 
     public Workspace update(Member member, Workspace entity) {
         checkMember(member, entity.getId());
+        Workspace oldWorkspace = findById(entity.getId());
+        checkMember(member, entity.getId());
         entity.setUpdatedBy(member.getCreatedBy());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        if (entity.getName() == null) {
+            entity.setName(oldWorkspace.getName());
+        }
+        if (entity.getDescription() == null) {
+            entity.setDescription(oldWorkspace.getDescription());
+        }
+        if (entity.getVisibility() == null) {
+            entity.setVisibility(oldWorkspace.getVisibility());
+        }
         return repository.update(entity);
     }
 
