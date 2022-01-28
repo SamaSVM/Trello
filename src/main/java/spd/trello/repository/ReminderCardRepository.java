@@ -1,6 +1,10 @@
 package spd.trello.repository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import spd.trello.domain.Label;
 import spd.trello.domain.Reminder;
 
 import javax.sql.DataSource;
@@ -14,44 +18,19 @@ import java.util.UUID;
 
 @Repository
 public class ReminderCardRepository {
-    public  ReminderCardRepository(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    private final DataSource dataSource;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     private final String FIND_BY_CARD_ID_STMT = "SELECT * FROM reminders WHERE card_id=?;";
 
     public List<Reminder> findAllRemindersForCard(UUID cardId) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(FIND_BY_CARD_ID_STMT)) {
-            List<Reminder> result = new ArrayList<>();
-            statement.setObject(1, cardId);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                result.add(map(resultSet));
-            }
-            if (!result.isEmpty()) {
-                return result;
-            }
-        } catch (SQLException e) {
-            throw new IllegalStateException(" ReminderCardRepository::findAllReminderForCard failed", e);
+        List<Reminder> result = jdbcTemplate.query(
+                FIND_BY_CARD_ID_STMT,
+                new Object[]{cardId},
+                new BeanPropertyRowMapper<>(Reminder.class));
+        if(result.isEmpty()){
+            throw new IllegalStateException(" Reminders for card with ID: " + cardId.toString() + " doesn't exists");
         }
-        throw new IllegalStateException(" Reminders for card with ID: " + cardId.toString() + " doesn't exists");
-    }
-
-    private Reminder map(ResultSet rs) throws SQLException {
-        Reminder reminder = new Reminder();
-        reminder.setId(UUID.fromString(rs.getString("id")));
-        reminder.setCreatedBy(rs.getString("created_by"));
-        reminder.setUpdatedBy(rs.getString("updated_by"));
-        reminder.setCreatedDate(rs.getDate("created_date"));
-        reminder.setUpdatedDate(rs.getDate("updated_date"));
-        reminder.setStart(rs.getDate("start"));
-        reminder.setEnd(rs.getDate("end"));
-        reminder.setRemindOn(rs.getDate("remind_on"));
-        reminder.setActive(rs.getBoolean("active"));
-        reminder.setCardId(UUID.fromString(rs.getString("card_id")));
-        return reminder;
+        return result;
     }
 }
