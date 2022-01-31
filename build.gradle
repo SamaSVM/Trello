@@ -23,6 +23,8 @@ dependencies {
     implementation 'com.zaxxer:HikariCP:5.0.0'
     implementation 'org.springframework:spring-jdbc:5.3.14'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
+    implementation 'io.springfox:springfox-swagger-ui:3.0.0'
     implementation 'org.flywaydb:flyway-core'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.h2database:h2'
