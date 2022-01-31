@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: Java
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://localhost:5432/postgres
+#    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_UPPER=false
+    password: admin
+    #    password: postgres
+    username: postgres
+    hikari:
+      maximum-pool-size: 50
+  flyway:
+    enabled: true
+    validate-on-migrate: true
+  #  jpa:
+#    show-sql: true
+#    open-in-view: false
+#    properties:
+#      hibernate.format_sql: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+server:
+  error:
+    include-message: always
+    include-exception: true
+
+#application:
+#  pagination-feature: true
