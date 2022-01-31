@@ -25,15 +25,16 @@ public class WorkspaceService extends AbstractService<Workspace> {
     @Autowired
     private BoardWorkspaceService boardWorkspaceService ;
 
-    public Workspace create(Member member, String name, String description) {
+    public Workspace create(Member member, Workspace entity) {
         Workspace workspace = new Workspace();
         workspace.setId(UUID.randomUUID());
         workspace.setCreatedBy(member.getCreatedBy());
         workspace.setCreatedDate(Date.valueOf(LocalDate.now()));
-        workspace.setName(name);
-        if (description != null) {
-            workspace.setDescription(description);
+        workspace.setName(entity.getName());
+        if (entity.getDescription() != null) {
+            workspace.setDescription(entity.getDescription());
         }
+        workspace.setVisibility(entity.getVisibility());
         repository.create(workspace);
         if (!memberWorkspaceService.create(member.getId(), workspace.getId())) {
             repository.delete(workspace.getId());
@@ -41,6 +42,12 @@ public class WorkspaceService extends AbstractService<Workspace> {
         return repository.findById(workspace.getId());
     }
 
+    @Override
+    public Workspace create(Workspace entity) {
+        throw new IllegalStateException("You need to specify who wants to create the workspace!");
+    }
+
+    @Override
     public Workspace update(Member member, Workspace entity) {
         checkMember(member, entity.getId());
         Workspace oldWorkspace = findById(entity.getId());
@@ -59,6 +66,7 @@ public class WorkspaceService extends AbstractService<Workspace> {
         return repository.update(entity);
     }
 
+    @Override
     public boolean delete(UUID id) {
         memberWorkspaceService.deleteAllMembersForWorkspace(id);
         return repository.delete(id);

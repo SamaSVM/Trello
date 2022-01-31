@@ -14,13 +14,14 @@ public class UserService extends AbstractService<User> {
         super(repository);
     }
 
-    public User create(String firstName, String lastName, String email) {
+    @Override
+    public User create(User entity) {
         User user = new User();
         user.setId(UUID.randomUUID());
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setTimeZone(ZoneId.systemDefault().toString());
+        user.setFirstName(entity.getFirstName());
+        user.setLastName(entity.getLastName());
+        user.setEmail(entity.getEmail());
+        user.setTimeZone(entity.getTimeZone() == null ? ZoneId.systemDefault().toString() : entity.getTimeZone());
         repository.create(user);
         return repository.findById(user.getId());
     }
@@ -40,9 +41,5 @@ public class UserService extends AbstractService<User> {
             entity.setTimeZone(oldUser.getTimeZone());
         }
         return repository.update(entity);
-    }
-
-    public boolean delete(UUID id) {
-        return repository.delete(id);
     }
 }

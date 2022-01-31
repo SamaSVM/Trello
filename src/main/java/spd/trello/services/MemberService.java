@@ -3,12 +3,10 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Member;
 import spd.trello.domain.User;
-import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.InterfaceRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -17,23 +15,14 @@ public class MemberService extends AbstractService<Member> {
         super(repository);
     }
 
-    public Member findById(UUID id) {
-        return repository.findById(id);
-    }
-
-    public List<Member> findAll() {
-        return repository.findAll();
-    }
-
-    public Member create(User user, MemberRole memberRole) {
+    @Override
+    public Member create(Member entity) {
         Member member = new Member();
         member.setId(UUID.randomUUID());
-        member.setCreatedBy(user.getEmail());
+        member.setCreatedBy(entity.getCreatedBy());
         member.setCreatedDate(Date.valueOf(LocalDate.now()));
-        member.setUserId(user.getId());
-        if (memberRole != null){
-            member.setMemberRole(memberRole);
-        }
+        member.setUserId(entity.getUserId());
+        member.setMemberRole(entity.getMemberRole());
         repository.create(member);
         return repository.findById(member.getId());
     }
@@ -46,9 +35,5 @@ public class MemberService extends AbstractService<Member> {
             entity.setMemberRole(oldMember.getMemberRole());
         }
         return repository.update(entity);
-    }
-
-    public boolean delete(UUID id) {
-        return repository.delete(id);
     }
 }
