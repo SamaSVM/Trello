@@ -1,6 +1,8 @@
 package spd.trello;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.Board;
 import spd.trello.domain.Member;
 import spd.trello.domain.User;
@@ -15,16 +17,23 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static spd.trello.Helper.*;
 
-public class WorkspaceTest extends BaseTest {
-    private final WorkspaceService service = context.getBean(WorkspaceService.class);
+@SpringBootTest
+public class WorkspaceTest {
+    @Autowired
+    private WorkspaceService service;
+
+    @Autowired
+    private Helper helper;
 
     @Test
     public void successCreate() {
-        User user = getNewUser("test4@mail");
-        Member member = getNewMember(user);
-        Workspace testWorkspace = service.create(member, "testWorkspace", "testDescription");
+        User user = helper.getNewUser("test4@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = new Workspace();
+        workspace.setName("testWorkspace");
+        workspace.setDescription("testDescription");
+        Workspace testWorkspace = service.create(member, workspace);
         assertNotNull(testWorkspace);
         assertAll(
                 () -> assertEquals("test4@mail", testWorkspace.getCreatedBy()),
@@ -39,10 +48,15 @@ public class WorkspaceTest extends BaseTest {
 
     @Test
     public void findAll() {
-        User user = getNewUser("test5@mail");
-        Member member = getNewMember(user);
-        Workspace testFirstWorkspace = service.create(member, "1Name", "1Des");
-        Workspace testSecondWorkspace = service.create(member, "2Name", "2Des");
+        User user = helper.getNewUser("test5@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = new Workspace();
+        workspace.setName("1Name");
+        workspace.setDescription("1Des");
+        Workspace testFirstWorkspace = service.create(member, workspace);
+        workspace.setName("2Name");
+        workspace.setDescription("2Des");
+        Workspace testSecondWorkspace = service.create(member, workspace);
         assertNotNull(testFirstWorkspace);
         assertNotNull(testSecondWorkspace);
         List<Workspace> testWorkspace = service.findAll();
@@ -54,11 +68,13 @@ public class WorkspaceTest extends BaseTest {
 
     @Test
     public void createFailure() {
-        User user = getNewUser("test6@mail");
-        Member member = getNewMember(user);
+        User user = helper.getNewUser("test6@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = new Workspace();
+        workspace.setDescription("Description");
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
-                () -> service.create(member, null, "Description"),
+                () -> service.create(member, workspace),
                 "expected to throw  IllegalStateException, but it didn't"
         );
         assertEquals("Workspace doesn't creates", ex.getMessage());
@@ -77,9 +93,12 @@ public class WorkspaceTest extends BaseTest {
 
     @Test
     public void delete() {
-        User user = getNewUser("test7@mail");
-        Member member = getNewMember(user);
-        Workspace testWorkspace = service.create(member, "testWorkspace", "testDescription");
+        User user = helper.getNewUser("test7@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = new Workspace();
+        workspace.setName("testWorkspace");
+        workspace.setDescription("testDescription");
+        Workspace testWorkspace = service.create(member, workspace);
         assertNotNull(testWorkspace);
         UUID id = testWorkspace.getId();
         assertAll(
@@ -90,9 +109,12 @@ public class WorkspaceTest extends BaseTest {
 
     @Test
     public void update() {
-        User user = getNewUser("test8@mail");
-        Member member = getNewMember(user);
-        Workspace workspace = service.create(member, "testWorkspace", "testDescription");
+        User user = helper.getNewUser("test8@mail");
+        Member member = helper.getNewMember(user);
+        Workspace firstWorkspace = new Workspace();
+        firstWorkspace.setName("testWorkspace");
+        firstWorkspace.setDescription("testDescription");
+        Workspace workspace = service.create(member, firstWorkspace);
         assertNotNull(workspace);
         workspace.setName("newWorkspace");
         workspace.setDescription("newDescription");
@@ -126,11 +148,14 @@ public class WorkspaceTest extends BaseTest {
 
     @Test
     public void addAndDeleteSecondMember() {
-        User firstUser = getNewUser("addAndDeleteSecondMember1@WT");
-        User secondUser = getNewUser("addAndDeleteSecondMember2@WT");
-        Member firstMember = getNewMember(firstUser);
-        Member secondMember = getNewMember(secondUser);
-        Workspace testWorkspace = service.create(firstMember, "testWorkspace", "testDescription");
+        User firstUser = helper.getNewUser("addAndDeleteSecondMember1@WT");
+        User secondUser = helper.getNewUser("addAndDeleteSecondMember2@WT");
+        Member firstMember = helper.getNewMember(firstUser);
+        Member secondMember = helper.getNewMember(secondUser);
+        Workspace workspace = new Workspace();
+        workspace.setName("testWorkspace");
+        workspace.setDescription("testDescription");
+        Workspace testWorkspace = service.create(firstMember, workspace);
         assertNotNull(testWorkspace);
         assertAll(
                 () -> assertTrue(service.addMember(firstMember, secondMember.getId(), testWorkspace.getId())),
@@ -140,11 +165,14 @@ public class WorkspaceTest extends BaseTest {
 
     @Test
     public void getAllMembersForWorkspace() {
-        User firstUser = getNewUser("getAllMembersForWorkspace1@WT");
-        User secondUser = getNewUser("getAllMembersForWorkspace2@WT");
-        Member firstMember = getNewMember(firstUser);
-        Member secondMember = getNewMember(secondUser);
-        Workspace testWorkspace = service.create(firstMember, "testWorkspace", "testDescription");
+        User firstUser = helper.getNewUser("getAllMembersForWorkspace1@WT");
+        User secondUser = helper.getNewUser("getAllMembersForWorkspace2@WT");
+        Member firstMember = helper.getNewMember(firstUser);
+        Member secondMember = helper.getNewMember(secondUser);
+        Workspace workspace = new Workspace();
+        workspace.setName("testWorkspace");
+        workspace.setDescription("testDescription");
+        Workspace testWorkspace = service.create(firstMember, workspace);
         service.addMember(firstMember, secondMember.getId(), testWorkspace.getId());
         assertNotNull(testWorkspace);
         List<Member> members = service.getAllMembers(firstMember, testWorkspace.getId());
@@ -157,11 +185,14 @@ public class WorkspaceTest extends BaseTest {
 
     @Test
     public void getAllBoardsForWorkspace() {
-        User user = getNewUser("getAllBoardsForWorkspace@WT");
-        Member member = getNewMember(user);
-        Workspace testWorkspace = service.create(member, "testWorkspace", "testDescription");
-        Board firstBoard = getNewBoard(member, testWorkspace.getId());
-        Board secondBoard = getNewBoard(member, testWorkspace.getId());
+        User user = helper.getNewUser("getAllBoardsForWorkspace@WT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = new Workspace();
+        workspace.setName("testWorkspace");
+        workspace.setDescription("testDescription");
+        Workspace testWorkspace = service.create(member, workspace);
+        Board firstBoard = helper.getNewBoard(member, testWorkspace.getId());
+        Board secondBoard = helper.getNewBoard(member, testWorkspace.getId());
         assertNotNull(testWorkspace);
         List<Board> boards = service.getAllBoards(member, testWorkspace.getId());
         assertAll(

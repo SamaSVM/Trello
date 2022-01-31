@@ -1,6 +1,8 @@
 package spd.trello;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.CommentRepository;
@@ -13,20 +15,23 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static spd.trello.Helper.*;
-import static spd.trello.Helper.getNewCardList;
 
-public class CommentTest extends BaseTest {
-    private final CommentService service = context.getBean(CommentService.class);
+@SpringBootTest
+public class CommentTest {
+    @Autowired
+    private CommentService service;
+
+    @Autowired
+    private Helper helper;
 
     @Test
     public void successCreate() {
-        User user = getNewUser("test24@mail");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
+        User user = helper.getNewUser("test24@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
         Comment testComment = service.create(member, card.getId(), "testText");
         assertNotNull(testComment);
         assertAll(
@@ -41,12 +46,12 @@ public class CommentTest extends BaseTest {
 
     @Test
     public void findAll() {
-        User user = getNewUser("test25@mail");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
+        User user = helper.getNewUser("test25@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
         Comment testFirstComment = service.create(member, card.getId(), "1Comment");
         Comment testSecondComment = service.create(member, card.getId(), "2Comment");
         assertNotNull(testFirstComment);
@@ -60,8 +65,8 @@ public class CommentTest extends BaseTest {
 
     @Test
     public void createFailure() {
-        User user = getNewUser("test26@mail");
-        Member member = getNewMember(user);
+        User user = helper.getNewUser("test26@mail");
+        Member member = helper.getNewMember(user);
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
                 () -> service.create(member, null, "Text"),
@@ -83,12 +88,12 @@ public class CommentTest extends BaseTest {
 
     @Test
     public void delete() {
-        User user = getNewUser("test27@mail");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
+        User user = helper.getNewUser("test27@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
         Comment testComment = service.create(member, card.getId(), "Text");
         assertNotNull(testComment);
         UUID id = testComment.getId();
@@ -100,12 +105,12 @@ public class CommentTest extends BaseTest {
 
     @Test
     public void update() {
-        User user = getNewUser("test28@mail");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
+        User user = helper.getNewUser("test28@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
         Comment comment = service.create(member, card.getId(), "text");
         assertNotNull(comment);
         comment.setText("newText");

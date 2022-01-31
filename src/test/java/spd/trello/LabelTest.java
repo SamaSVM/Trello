@@ -1,6 +1,8 @@
 package spd.trello;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.services.LabelService;
@@ -10,20 +12,23 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static spd.trello.Helper.*;
-import static spd.trello.Helper.getNewCard;
 
-public class LabelTest extends BaseTest{
-    private final LabelService service = context.getBean(LabelService.class);
+@SpringBootTest
+public class LabelTest {
+    @Autowired
+    private LabelService service;
+
+    @Autowired
+    private Helper helper;
 
     @Test
     public void successCreate() {
-        User user = getNewUser("successCreate@LT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
+        User user = helper.getNewUser("successCreate@LT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
         Label testLabel = service.create(member, card.getId(), "successCreate@LT");
         assertNotNull(testLabel);
         assertAll(
@@ -34,12 +39,12 @@ public class LabelTest extends BaseTest{
 
     @Test
     public void findAll() {
-        User user = getNewUser("findAll@LT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
+        User user = helper.getNewUser("findAll@LT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
         Label testFirstLabel = service.create(member, card.getId(), "1Label");
         Label testSecondLabel = service.create(member, card.getId(), "2Label");
         assertNotNull(testFirstLabel);
@@ -53,8 +58,8 @@ public class LabelTest extends BaseTest{
 
     @Test
     public void createFailure() {
-        User user = getNewUser("createFailure@LT");
-        Member member = getNewMember(user);
+        User user = helper.getNewUser("createFailure@LT");
+        Member member = helper.getNewMember(user);
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
                 () -> service.create(member, null, "Name"),
@@ -76,12 +81,12 @@ public class LabelTest extends BaseTest{
 
     @Test
     public void delete() {
-        User user = getNewUser("delete@LT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
+        User user = helper.getNewUser("delete@LT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
         Label testLabel = service.create(member, card.getId(), "Name");
         assertNotNull(testLabel);
         UUID id = testLabel.getId();
@@ -93,12 +98,12 @@ public class LabelTest extends BaseTest{
 
     @Test
     public void update() {
-        User user = getNewUser("update@LT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
+        User user = helper.getNewUser("update@LT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
         Label label = service.create(member, card.getId(), "Name");
         assertNotNull(label);
         label.setName("newName");

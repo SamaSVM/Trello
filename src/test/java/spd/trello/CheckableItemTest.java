@@ -1,6 +1,8 @@
 package spd.trello;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.services.CheckableItemService;
@@ -11,18 +13,23 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static spd.trello.Helper.*;
 
-public class CheckableItemTest extends BaseTest{
-    private final CheckableItemService service = context.getBean(CheckableItemService.class);
+@SpringBootTest
+public class CheckableItemTest {
+    @Autowired
+    private CheckableItemService service;
+
+    @Autowired
+    private Helper helper;
 
     @Test
     public void successCreate() {
-        User user = getNewUser("successCreate@CIT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
-        Checklist checklist = getNewChecklist(member, card.getId());
+        User user = helper.getNewUser("successCreate@CIT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+        Checklist checklist = helper.getNewChecklist(member, card.getId());
         CheckableItem testCheckableItem = service.create(member, checklist.getId(), "testName");
         assertNotNull(testCheckableItem);
         assertAll(
@@ -34,13 +41,13 @@ public class CheckableItemTest extends BaseTest{
 
     @Test
     public void findAll() {
-        User user = getNewUser("findAll@CIT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
-        Checklist checklist = getNewChecklist(member, card.getId());
+        User user = helper.getNewUser("findAll@CIT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+        Checklist checklist = helper.getNewChecklist(member, card.getId());
         CheckableItem testFirstCheckableItem = service.create(member, checklist.getId(), "1CheckableItem");
         CheckableItem testSecondCheckableItem = service.create(member, checklist.getId(), "2CheckableItem");
         assertNotNull(testFirstCheckableItem);
@@ -54,8 +61,8 @@ public class CheckableItemTest extends BaseTest{
 
     @Test
     public void createFailure() {
-        User user = getNewUser("createFailure@CIT");
-        Member member = getNewMember(user);
+        User user = helper.getNewUser("createFailure@CIT");
+        Member member = helper.getNewMember(user);
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
                 () -> service.create(member, null, "name"),
@@ -77,13 +84,13 @@ public class CheckableItemTest extends BaseTest{
 
     @Test
     public void delete() {
-        User user = getNewUser("delete@CIT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
-        Checklist checklist = getNewChecklist(member, card.getId());
+        User user = helper.getNewUser("delete@CIT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+        Checklist checklist = helper.getNewChecklist(member, card.getId());
         CheckableItem testCheckableItem = service.create(member, checklist.getId(), "Checklist");
         assertNotNull(testCheckableItem);
         UUID id = testCheckableItem.getId();
@@ -95,13 +102,13 @@ public class CheckableItemTest extends BaseTest{
 
     @Test
     public void update() {
-        User user = getNewUser("update@CIT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
-        Checklist checklist = getNewChecklist(member, card.getId());
+        User user = helper.getNewUser("update@CIT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+        Checklist checklist = helper.getNewChecklist(member, card.getId());
         CheckableItem checkableItem = service.create(member, checklist.getId(), "CheckableItem");
         assertNotNull(checkableItem);
         checkableItem.setName("newName");

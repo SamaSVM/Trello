@@ -1,6 +1,8 @@
 package spd.trello;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.User;
 import spd.trello.services.UserService;
 
@@ -10,12 +12,18 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserTest extends BaseTest {
-    private final UserService service = context.getBean(UserService.class);
+@SpringBootTest
+public class UserTest {
+    @Autowired
+    private UserService service;
 
     @Test
     public void successCreate() {
-        User testUser = service.create("createFirstName", "createLastName", "create@email");
+        User user = new User();
+        user.setFirstName("createFirstName");
+        user.setLastName("createLastName");
+        user.setEmail("create@email");
+        User testUser = service.create(user);
         assertNotNull(testUser);
         assertAll(
                 () -> assertEquals("createFirstName", testUser.getFirstName()),
@@ -27,8 +35,15 @@ public class UserTest extends BaseTest {
 
     @Test
     public void testFindAll() {
-        User testFirstUser = service.create("1FirstName", "1LastName", "1@email");
-        User testSecondUser = service.create("2FirstName", "2LastName", "2@email");
+        User user = new User();
+        user.setFirstName("1FirstName");
+        user.setLastName("1LastName");
+        user.setEmail("1@email");
+        User testFirstUser = service.create(user);
+        user.setFirstName("2FirstName");
+        user.setLastName("2LastName");
+        user.setEmail("2@email");
+        User testSecondUser = service.create(user);
         assertNotNull(testFirstUser);
         assertNotNull(testSecondUser);
         List<User> testUsers = service.findAll();
@@ -40,9 +55,12 @@ public class UserTest extends BaseTest {
 
     @Test
     public void createFailure() {
+        User user = new User();
+        user.setFirstName("createFirstName");
+        user.setLastName("createLastName");
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
-                () -> service.create("createFirstName", "createLastName", null),
+                () -> service.create(user),
                 "expected to throw Illegal state exception, but it didn't"
         );
         assertEquals("User doesn't creates", ex.getMessage());
@@ -61,7 +79,11 @@ public class UserTest extends BaseTest {
 
     @Test
     public void testDelete() {
-        User testUser = service.create("deleteFirstName", "deleteLastName", "delete@email");
+        User user = new User();
+        user.setFirstName("deleteFirstName");
+        user.setLastName("deleteLastName");
+        user.setEmail("delete@email");
+        User testUser = service.create(user);
         assertNotNull(testUser);
         UUID id = testUser.getId();
         assertAll(
@@ -72,11 +94,15 @@ public class UserTest extends BaseTest {
 
     @Test
     public void testUpdate() {
-        User user = service.create("updateFirstName", "updateLastName", "update@email");
-        assertNotNull(user);
-        UUID id = user.getId();
+        User user = new User();
+        user.setFirstName("updateFirstName");
+        user.setLastName("updateLastName");
+        user.setEmail("update@email");
+        User firstUser = service.create(user);
+        assertNotNull(firstUser);
+        UUID id = firstUser.getId();
         User testUser = new User();
-        testUser.setId(user.getId());
+        testUser.setId(firstUser.getId());
         testUser.setFirstName("newFirstName");
         testUser.setLastName("newLastName");
         testUser.setEmail("new@email");

@@ -1,6 +1,8 @@
 package spd.trello;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.services.CardListService;
@@ -11,17 +13,21 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static spd.trello.Helper.*;
 
-public class CardListTest extends BaseTest{
-    private final CardListService service  = context.getBean(CardListService.class);
+@SpringBootTest
+public class CardListTest {
+    @Autowired
+    private CardListService service;
+
+    @Autowired
+    private Helper helper;
 
     @Test
     public void successCreate() {
-        User user = getNewUser("test14@mail");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
+        User user = helper.getNewUser("test14@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
         CardList testCardList = service.create(member, board.getId(), "testCardList");
         assertNotNull(testCardList);
         assertAll(
@@ -37,10 +43,10 @@ public class CardListTest extends BaseTest{
 
     @Test
     public void testFindAll() {
-        User user = getNewUser("test15@mail");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
+        User user = helper.getNewUser("test15@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
         CardList testFirstCardList = service.create(member, board.getId(), "1CardList");
         CardList testSecondCardList = service.create(member, board.getId(), "2CardList");
         assertNotNull(testFirstCardList);
@@ -54,8 +60,8 @@ public class CardListTest extends BaseTest{
 
     @Test
     public void createFailure() {
-        User user = getNewUser("test16@mail");
-        Member member = getNewMember(user);
+        User user = helper.getNewUser("test16@mail");
+        Member member = helper.getNewMember(user);
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
                 () -> service.create(member, null, "Name"),
@@ -77,11 +83,11 @@ public class CardListTest extends BaseTest{
 
     @Test
     public void testDelete() {
-        User user = getNewUser("test17@mail");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList testCardList = service.create(member,board.getId(), "testCardList");
+        User user = helper.getNewUser("test17@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList testCardList = service.create(member, board.getId(), "testCardList");
         assertNotNull(testCardList);
         UUID id = testCardList.getId();
         assertAll(
@@ -92,10 +98,10 @@ public class CardListTest extends BaseTest{
 
     @Test
     public void testUpdate() {
-        User user = getNewUser("test18@mail");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
+        User user = helper.getNewUser("test18@mail");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = service.create(member, board.getId(), "name");
         assertNotNull(cardList);
         cardList.setName("newCardList");
@@ -129,13 +135,13 @@ public class CardListTest extends BaseTest{
 
     @Test
     public void getAllCardsForCardList() {
-        User firstUser = getNewUser("getAllCardsForCardList@CLT");
-        Member firstMember = getNewMember(firstUser);
-        Workspace workspace = getNewWorkspace(firstMember);
-        Board board = getNewBoard(firstMember, workspace.getId());
+        User firstUser = helper.getNewUser("getAllCardsForCardList@CLT");
+        Member firstMember = helper.getNewMember(firstUser);
+        Workspace workspace = helper.getNewWorkspace(firstMember);
+        Board board = helper.getNewBoard(firstMember, workspace.getId());
         CardList testCardList = service.create(firstMember, board.getId(), "testCardList");
-        Card firstCard = getNewCard(firstMember, testCardList.getId());
-        Card secondCard = getNewCard(firstMember, testCardList.getId());
+        Card firstCard = helper.getNewCard(firstMember, testCardList.getId());
+        Card secondCard = helper.getNewCard(firstMember, testCardList.getId());
         assertNotNull(testCardList);
         List<Card> cards = service.getAllCards(firstMember, testCardList.getId());
         assertAll(

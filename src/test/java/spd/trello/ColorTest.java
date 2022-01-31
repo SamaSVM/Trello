@@ -1,6 +1,8 @@
 package spd.trello;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.ColorRepository;
@@ -11,21 +13,24 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static spd.trello.Helper.*;
-import static spd.trello.Helper.getNewCard;
 
-public class ColorTest extends BaseTest{
-    private final ColorService service = context.getBean(ColorService.class);
+@SpringBootTest
+public class ColorTest {
+    @Autowired
+    private ColorService service;
+
+    @Autowired
+    private Helper helper;
 
     @Test
     public void successCreate() {
-        User user = getNewUser("successCreate@ColorT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
-        Label label = getNewLabel(member, card.getId());
+        User user = helper.getNewUser("successCreate@ColorT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+        Label label = helper.getNewLabel(member, card.getId());
         Color testColor = service.create(member, label.getId(), 1, 2, 3);
         assertNotNull(testColor);
         assertAll(
@@ -38,14 +43,14 @@ public class ColorTest extends BaseTest{
 
     @Test
     public void findAll() {
-        User user = getNewUser("findAll@ColorT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
-        Label firstLabel = getNewLabel(member, card.getId());
-        Label secondLabel = getNewLabel(member, card.getId());
+        User user = helper.getNewUser("findAll@ColorT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+        Label firstLabel = helper.getNewLabel(member, card.getId());
+        Label secondLabel = helper.getNewLabel(member, card.getId());
         Color testFirstColor = service.create(member, firstLabel.getId(), 1, 2, 3);
         Color testSecondColor = service.create(member, secondLabel.getId(), 4, 5, 6);
         assertNotNull(testFirstColor);
@@ -59,8 +64,8 @@ public class ColorTest extends BaseTest{
 
     @Test
     public void createFailure() {
-        User user = getNewUser("createFailure@ColorT");
-        Member member = getNewMember(user);
+        User user = helper.getNewUser("createFailure@ColorT");
+        Member member = helper.getNewMember(user);
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
                 () -> service.create(member, null, 1, 2, 3),
@@ -82,13 +87,13 @@ public class ColorTest extends BaseTest{
 
     @Test
     public void delete() {
-        User user = getNewUser("delete@ColorT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
-        Label label = getNewLabel(member, card.getId());
+        User user = helper.getNewUser("delete@ColorT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+        Label label = helper.getNewLabel(member, card.getId());
         Color testColor = service.create(member, label.getId(), 1, 2, 3);
         assertNotNull(testColor);
         UUID id = testColor.getId();
@@ -100,13 +105,13 @@ public class ColorTest extends BaseTest{
 
     @Test
     public void update() {
-        User user = getNewUser("update@ColorT");
-        Member member = getNewMember(user);
-        Workspace workspace = getNewWorkspace(member);
-        Board board = getNewBoard(member, workspace.getId());
-        CardList cardList = getNewCardList(member, board.getId());
-        Card card = getNewCard(member, cardList.getId());
-        Label label = getNewLabel(member, card.getId());
+        User user = helper.getNewUser("update@ColorT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+        Label label = helper.getNewLabel(member, card.getId());
         Color color = service.create(member, label.getId(), 1, 2, 3);
         assertNotNull(color);
         color.setRed(4);

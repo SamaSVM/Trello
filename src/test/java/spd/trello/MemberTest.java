@@ -1,6 +1,8 @@
 package spd.trello;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.Member;
 import spd.trello.domain.User;
 import spd.trello.domain.enums.MemberRole;
@@ -12,15 +14,22 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static spd.trello.Helper.*;
 
-public class MemberTest extends BaseTest {
-    private final MemberService service = context.getBean(MemberService.class);
+@SpringBootTest
+public class MemberTest {
+    @Autowired
+    private MemberService service;
+    @Autowired
+    private Helper helper;
 
     @Test
     public void successCreate() {
-        User user = getNewUser("test@mail");
-        Member testMember = service.create(user, MemberRole.MEMBER);
+        User user = helper.getNewUser("test@mail");
+        Member member = new Member();
+        member.setCreatedBy(user.getEmail());
+        member.setUserId(user.getId());
+        member.setMemberRole(MemberRole.MEMBER);
+        Member testMember = service.create(member);
         assertNotNull(testMember);
         assertAll(
                 () -> assertEquals("test@mail", testMember.getCreatedBy()),
@@ -32,9 +41,14 @@ public class MemberTest extends BaseTest {
 
     @Test
     public void testFindAll() {
-        User user = getNewUser("test1@mail");
-        Member testFirstMember = service.create(user, MemberRole.MEMBER);
-        Member testSecondMember = service.create(user, MemberRole.ADMIN);
+        User user = helper.getNewUser("test1@mail");
+        Member member = new Member();
+        member.setCreatedBy(user.getEmail());
+        member.setUserId(user.getId());
+        member.setMemberRole(MemberRole.MEMBER);
+        Member testFirstMember = service.create(member);
+        member.setMemberRole(MemberRole.ADMIN);
+        Member testSecondMember = service.create(member);
         assertNotNull(testFirstMember);
         assertNotNull(testSecondMember);
         List<Member> testMembers = service.findAll();
@@ -46,12 +60,14 @@ public class MemberTest extends BaseTest {
 
     @Test
     public void createFailure() {
-        NullPointerException ex = assertThrows(
-                NullPointerException.class,
-                () -> service.create(null, MemberRole.ADMIN),
+        Member member = new Member();
+        member.setMemberRole(MemberRole.MEMBER);
+        IllegalStateException ex = assertThrows(
+                IllegalStateException.class,
+                () -> service.create(member),
                 "expected to throw INullPointException, but it didn't"
         );
-        assertEquals("Cannot invoke \"spd.trello.domain.User.getEmail()\" because \"user\" is null", ex.getMessage());
+        assertEquals("Member doesn't creates", ex.getMessage());
     }
 
     @Test
@@ -67,8 +83,12 @@ public class MemberTest extends BaseTest {
 
     @Test
     public void testDelete() {
-        User user = getNewUser("test2@mail");
-        Member testMember = service.create(user, MemberRole.MEMBER);
+        User user = helper.getNewUser("test2@mail");
+        Member member = new Member();
+        member.setCreatedBy(user.getEmail());
+        member.setUserId(user.getId());
+        member.setMemberRole(MemberRole.MEMBER);
+        Member testMember = service.create(member);
         assertNotNull(testMember);
         UUID id = testMember.getId();
         assertAll(
@@ -79,8 +99,12 @@ public class MemberTest extends BaseTest {
 
     @Test
     public void testUpdate() {
-        User user = getNewUser("test3@mail");
-        Member testMember = service.create(user, MemberRole.MEMBER);
+        User user = helper.getNewUser("test3@mail");
+        Member member = new Member();
+        member.setCreatedBy(user.getEmail());
+        member.setUserId(user.getId());
+        member.setMemberRole(MemberRole.MEMBER);
+        Member testMember = service.create(member);
         assertNotNull(testMember);
         testMember.setMemberRole(MemberRole.ADMIN);
         UUID id = service.update(user, testMember).getId();
