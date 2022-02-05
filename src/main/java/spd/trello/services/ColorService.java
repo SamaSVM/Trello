@@ -14,20 +14,20 @@ public class ColorService extends AbstractService<Color> {
         super(repository);
     }
 
-    public Color create(Member member, UUID labelId, Integer red, Integer green, Integer blue) {
-        checkMember(member);
+    @Override
+    public Color create(Color entity) {
         Color color = new Color();
         color.setId(UUID.randomUUID());
-        color.setRed(red);
-        color.setGreen(green);
-        color.setBlue(blue);
-        color.setLabelId(labelId);
+        color.setRed(entity.getRed());
+        color.setGreen(entity.getGreen());
+        color.setBlue(entity.getBlue());
+        color.setLabelId(entity.getLabelId());
         repository.create(color);
         return repository.findById(color.getId());
     }
 
-    public Color update(Member member, Color entity) {
-        checkMember(member);
+    @Override
+    public Color update(Color entity) {
         Color oldCard = repository.findById(entity.getId());
         if (entity.getRed() == null) {
             entity.setRed(oldCard.getRed());
@@ -39,11 +39,5 @@ public class ColorService extends AbstractService<Color> {
             entity.setBlue(oldCard.getBlue());
         }
         return repository.update(entity);
-    }
-
-    private void checkMember(Member member) {
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This member cannot update cardList!");
-        }
     }
 }

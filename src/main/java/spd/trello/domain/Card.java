@@ -12,7 +12,6 @@ public class Card extends Resource {
     private String name;
     private String description;
     private Boolean archived = false;
-    private Reminder reminder;
     private UUID cardListId;
 
     @Override
@@ -26,7 +25,6 @@ public class Card extends Resource {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", archived=" + archived +
-                ", reminder=" + reminder +
                 ", listId=" + cardListId +
                 '}';
     }

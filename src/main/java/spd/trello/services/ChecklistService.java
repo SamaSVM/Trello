@@ -1,11 +1,7 @@
 package spd.trello.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import spd.trello.domain.CheckableItem;
 import spd.trello.domain.Checklist;
-import spd.trello.domain.Member;
-import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.InterfaceRepository;
 
 import java.sql.Date;
@@ -14,29 +10,29 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class ChecklistService extends AbstractService<Checklist>{
-    public ChecklistService(InterfaceRepository<Checklist> repository) {
+public class ChecklistService extends AbstractService<Checklist> {
+    public ChecklistService(InterfaceRepository<Checklist> repository, ChecklistCardService checklistCardService) {
         super(repository);
+        this.checklistCardService = checklistCardService;
     }
 
-    @Autowired
-    private CheckableItemChecklistService checkableItemChecklistService;
+    private final ChecklistCardService checklistCardService;
 
-    public Checklist create(Member member, UUID cardId, String name) {
+    @Override
+    public Checklist create(Checklist entity) {
         Checklist checklist = new Checklist();
         checklist.setId(UUID.randomUUID());
-        checklist.setCreatedBy(member.getCreatedBy());
+        checklist.setCreatedBy(entity.getCreatedBy());
         checklist.setCreatedDate(Date.valueOf(LocalDate.now()));
-        checklist.setName(name);
-        checklist.setCardId(cardId);
+        checklist.setName(entity.getName());
+        checklist.setCardId(entity.getCardId());
         repository.create(checklist);
         return repository.findById(checklist.getId());
     }
 
-    public Checklist update(Member member, Checklist entity) {
-        checkMember(member);
+    @Override
+    public Checklist update(Checklist entity) {
         Checklist oldChecklist = repository.findById(entity.getId());
-        entity.setUpdatedBy(member.getCreatedBy());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         if (entity.getName() == null) {
             entity.setName(oldChecklist.getName());
@@ -44,14 +40,7 @@ public class ChecklistService extends AbstractService<Checklist>{
         return repository.update(entity);
     }
 
-    public List<CheckableItem> getCheckableItems(Member member, UUID checklistId) {
-        checkMember(member);
-        return checkableItemChecklistService.getAllCheckableItemForChecklist(checklistId);
-    }
-
-    private void checkMember(Member member){
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This member cannot update checklist!");
-        }
+        public List<Checklist> getAllChecklists(UUID cardId) {
+        return checklistCardService.getAllChecklistsForCard(cardId);
     }
 }

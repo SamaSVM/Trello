@@ -1,11 +1,7 @@
 package spd.trello.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import spd.trello.domain.Card;
 import spd.trello.domain.CardList;
-import spd.trello.domain.Member;
-import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.InterfaceRepository;
 
 import java.sql.Date;
@@ -15,28 +11,26 @@ import java.util.UUID;
 
 @Service
 public class CardListService extends AbstractService<CardList> {
-    public CardListService(InterfaceRepository<CardList> repository) {
+    public CardListService(InterfaceRepository<CardList> repository, CardListBoardService cardListBoardService) {
         super(repository);
+        this.cardListBoardService = cardListBoardService;
     }
 
-    @Autowired
-    CardCardListService cardCardListService;
+    private final CardListBoardService cardListBoardService;
 
-    public CardList create(Member member, UUID boardId, String name) {
+    public CardList create(CardList entity) {
         CardList cardList = new CardList();
         cardList.setId(UUID.randomUUID());
-        cardList.setCreatedBy(member.getCreatedBy());
+        cardList.setCreatedBy(entity.getCreatedBy());
         cardList.setCreatedDate(Date.valueOf(LocalDate.now()));
-        cardList.setName(name);
-        cardList.setBoardId(boardId);
+        cardList.setName(entity.getName());
+        cardList.setBoardId(entity.getBoardId());
         repository.create(cardList);
         return repository.findById(cardList.getId());
     }
 
-    public CardList update(Member member, CardList entity) {
-        checkMember(member);
+    public CardList update(CardList entity) {
         CardList oldCardList = findById(entity.getId());
-        entity.setUpdatedBy(member.getCreatedBy());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         if (entity.getName() == null) {
             entity.setName(oldCardList.getName());
@@ -44,14 +38,7 @@ public class CardListService extends AbstractService<CardList> {
         return repository.update(entity);
     }
 
-    public List<Card> getAllCards(Member member, UUID cardListId) {
-        checkMember(member);
-        return cardCardListService.getAllCardsForCardList(cardListId);
-    }
-
-    private void checkMember(Member member) {
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This member cannot update cardList!");
-        }
+    public List<CardList> getAllCardListsForBoard(UUID boardId) {
+        return cardListBoardService.getAllCardListsForBoard(boardId);
     }
 }

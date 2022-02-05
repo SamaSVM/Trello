@@ -1,9 +1,7 @@
 package spd.trello.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.*;
-import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.*;
 
 import java.sql.Date;
@@ -13,40 +11,33 @@ import java.util.UUID;
 
 @Service
 public class CardService extends AbstractService<Card> {
-    public CardService(InterfaceRepository<Card> repository) {
+    public CardService(
+            InterfaceRepository<Card> repository,
+            MemberCardService memberCardService,
+            CardCardListService cardCardListService
+    ) {
         super(repository);
+        this.memberCardService = memberCardService;
+        this.cardCardListService = cardCardListService;
     }
 
-    @Autowired
-    private MemberCardService memberCardService;
-    @Autowired
-    private CommentCardService commentCardService;
-    @Autowired
-    private ReminderCardService reminderCardService;
-    @Autowired
-    private ChecklistCardService checklistCardService;
-    @Autowired
-    private LabelCardService labelCardService;
+    private final MemberCardService memberCardService;
+    private final CardCardListService cardCardListService;
 
-    public Card create(Member member, UUID cardListId, String name, String description) {
+    public Card create(Card entity) {
         Card card = new Card();
         card.setId(UUID.randomUUID());
-        card.setCreatedBy(member.getCreatedBy());
+        card.setCreatedBy(entity.getCreatedBy());
         card.setCreatedDate(Date.valueOf(LocalDate.now()));
-        card.setName(name);
-        card.setDescription(description);
-        card.setCardListId(cardListId);
+        card.setName(entity.getName());
+        card.setDescription(entity.getDescription());
+        card.setCardListId(entity.getCardListId());
         repository.create(card);
-        if (!memberCardService.create(member.getId(), card.getId())) {
-            delete(card.getId());
-        }
         return repository.findById(card.getId());
     }
 
-    public Card update(Member member, Card entity) {
-        checkMember(member, entity.getId());
+    public Card update(Card entity) {
         Card oldCard = repository.findById(entity.getId());
-        entity.setUpdatedBy(member.getCreatedBy());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         if (entity.getName() == null) {
             entity.setName(oldCard.getName());
@@ -54,57 +45,18 @@ public class CardService extends AbstractService<Card> {
         if (entity.getDescription() == null && oldCard.getDescription() != null) {
             entity.setDescription(oldCard.getDescription());
         }
-        if (entity.getArchived() == null) {
-            entity.setArchived(oldCard.getArchived());
-        }
         return repository.update(entity);
     }
 
-    @Override
-    public boolean delete(UUID id) {
-        memberCardService.deleteAllMembersForCard(id);
-        return repository.delete(id);
-    }
-
-    public boolean addMember(Member member, UUID newMemberId, UUID cardId) {
-        checkMember(member, cardId);
+    public boolean addMember(UUID newMemberId, UUID cardId) {
         return memberCardService.create(newMemberId, cardId);
     }
 
-    public boolean deleteMember(Member member, UUID memberId, UUID cardId) {
-        checkMember(member, cardId);
+    public boolean deleteMember(UUID memberId, UUID cardId) {
         return memberCardService.delete(memberId, cardId);
     }
 
-    public List<Member> getAllMembers(Member member, UUID cardId) {
-        checkMember(member, cardId);
-        return memberCardService.findMembersByCardId(cardId);
-    }
-
-    public List<Comment> getAllComments(Member member, UUID cardId) {
-        checkMember(member, cardId);
-        return commentCardService.getAllCommentsForCard(cardId);
-    }
-
-    public List<Reminder> getAllReminders(Member member, UUID cardId) {
-        checkMember(member, cardId);
-        return reminderCardService.getAllCommentsForCard(cardId);
-    }
-
-    public List<Checklist> getAllChecklists(Member member, UUID cardId) {
-        checkMember(member, cardId);
-        return checklistCardService.getAllChecklistsForCard(cardId);
-    }
-
-    public List<Label> getAllLabels(Member member, UUID cardId) {
-        checkMember(member, cardId);
-        return labelCardService.getAllLabelsForCard(cardId);
-    }
-
-    private void checkMember(Member member, UUID cardId) {
-        if (member.getMemberRole() == MemberRole.GUEST ||
-                !memberCardService.findByIds(member.getId(), cardId)) {
-            throw new IllegalStateException("This member cannot update card!");
-        }
+    public List<Card> getAllCardsForCardList(UUID cardListId) {
+        return cardCardListService.getAllCardsForCardList(cardListId);
     }
 }

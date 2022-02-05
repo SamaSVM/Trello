@@ -2,30 +2,32 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.CheckableItem;
-import spd.trello.domain.Member;
-import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.InterfaceRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class CheckableItemService extends AbstractService<CheckableItem>{
-    public CheckableItemService(InterfaceRepository<CheckableItem> repository) {
+    public CheckableItemService(InterfaceRepository<CheckableItem> repository, CheckableItemChecklistService checkableItemChecklistService) {
         super(repository);
+        this.checkableItemChecklistService = checkableItemChecklistService;
     }
 
-    public CheckableItem create(Member member, UUID checklistId, String name) {
-        checkMember(member);
+    private final CheckableItemChecklistService checkableItemChecklistService;
+
+    @Override
+    public CheckableItem create(CheckableItem entity) {
         CheckableItem checkableItem = new CheckableItem();
         checkableItem.setId(UUID.randomUUID());
-        checkableItem.setName(name);
-        checkableItem.setChecklistId(checklistId);
+        checkableItem.setName(entity.getName());
+        checkableItem.setChecklistId(entity.getChecklistId());
         repository.create(checkableItem);
         return repository.findById(checkableItem.getId());
     }
 
-    public CheckableItem update(Member member, CheckableItem entity) {
-        checkMember(member);
+    @Override
+    public CheckableItem update(CheckableItem entity) {
         CheckableItem oldCheckableItem = repository.findById(entity.getId());
         if (entity.getName() == null) {
             entity.setName(oldCheckableItem.getName());
@@ -36,9 +38,7 @@ public class CheckableItemService extends AbstractService<CheckableItem>{
         return repository.update(entity);
     }
 
-    private void checkMember(Member member){
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This member cannot update checkableItem!");
-        }
+    public List<CheckableItem> getCheckableItems(UUID checklistId) {
+        return checkableItemChecklistService.getAllCheckableItemForChecklist(checklistId);
     }
 }

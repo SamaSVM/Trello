@@ -1,38 +1,40 @@
 package spd.trello.services;
 
 import org.springframework.stereotype.Service;
-import spd.trello.domain.Member;
 import spd.trello.domain.Reminder;
-import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.InterfaceRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Service
-public class ReminderService extends AbstractService<Reminder>{
-    public ReminderService(InterfaceRepository<Reminder> repository) {
+public class ReminderService extends AbstractService<Reminder> {
+    public ReminderService(InterfaceRepository<Reminder> repository, ReminderCardService reminderCardService) {
         super(repository);
+        this.reminderCardService = reminderCardService;
     }
 
-    public Reminder create(Member member, UUID cardId, Date end, Date remindOn) {
+    private final ReminderCardService reminderCardService;
+
+    @Override
+    public Reminder create(Reminder entity) {
         Reminder reminder = new Reminder();
         reminder.setId(UUID.randomUUID());
-        reminder.setCreatedBy(member.getCreatedBy());
+        reminder.setCreatedBy(entity.getCreatedBy());
         reminder.setCreatedDate(Date.valueOf(LocalDate.now()));
         reminder.setStart(Date.valueOf(LocalDate.now()));
-        reminder.setEnd(end);
-        reminder.setRemindOn(remindOn);
-        reminder.setCardId(cardId);
+        reminder.setEnd(entity.getEnd());
+        reminder.setRemindOn(entity.getRemindOn());
+        reminder.setCardId(entity.getCardId());
         repository.create(reminder);
         return repository.findById(reminder.getId());
     }
 
-    public Reminder update(Member member, Reminder entity) {
-        checkMember(member);
+    @Override
+    public Reminder update(Reminder entity) {
         Reminder oldReminder = repository.findById(entity.getId());
-        entity.setUpdatedBy(member.getCreatedBy());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         if (entity.getEnd() == null) {
             entity.setEnd(oldReminder.getEnd());
@@ -46,9 +48,7 @@ public class ReminderService extends AbstractService<Reminder>{
         return repository.update(entity);
     }
 
-    private void checkMember(Member member){
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This member cannot update reminder!");
-        }
+    public List<Reminder> getAllReminders(UUID cardId) {
+        return reminderCardService.getAllCommentsForCard(cardId);
     }
 }

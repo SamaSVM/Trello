@@ -3,9 +3,6 @@ package spd.trello.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Board;
-import spd.trello.domain.CardList;
-import spd.trello.domain.Member;
-import spd.trello.domain.enums.MemberRole;
 import spd.trello.repository.InterfaceRepository;
 
 import java.sql.Date;
@@ -15,37 +12,35 @@ import java.util.UUID;
 
 @Service
 public class BoardService extends AbstractService<Board> {
-    public BoardService(InterfaceRepository<Board> repository) {
+    public BoardService(InterfaceRepository<Board> repository, MemberBoardService memberBoardService, BoardWorkspaceService boardWorkspaceService) {
         super(repository);
+        this.memberBoardService = memberBoardService;
+        this.boardWorkspaceService = boardWorkspaceService;
     }
 
-    @Autowired
-    private MemberBoardService memberBoardService;
+    private final MemberBoardService memberBoardService;
 
-    @Autowired
-    private CardListBoardService cardListBoardService;
+    private final BoardWorkspaceService boardWorkspaceService;
 
-    public Board create(Member member, UUID workspaceId, String name, String description) {
+    @Override
+    public Board create(Board entity) {
         Board board = new Board();
         board.setId(UUID.randomUUID());
-        board.setCreatedBy(member.getCreatedBy());
+        board.setCreatedBy(entity.getCreatedBy());
         board.setCreatedDate(Date.valueOf(LocalDate.now()));
-        board.setName(name);
-        if (description != null) {
-            board.setDescription(description);
+        board.setName(entity.getName());
+        if (entity.getDescription() != null) {
+            board.setDescription(entity.getDescription());
         }
-        board.setWorkspaceId(workspaceId);
+        board.setVisibility(entity.getVisibility());
+        board.setWorkspaceId(entity.getWorkspaceId());
         repository.create(board);
-        if (!memberBoardService.create(member.getId(), board.getId())) {
-            delete(board.getId());
-        }
         return repository.findById(board.getId());
     }
 
-    public Board update(Member member, Board entity) {
-        checkMember(member, entity.getId());
+    @Override
+    public Board update(Board entity) {
         Board oldBoard = findById(entity.getId());
-        entity.setUpdatedBy(member.getCreatedBy());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         if (entity.getName() == null) {
             entity.setName(oldBoard.getName());
@@ -65,35 +60,15 @@ public class BoardService extends AbstractService<Board> {
         return repository.update(entity);
     }
 
-    public boolean delete(UUID id) {
-        memberBoardService.deleteAllMembersForBoard(id);
-        return repository.delete(id);
-    }
-
-    public boolean addMember(Member member, UUID newMemberId, UUID boardId) {
-        checkMember(member, boardId);
+    public boolean addMember(UUID newMemberId, UUID boardId) {
         return memberBoardService.create(newMemberId, boardId);
     }
 
-    public boolean deleteMember(Member member, UUID memberId, UUID boardId) {
-        checkMember(member, boardId);
+    public boolean deleteMember(UUID memberId, UUID boardId) {
         return memberBoardService.delete(memberId, boardId);
     }
 
-    public List<Member> getAllMembers(Member member, UUID workspaceId) {
-        checkMember(member, workspaceId);
-        return memberBoardService.findMembersByBoardId(workspaceId);
-    }
-
-    public List<CardList> getAllCardLists(Member member, UUID boardId) {
-        checkMember(member, boardId);
-        return cardListBoardService.getAllCardListsForBoard(boardId);
-    }
-
-    private void checkMember(Member member, UUID boardId) {
-        if (member.getMemberRole() == MemberRole.GUEST ||
-                !memberBoardService.findByIds(member.getId(), boardId)) {
-            throw new IllegalStateException("This member cannot update board!");
-        }
+    public List<Board> getAllBoardsForWorkspace( UUID workspaceId) {
+        return boardWorkspaceService.getAllBoardsForWorkspace(workspaceId);
     }
 }
