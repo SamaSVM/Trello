@@ -1,21 +1,16 @@
 package spd.trello.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spd.trello.domain.perent.Domain;
 import spd.trello.services.AbstractService;
-import spd.trello.services.MemberService;
 
 import java.util.List;
 import java.util.UUID;
 
 public class AbstractController<E extends Domain, S extends AbstractService<E>> {
     S service;
-
-    @Autowired
-    MemberService memberService;
 
     public AbstractController(S service) {
         this.service = service;
