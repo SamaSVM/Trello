@@ -36,11 +36,7 @@ public class ChecklistRepository implements InterfaceRepository<Checklist>{
 
     @Override
     public List<Checklist> findAll() {
-        List<Checklist> result = jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Checklist.class));
-        if (result.isEmpty()) {
-            throw new IllegalStateException("Table checklists is empty!");
-        }
-        return result;
+        return jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Checklist.class));
     }
 
     @Override

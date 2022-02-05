@@ -36,11 +36,7 @@ public class ReminderRepository implements InterfaceRepository<Reminder> {
 
     @Override
     public List<Reminder> findAll() {
-        List<Reminder> result = jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Reminder.class));
-        if (result.isEmpty()) {
-            throw new IllegalStateException("Table reminders is empty!");
-        }
-        return result;
+        return jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Reminder.class));
     }
 
     @Override

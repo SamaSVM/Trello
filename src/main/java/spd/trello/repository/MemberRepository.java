@@ -37,11 +37,7 @@ public class MemberRepository implements InterfaceRepository<Member> {
 
     @Override
     public List<Member> findAll() {
-        List<Member> result = jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Member.class));
-        if(result.isEmpty()){
-            throw new IllegalStateException("Table members is empty!");
-        }
-        return result;
+        return jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Member.class));
     }
 
     @Override

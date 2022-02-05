@@ -35,11 +35,7 @@ public class ColorRepository implements InterfaceRepository<Color>{
 
     @Override
     public List<Color> findAll() {
-        List<Color> result = jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Color.class));
-        if (result.isEmpty()) {
-            throw new IllegalStateException("Table colors is empty!");
-        }
-        return result;
+        return jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Color.class));
     }
 
     @Override

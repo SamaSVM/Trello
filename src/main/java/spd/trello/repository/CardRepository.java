@@ -37,11 +37,7 @@ public class CardRepository implements InterfaceRepository<Card> {
 
     @Override
     public List<Card> findAll() {
-        List<Card> result = jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Card.class));
-        if(result.isEmpty()){
-            throw new IllegalStateException("Table cards is empty!");
-        }
-        return result;
+        return jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Card.class));
     }
 
     @Override

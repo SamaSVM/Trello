@@ -35,11 +35,7 @@ public class CommentRepository implements InterfaceRepository<Comment> {
 
     @Override
     public List<Comment> findAll() {
-        List<Comment> result = jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Comment.class));
-        if(result.isEmpty()){
-            throw new IllegalStateException("Table comments is empty!");
-        }
-        return result;
+        return jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Comment.class));
     }
 
     @Override

@@ -35,11 +35,7 @@ public class LabelRepository implements InterfaceRepository<Label> {
 
     @Override
     public List<Label> findAll() {
-        List<Label> result = jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Label.class));
-        if (result.isEmpty()) {
-            throw new IllegalStateException("Table labels is empty!");
-        }
-        return result;
+        return jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Label.class));
     }
 
     @Override

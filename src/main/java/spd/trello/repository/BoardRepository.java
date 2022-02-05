@@ -37,11 +37,7 @@ public class BoardRepository implements InterfaceRepository<Board> {
 
     @Override
     public List<Board> findAll() {
-        List<Board> result = jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Board.class));
-        if(result.isEmpty()){
-            throw new IllegalStateException("Table boards is empty!");
-        }
-        return result;
+        return jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Board.class));
     }
 
     @Override

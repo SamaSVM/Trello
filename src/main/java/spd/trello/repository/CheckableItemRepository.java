@@ -35,11 +35,7 @@ public class CheckableItemRepository implements InterfaceRepository<CheckableIte
 
     @Override
     public List<CheckableItem> findAll() {
-        List<CheckableItem> result = jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(CheckableItem.class));
-        if (result.isEmpty()) {
-            throw new IllegalStateException("Table checkable_items is empty!");
-        }
-        return result;
+        return jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(CheckableItem.class));
     }
 
     @Override
