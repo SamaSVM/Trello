@@ -37,11 +37,7 @@ public class WorkspaceRepository implements InterfaceRepository<Workspace> {
 
     @Override
     public List<Workspace> findAll() {
-        List<Workspace> result = jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Workspace.class));
-        if(result.isEmpty()){
-            throw new IllegalStateException("Table workspaces is empty!");
-        }
-        return result;
+        return jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(Workspace.class));
     }
 
     @Override
