@@ -5,7 +5,6 @@ import spd.trello.domain.User;
 import spd.trello.repository.InterfaceRepository;
 
 import java.time.ZoneId;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,6 +25,7 @@ public class UserService extends AbstractService<User> {
         return repository.findById(user.getId());
     }
 
+    @Override
     public User update(User entity) {
         User oldUser = findById(entity.getId());
         if (entity.getFirstName() == null) {

@@ -37,11 +37,7 @@ public class UserRepository implements InterfaceRepository<User> {
 
     @Override
     public List<User> findAll() {
-        List<User> result = jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(User.class));
-        if(result.isEmpty()){
-            throw new IllegalStateException("Table users is empty!");
-        }
-        return result;
+        return jdbcTemplate.query(FIND_ALL_STMT, new BeanPropertyRowMapper<>(User.class));
     }
 
     @Override

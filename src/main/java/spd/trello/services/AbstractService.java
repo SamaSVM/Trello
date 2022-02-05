@@ -1,7 +1,5 @@
 package spd.trello.services;
 
-import spd.trello.domain.Member;
-import spd.trello.domain.enums.MemberRole;
 import spd.trello.domain.perent.Domain;
 import spd.trello.repository.InterfaceRepository;
 
@@ -28,18 +26,11 @@ public abstract class AbstractService<T extends Domain> {
         return repository.findById(entity.getId());
     }
 
-    public T update(Member member, T entity) {
-        checkMember(member);
+    public T update(T entity) {
         return repository.update(entity);
     }
 
     public boolean delete(UUID id) {
         return repository.delete(id);
-    }
-
-    private void checkMember(Member member) {
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This user cannot delete!");
-        }
     }
 }

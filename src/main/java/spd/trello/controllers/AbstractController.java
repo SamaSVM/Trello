@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import spd.trello.domain.Member;
 import spd.trello.domain.perent.Domain;
 import spd.trello.services.AbstractService;
 import spd.trello.services.MemberService;
@@ -29,18 +28,19 @@ public class AbstractController<E extends Domain, S extends AbstractService<E>> 
     }
 
 
-    @PutMapping("/{memberId}/{id}")
-    public ResponseEntity<E> update(@PathVariable UUID memberId, @PathVariable UUID id, @RequestBody E resource) {
+    @PutMapping("/{id}")
+    public ResponseEntity<E> update(@PathVariable UUID id, @RequestBody E resource) {
         resource.setId(id);
-        Member member = memberService.findById(memberId);
-        E result = service.update(member, resource);
+        E result = service.update(resource);
         return new ResponseEntity(result, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public HttpStatus delete(@PathVariable UUID id) {
-        service.delete(id);
-        return HttpStatus.OK;
+        if(service.delete(id)){
+            return HttpStatus.OK;
+        }
+        return HttpStatus.NOT_FOUND;
     }
 
     @GetMapping("/{id}")
