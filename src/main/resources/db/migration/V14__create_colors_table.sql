@@ -4,6 +4,6 @@ CREATE TABLE IF NOT EXISTS colors
     red      INTEGER          NOT NULL,
     green    INTEGER          NOT NULL,
     blue     INTEGER          NOT NULL,
-    label_id UUID UNIQUE      NOT NULL,
-    FOREIGN KEY (label_id) REFERENCES labels (id)
+    label_id UUID UNIQUE      /*NOT NULL,
+    FOREIGN KEY (label_id) REFERENCES labels (id)*/
 );

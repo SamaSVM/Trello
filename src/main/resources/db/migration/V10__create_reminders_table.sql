@@ -9,6 +9,6 @@ CREATE TABLE IF NOT EXISTS reminders
     "end"        TIMESTAMP,
     remind_on    TIMESTAMP        NOT NULL,
     active       BOOLEAN          NOT NULL,
-    card_id      UUID             NOT NULL,
-    FOREIGN KEY (card_id) REFERENCES cards (id)
+    card_id      UUID             /*NOT NULL,
+    FOREIGN KEY (card_id) REFERENCES cards (id)*/
 );

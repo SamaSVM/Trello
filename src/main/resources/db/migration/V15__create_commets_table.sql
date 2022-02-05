@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS comments
     created_date TIMESTAMP        NOT NULL,
     updated_date TIMESTAMP,
     text         VARCHAR(1000)    NOT NULL,
-    card_id      UUID             NOT NULL,
-    FOREIGN KEY (card_id) REFERENCES cards (id)
+    card_id      UUID            /* NOT NULL,
+    FOREIGN KEY (card_id) REFERENCES cards (id)*/
 );

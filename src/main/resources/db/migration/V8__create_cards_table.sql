@@ -8,6 +8,6 @@ CREATE TABLE IF NOT EXISTS cards
     name         VARCHAR(255)     NOT NULL,
     description  VARCHAR(255),
     archived     BOOLEAN          NOT NULL,
-    card_list_id UUID             NOT NULL,
-    FOREIGN KEY (card_list_id) REFERENCES card_lists (id)
+    card_list_id UUID             /*NOT NULL,
+    FOREIGN KEY (card_list_id) REFERENCES card_lists (id)*/
 );

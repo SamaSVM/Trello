@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS card_lists
     updated_date TIMESTAMP,
     name         VARCHAR(255)     NOT NULL,
     archived     BOOLEAN          NOT NULL,
-    board_id     UUID             NOT NULL,
-    FOREIGN KEY (board_id) REFERENCES boards (id)
+    board_id     UUID             /*NOT NULL,
+    FOREIGN KEY (board_id) REFERENCES boards (id)*/
 );
