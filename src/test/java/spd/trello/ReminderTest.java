@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
-import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.ReminderRepository;
 import spd.trello.services.ReminderService;
 
 import java.sql.Date;
@@ -14,10 +12,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static spd.trello.Helper.*;
 
 @SpringBootTest
-public class ReminderTest{
+public class ReminderTest {
     @Autowired
     private ReminderService service;
 
@@ -32,12 +29,12 @@ public class ReminderTest{
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
-        Reminder testReminder = service.create(
-                member,
-                card.getId(),
-                Date.valueOf(LocalDate.of(2222, 1, 1)),
-                Date.valueOf(LocalDate.of(2222, 1, 1))
-        );
+        Reminder reminder = new Reminder();
+        reminder.setCardId(card.getId());
+        reminder.setCreatedBy("successCreate@RT");
+        reminder.setRemindOn(Date.valueOf(LocalDate.of(2222, 1, 1)));
+        reminder.setEnd(Date.valueOf(LocalDate.of(2222, 1, 1)));
+        Reminder testReminder = service.create(reminder);
         assertNotNull(testReminder);
         assertAll(
                 () -> assertEquals("successCreate@RT", testReminder.getCreatedBy()),
@@ -60,18 +57,15 @@ public class ReminderTest{
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
-        Reminder testFirstReminder = service.create(
-                member,
-                card.getId(),
-                Date.valueOf(LocalDate.of(2222, 1, 1)),
-                Date.valueOf(LocalDate.of(2222, 1, 1))
-        );
-        Reminder testSecondReminder = service.create(
-                member,
-                card.getId(),
-                Date.valueOf(LocalDate.of(2222, 2, 2)),
-                Date.valueOf(LocalDate.of(2222, 2, 2))
-        );
+        Reminder reminder = new Reminder();
+        reminder.setCardId(card.getId());
+        reminder.setCreatedBy("findAll@RT");
+        reminder.setRemindOn(Date.valueOf(LocalDate.of(2222, 1, 1)));
+        reminder.setEnd(Date.valueOf(LocalDate.of(2222, 1, 1)));
+        Reminder testFirstReminder = service.create(reminder);
+        reminder.setRemindOn(Date.valueOf(LocalDate.of(2222, 2, 2)));
+        reminder.setEnd(Date.valueOf(LocalDate.of(2222, 2, 2)));
+        Reminder testSecondReminder = service.create(reminder);
         assertNotNull(testFirstReminder);
         assertNotNull(testSecondReminder);
         List<Reminder> testComments = service.findAll();
@@ -83,14 +77,10 @@ public class ReminderTest{
 
     @Test
     public void createFailure() {
-        User user = helper.getNewUser("createFailure@RT");
-        Member member = helper.getNewMember(user);
+        Reminder reminder = new Reminder();
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
-                () -> service.create(member,
-                        null,
-                        Date.valueOf(LocalDate.of(2222, 1, 1)),
-                        Date.valueOf(LocalDate.of(2222, 1, 1))),
+                () -> service.create(reminder),
                 "expected to throw  IllegalStateException, but it didn't"
         );
         assertEquals("Reminder doesn't creates", ex.getMessage());
@@ -115,12 +105,12 @@ public class ReminderTest{
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
-        Reminder testReminder = service.create(
-                member,
-                card.getId(),
-                Date.valueOf(LocalDate.of(2222, 1, 1)),
-                Date.valueOf(LocalDate.of(2222, 1, 1))
-        );
+        Reminder reminder = new Reminder();
+        reminder.setCardId(card.getId());
+        reminder.setCreatedBy("delete@RT");
+        reminder.setRemindOn(Date.valueOf(LocalDate.of(2222, 1, 1)));
+        reminder.setEnd(Date.valueOf(LocalDate.of(2222, 1, 1)));
+        Reminder testReminder = service.create(reminder);
         assertNotNull(testReminder);
         UUID id = testReminder.getId();
         assertAll(
@@ -137,15 +127,18 @@ public class ReminderTest{
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
-        Reminder reminder = service.create(member,
-                card.getId(),
-                Date.valueOf(LocalDate.of(2222, 1, 1)),
-                Date.valueOf(LocalDate.of(2222, 1, 1)));
+        Reminder updateReminder = new Reminder();
+        updateReminder.setCardId(card.getId());
+        updateReminder.setCreatedBy("update@RT");
+        updateReminder.setRemindOn(Date.valueOf(LocalDate.of(2222, 1, 1)));
+        updateReminder.setEnd(Date.valueOf(LocalDate.of(2222, 1, 1)));
+        Reminder reminder = service.create(updateReminder);
         assertNotNull(reminder);
+        reminder.setUpdatedBy("update@RT");
         reminder.setEnd(Date.valueOf(LocalDate.of(2222, 2, 2)));
         reminder.setRemindOn(Date.valueOf(LocalDate.of(2222, 3, 3)));
         reminder.setActive(false);
-        Reminder testReminder = service.update(member, reminder);
+        Reminder testReminder = service.update(reminder);
         assertAll(
                 () -> assertEquals("update@RT", testReminder.getCreatedBy()),
                 () -> assertEquals("update@RT", testReminder.getUpdatedBy()),
@@ -160,16 +153,32 @@ public class ReminderTest{
 
     @Test
     public void updateFailure() {
-        Member member = new Member();
-        member.setMemberRole(MemberRole.ADMIN);
-        member.setCreatedBy("user@");
         Reminder testReminder = new Reminder();
         testReminder.setId(UUID.fromString("e3aa391f-2192-4f2a-bf6e-a235459e78e5"));
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
-                () -> service.update(member, testReminder),
+                () -> service.update(testReminder),
                 "expected to throw Illegal state exception, but it didn't"
         );
         assertEquals("Reminder with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
+    }
+
+    @Test
+    public void getAllRemindersForCard() {
+        User user = helper.getNewUser("getAllRemindersForCard@CT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+        Reminder firstReminder = helper.getNewReminder(member, card.getId());
+        Reminder secondReminder = helper.getNewReminder(member, card.getId());
+        assertNotNull(card);
+        List<Reminder> comments = service.getAllReminders(card.getId());
+        assertAll(
+                () -> assertTrue(comments.contains(firstReminder)),
+                () -> assertTrue(comments.contains(secondReminder)),
+                () -> assertEquals(2, comments.size())
+        );
     }
 }

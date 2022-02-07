@@ -56,43 +56,72 @@ public class Helper {
         Workspace workspace = new Workspace();
         workspace.setName("MemberName");
         workspace.setDescription("description");
-        return workspaceService.create(member, workspace);
+        workspace.setCreatedBy(member.getId().toString());
+        return workspaceService.create(workspace);
     }
 
     public Board getNewBoard(Member member, UUID workspaceId) {
-        return boardService.create(member, workspaceId, "BoardName", "description");
+        Board board = new Board();
+        board.setName("BoardName");
+        board.setDescription("description");
+        board.setWorkspaceId(workspaceId);
+        board.setCreatedBy(member.getId().toString());
+        return boardService.create(board);
     }
 
     public CardList getNewCardList(Member member, UUID boardId) {
-        return cardListService.create(member, boardId, "CardListName");
+        CardList cardList = new CardList();
+        cardList.setBoardId(boardId);
+        cardList.setName("CardListName");
+        cardList.setCreatedBy(member.getId().toString());
+        return cardListService.create(cardList);
     }
 
     public Card getNewCard(Member member, UUID cardListId) {
-        return cardService.create(member, cardListId, "CardName", "description");
+        Card card = new Card();
+        card.setName("CardName");
+        card.setDescription("description");
+        card.setCardListId(cardListId);
+        card.setCreatedBy(member.getId().toString());
+        return cardService.create(card);
     }
 
     public Comment getNewComment(Member member, UUID cardId) {
-        return commentService.create(member, cardId, "testComment");
+        Comment comment = new Comment();
+        comment.setText("testComment");
+        comment.setCardId(cardId);
+        comment.setCreatedBy(member.getId().toString());
+        return commentService.create(comment);
     }
 
     public Reminder getNewReminder(Member member, UUID cardId) {
-        return reminderService.create(
-                member,
-                cardId,
-                Date.valueOf(LocalDate.of(2222, 1, 1)),
-                Date.valueOf(LocalDate.of(2222, 1, 1))
-        );
+        Reminder reminder = new Reminder();
+        reminder.setCardId(cardId);
+        reminder.setRemindOn(Date.valueOf(LocalDate.of(2222, 1, 1)));
+        reminder.setEnd(Date.valueOf(LocalDate.of(2222, 1, 1)));
+        reminder.setCreatedBy(member.getId().toString());
+        return reminderService.create(reminder);
     }
 
     public Checklist getNewChecklist(Member member, UUID cardId) {
-        return checklistService.create(member, cardId, "testChecklist");
+        Checklist checklist = new Checklist();
+        checklist.setName("testChecklist");
+        checklist.setCardId(cardId);
+        checklist.setCreatedBy(member.getId().toString());
+        return checklistService.create(checklist);
     }
 
-    public CheckableItem getNewCheckableItem(Member member, UUID checklistId) {
-        return checkableItemService.create(member, checklistId, "CheckableItem");
+    public CheckableItem getNewCheckableItem(UUID checklistId) {
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setName("Name");
+        checkableItem.setChecklistId(checklistId);
+        return checkableItemService.create(checkableItem);
     }
 
     public Label getNewLabel(Member member, UUID cardId) {
-        return labelService.create(member, cardId, "Label");
+        Label label = new Label();
+        label.setName("Label");
+        label.setCardId(cardId);
+        return labelService.create(label);
     }
 }

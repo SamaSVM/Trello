@@ -4,14 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
-import spd.trello.domain.enums.MemberRole;
 import spd.trello.services.CheckableItemService;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static spd.trello.Helper.*;
 
 @SpringBootTest
 public class CheckableItemTest {
@@ -30,11 +28,14 @@ public class CheckableItemTest {
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
         Checklist checklist = helper.getNewChecklist(member, card.getId());
-        CheckableItem testCheckableItem = service.create(member, checklist.getId(), "testName");
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setChecklistId(checklist.getId());
+        checkableItem.setName("testName");
+        CheckableItem testCheckableItem = service.create(checkableItem);
         assertNotNull(testCheckableItem);
         assertAll(
                 () -> assertEquals("testName", testCheckableItem.getName()),
-                () -> assertFalse( testCheckableItem.getChecked()),
+                () -> assertFalse(testCheckableItem.getChecked()),
                 () -> assertEquals(checklist.getId(), testCheckableItem.getChecklistId())
         );
     }
@@ -48,8 +49,12 @@ public class CheckableItemTest {
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
         Checklist checklist = helper.getNewChecklist(member, card.getId());
-        CheckableItem testFirstCheckableItem = service.create(member, checklist.getId(), "1CheckableItem");
-        CheckableItem testSecondCheckableItem = service.create(member, checklist.getId(), "2CheckableItem");
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setChecklistId(checklist.getId());
+        checkableItem.setName("1CheckableItem");
+        CheckableItem testFirstCheckableItem = service.create(checkableItem);
+        checkableItem.setName("2CheckableItem");
+        CheckableItem testSecondCheckableItem = service.create(checkableItem);
         assertNotNull(testFirstCheckableItem);
         assertNotNull(testSecondCheckableItem);
         List<CheckableItem> testCheckableItems = service.findAll();
@@ -61,11 +66,10 @@ public class CheckableItemTest {
 
     @Test
     public void createFailure() {
-        User user = helper.getNewUser("createFailure@CIT");
-        Member member = helper.getNewMember(user);
+        CheckableItem checkableItem = new CheckableItem();
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
-                () -> service.create(member, null, "name"),
+                () -> service.create(checkableItem),
                 "expected to throw  IllegalStateException, but it didn't"
         );
         assertEquals("CheckableItem doesn't creates", ex.getMessage());
@@ -91,7 +95,10 @@ public class CheckableItemTest {
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
         Checklist checklist = helper.getNewChecklist(member, card.getId());
-        CheckableItem testCheckableItem = service.create(member, checklist.getId(), "Checklist");
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setChecklistId(checklist.getId());
+        checkableItem.setName("Checklist");
+        CheckableItem testCheckableItem = service.create(checkableItem);
         assertNotNull(testCheckableItem);
         UUID id = testCheckableItem.getId();
         assertAll(
@@ -109,11 +116,14 @@ public class CheckableItemTest {
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
         Checklist checklist = helper.getNewChecklist(member, card.getId());
-        CheckableItem checkableItem = service.create(member, checklist.getId(), "CheckableItem");
+        CheckableItem updateCheckableItem = new CheckableItem();
+        updateCheckableItem.setChecklistId(checklist.getId());
+        updateCheckableItem.setName("CheckableItem");
+        CheckableItem checkableItem = service.create(updateCheckableItem);
         assertNotNull(checkableItem);
         checkableItem.setName("newName");
         checkableItem.setChecked(true);
-        CheckableItem testCheckableItem = service.update(member, checkableItem);
+        CheckableItem testCheckableItem = service.update(checkableItem);
         assertAll(
                 () -> assertEquals("newName", testCheckableItem.getName()),
                 () -> assertTrue(testCheckableItem.getChecked())
@@ -122,16 +132,33 @@ public class CheckableItemTest {
 
     @Test
     public void updateFailure() {
-        Member member = new Member();
-        member.setMemberRole(MemberRole.ADMIN);
-        member.setCreatedBy("user@");
         CheckableItem testCheckableItem = new CheckableItem();
         testCheckableItem.setId(UUID.fromString("e3aa391f-2192-4f2a-bf6e-a235459e78e5"));
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
-                () -> service.update(member, testCheckableItem),
+                () -> service.update(testCheckableItem),
                 "expected to throw Illegal state exception, but it didn't"
         );
         assertEquals("CheckableItem with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
+    }
+
+    @Test
+    public void getAllCheckableItemsForChecklist() {
+        User user = helper.getNewUser("getAllCheckableItemsForChecklist@CLT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+        Checklist checklist = helper.getNewChecklist(member, card.getId());
+        CheckableItem firstCheckableItem = helper.getNewCheckableItem(checklist.getId());
+        CheckableItem secondCheckableItem = helper.getNewCheckableItem(checklist.getId());
+        assertNotNull(checklist);
+        List<CheckableItem> checkableItems = service.getCheckableItems(checklist.getId());
+        assertAll(
+                () -> assertTrue(checkableItems.contains(firstCheckableItem)),
+                () -> assertTrue(checkableItems.contains(secondCheckableItem)),
+                () -> assertEquals(2, checkableItems.size())
+        );
     }
 }

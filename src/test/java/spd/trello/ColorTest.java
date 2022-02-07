@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
-import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.ColorRepository;
 import spd.trello.services.ColorService;
 
 import java.util.List;
@@ -31,7 +29,12 @@ public class ColorTest {
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
         Label label = helper.getNewLabel(member, card.getId());
-        Color testColor = service.create(member, label.getId(), 1, 2, 3);
+        Color color = new Color();
+        color.setLabelId(label.getId());
+        color.setRed(1);
+        color.setGreen(2);
+        color.setBlue(3);
+        Color testColor = service.create(color);
         assertNotNull(testColor);
         assertAll(
                 () -> assertEquals(1, testColor.getRed()),
@@ -51,8 +54,17 @@ public class ColorTest {
         Card card = helper.getNewCard(member, cardList.getId());
         Label firstLabel = helper.getNewLabel(member, card.getId());
         Label secondLabel = helper.getNewLabel(member, card.getId());
-        Color testFirstColor = service.create(member, firstLabel.getId(), 1, 2, 3);
-        Color testSecondColor = service.create(member, secondLabel.getId(), 4, 5, 6);
+        Color color = new Color();
+        color.setLabelId(firstLabel.getId());
+        color.setRed(1);
+        color.setGreen(2);
+        color.setBlue(3);
+        Color testFirstColor = service.create(color);
+        color.setLabelId(secondLabel.getId());
+        color.setRed(4);
+        color.setGreen(5);
+        color.setBlue(6);
+        Color testSecondColor = service.create(color);
         assertNotNull(testFirstColor);
         assertNotNull(testSecondColor);
         List<Color> testColors = service.findAll();
@@ -63,19 +75,7 @@ public class ColorTest {
     }
 
     @Test
-    public void createFailure() {
-        User user = helper.getNewUser("createFailure@ColorT");
-        Member member = helper.getNewMember(user);
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.create(member, null, 1, 2, 3),
-                "expected to throw  IllegalStateException, but it didn't"
-        );
-        assertEquals("Color doesn't creates", ex.getMessage());
-    }
-
-    @Test
-    public void findById() {
+    public void findByIdFailure() {
         UUID uuid = UUID.randomUUID();
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
@@ -94,7 +94,12 @@ public class ColorTest {
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
         Label label = helper.getNewLabel(member, card.getId());
-        Color testColor = service.create(member, label.getId(), 1, 2, 3);
+        Color color = new Color();
+        color.setLabelId(label.getId());
+        color.setRed(1);
+        color.setGreen(2);
+        color.setBlue(3);
+        Color testColor = service.create(color);
         assertNotNull(testColor);
         UUID id = testColor.getId();
         assertAll(
@@ -112,12 +117,17 @@ public class ColorTest {
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
         Label label = helper.getNewLabel(member, card.getId());
-        Color color = service.create(member, label.getId(), 1, 2, 3);
+        Color updateColor = new Color();
+        updateColor.setLabelId(label.getId());
+        updateColor.setRed(1);
+        updateColor.setGreen(2);
+        updateColor.setBlue(3);
+        Color color = service.create(updateColor);
         assertNotNull(color);
         color.setRed(4);
         color.setGreen(5);
         color.setBlue(6);
-        Color testColor = service.update(member, color);
+        Color testColor = service.update(color);
         assertAll(
                 () -> assertEquals(4, testColor.getRed()),
                 () -> assertEquals(5, testColor.getGreen()),
@@ -127,14 +137,11 @@ public class ColorTest {
 
     @Test
     public void updateFailure() {
-        Member member = new Member();
-        member.setMemberRole(MemberRole.ADMIN);
-        member.setCreatedBy("user@");
         Color testColor = new Color();
         testColor.setId(UUID.fromString("e3aa391f-2192-4f2a-bf6e-a235459e78e5"));
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
-                () -> service.update(member, testColor),
+                () -> service.update(testColor),
                 "expected to throw Illegal state exception, but it didn't"
         );
         assertEquals("Color with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());

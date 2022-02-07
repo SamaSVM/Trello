@@ -3,10 +3,12 @@ package spd.trello;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import spd.trello.domain.Member;
-import spd.trello.domain.User;
+import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
+import spd.trello.services.BoardService;
+import spd.trello.services.CardService;
 import spd.trello.services.MemberService;
+import spd.trello.services.WorkspaceService;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -19,6 +21,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MemberTest {
     @Autowired
     private MemberService service;
+    @Autowired
+    private WorkspaceService workspaceService;
+    @Autowired
+    private BoardService boardService;
+    @Autowired
+    private CardService cardService;
     @Autowired
     private Helper helper;
 
@@ -40,7 +48,7 @@ public class MemberTest {
     }
 
     @Test
-    public void testFindAll() {
+    public void findAll() {
         User user = helper.getNewUser("test1@mail");
         Member member = new Member();
         member.setCreatedBy(user.getEmail());
@@ -71,7 +79,7 @@ public class MemberTest {
     }
 
     @Test
-    public void testFindById() {
+    public void findById() {
         UUID uuid = UUID.randomUUID();
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
@@ -82,7 +90,7 @@ public class MemberTest {
     }
 
     @Test
-    public void testDelete() {
+    public void delete() {
         User user = helper.getNewUser("test2@mail");
         Member member = new Member();
         member.setCreatedBy(user.getEmail());
@@ -98,34 +106,35 @@ public class MemberTest {
     }
 
     @Test
-    public void testUpdate() {
+    public void update() {
         User user = helper.getNewUser("test3@mail");
         Member member = new Member();
         member.setCreatedBy(user.getEmail());
         member.setUserId(user.getId());
         member.setMemberRole(MemberRole.MEMBER);
-        Member testMember = service.create(member);
+        Member memberForUpdate = service.create(member);
+        assertNotNull(memberForUpdate);
+        memberForUpdate.setMemberRole(MemberRole.ADMIN);
+        memberForUpdate.setUpdatedBy(user.getEmail());
+        Member testMember = service.update(memberForUpdate);
         assertNotNull(testMember);
-        testMember.setMemberRole(MemberRole.ADMIN);
-        UUID id = service.update(user, testMember).getId();
         assertAll(
-                () -> assertEquals("test3@mail", service.findById(id).getCreatedBy()),
-                () -> assertEquals("test3@mail", service.findById(id).getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), service.findById(id).getCreatedDate()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), service.findById(id).getUpdatedDate()),
-                () -> assertEquals(MemberRole.ADMIN, service.findById(id).getMemberRole()),
-                () -> assertEquals(user.getId(), service.findById(id).getUserId())
+                () -> assertEquals("test3@mail", testMember.getCreatedBy()),
+                () -> assertEquals("test3@mail", testMember.getUpdatedBy()),
+                () -> assertEquals(Date.valueOf(LocalDate.now()), testMember.getCreatedDate()),
+                () -> assertEquals(Date.valueOf(LocalDate.now()), testMember.getUpdatedDate()),
+                () -> assertEquals(MemberRole.ADMIN, testMember.getMemberRole()),
+                () -> assertEquals(user.getId(), testMember.getUserId())
         );
     }
 
     @Test
     public void updateFailure() {
-        User user = new User();
         Member testMember = new Member();
         testMember.setId(UUID.fromString("e3aa391f-2192-4f2a-bf6e-a235459e78e5"));
         IllegalStateException ex = assertThrows(
                 IllegalStateException.class,
-                () -> service.update(user, testMember),
+                () -> service.update(testMember),
                 "expected to throw Illegal state exception, but it didn't"
         );
         assertEquals("Member with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
