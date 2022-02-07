@@ -1,13 +1,10 @@
 package spd.trello.repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import spd.trello.domain.Member;
 import spd.trello.domain.MemberWorkspace;
-import spd.trello.services.MemberService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +12,11 @@ import java.util.UUID;
 
 @Repository
 public class MemberWorkspaceRepository {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    public MemberWorkspaceRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
-    @Autowired
-    private MemberService memberService;
+    private final JdbcTemplate jdbcTemplate;
 
     private final String CREATE_STMT = "INSERT INTO member_workspace (member_id, workspace_id) VALUES (?, ?);";
 
@@ -43,17 +40,13 @@ public class MemberWorkspaceRepository {
         }
     }
 
-    public List<Member> findMembersByWorkspaceId(UUID workspaceId) {
-        List<Member> result = new ArrayList<>();
+    public List<UUID> findMembersByWorkspaceId(UUID workspaceId) {
+        List<UUID> result = new ArrayList<>();
         jdbcTemplate.query(
                         FIND_BY_WORKSPACE_ID_STMT,
                         new Object[]{workspaceId},
                         new BeanPropertyRowMapper<>(MemberWorkspace.class))
-                .forEach(mc -> result.add(memberService.findById(mc.getMemberId())));
-
-        if (result.isEmpty()) {
-            throw new IllegalStateException("Workspace with ID: " + workspaceId.toString() + " doesn't exists");
-        }
+                .forEach(mw -> result.add(mw.getMemberId()));
         return result;
     }
 

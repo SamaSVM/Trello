@@ -1,7 +1,6 @@
 package spd.trello.services;
 
 import org.springframework.stereotype.Service;
-import spd.trello.domain.Member;
 import spd.trello.repository.MemberBoardRepository;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public class MemberBoardService {
         return repository.findByIds(memberId, boardId);
     }
 
-    public List<Member> findMembersByBoardId(UUID boardId) {
+    public List<UUID> findMembersByBoardId(UUID boardId) {
         return repository.findMembersByBoardId(boardId);
     }
 

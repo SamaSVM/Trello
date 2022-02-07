@@ -1,7 +1,6 @@
 package spd.trello.services;
 
 import org.springframework.stereotype.Service;
-import spd.trello.domain.Member;
 import spd.trello.repository.MemberWorkspaceRepository;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public class MemberWorkspaceService {
         return repository.findByIds(memberId, workspaceId);
     }
 
-    public List<Member> findMembersByWorkspaceId(UUID workspaceId) {
+    public List<UUID> findMembersByWorkspaceId(UUID workspaceId) {
         return repository.findMembersByWorkspaceId(workspaceId);
     }
 

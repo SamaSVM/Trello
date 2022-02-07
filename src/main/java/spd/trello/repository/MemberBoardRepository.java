@@ -1,12 +1,10 @@
 package spd.trello.repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import spd.trello.domain.Member;
 import spd.trello.domain.MemberBoard;
 import spd.trello.services.MemberService;
 
@@ -16,11 +14,11 @@ import java.util.UUID;
 
 @Repository
 public class MemberBoardRepository {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    public MemberBoardRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
-    @Autowired
-    private MemberService memberService;
+    private final JdbcTemplate jdbcTemplate;
 
     private final String CREATE_STMT = "INSERT INTO member_board (member_id, board_id) VALUES (?, ?);";
 
@@ -42,14 +40,10 @@ public class MemberBoardRepository {
         }
     }
 
-    public List<Member> findMembersByBoardId(UUID boardId) {
-        List<Member> result = new ArrayList<>();
+    public List<UUID> findMembersByBoardId(UUID boardId) {
+        List<UUID> result = new ArrayList<>();
         jdbcTemplate.query(FIND_BY_BOARD_ID_STMT, new Object[]{boardId}, new BeanPropertyRowMapper<>(MemberBoard.class))
-                .forEach(mb -> result.add(memberService.findById(mb.getMemberId())));
-
-        if (result.isEmpty()) {
-            throw new IllegalStateException("Board with ID: " + boardId.toString() + " doesn't exists");
-        }
+                .forEach(mb -> result.add(mb.getMemberId()));
         return result;
     }
 

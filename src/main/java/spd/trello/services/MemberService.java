@@ -6,12 +6,18 @@ import spd.trello.repository.InterfaceRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class MemberService extends AbstractService<Member> {
-    public MemberService(InterfaceRepository<Member> repository, MemberWorkspaceService memberWorkspaceService, MemberBoardService memberBoardService, MemberCardService memberCardService) {
+    public MemberService(
+            InterfaceRepository<Member> repository,
+            MemberWorkspaceService memberWorkspaceService,
+            MemberBoardService memberBoardService,
+            MemberCardService memberCardService
+    ) {
         super(repository);
         this.memberWorkspaceService = memberWorkspaceService;
         this.memberBoardService = memberBoardService;
@@ -44,15 +50,22 @@ public class MemberService extends AbstractService<Member> {
         return repository.update(entity);
     }
 
-        public List<Member> getAllMembersForWorkspace(UUID workspaceId) {
-        return memberWorkspaceService.findMembersByWorkspaceId(workspaceId);
+    public List<Member> getAllMembersForWorkspace(UUID workspaceId) {
+        List<Member> result = new ArrayList<>();
+        memberWorkspaceService.findMembersByWorkspaceId(workspaceId).
+                forEach(memberId -> result.add(findById(memberId)));
+        return result;
     }
 
     public List<Member> getAllMembersForBoard(UUID boardId) {
-        return memberBoardService.findMembersByBoardId(boardId);
+        List<Member> result = new ArrayList<>();
+        memberBoardService.findMembersByBoardId(boardId).forEach(memberId -> result.add(findById(memberId)));
+        return result;
     }
 
-        public List<Member> getAllMembersForCard(UUID cardId) {
-        return memberCardService.findMembersByCardId(cardId);
+    public List<Member> getAllMembersForCard(UUID cardId) {
+        List<Member> result = new ArrayList<>();
+        memberCardService.findMembersByCardId(cardId).forEach(memberId -> result.add(findById(memberId)));
+        return result;
     }
 }

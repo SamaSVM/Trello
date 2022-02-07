@@ -19,7 +19,7 @@ public class MemberCardService{
         return repository.findByIds(memberId, cardId);
     }
 
-    public List<Member> findMembersByCardId(UUID cardId) {
+    public List<UUID> findMembersByCardId(UUID cardId) {
         return repository.findMembersByCardId(cardId);
     }
 
