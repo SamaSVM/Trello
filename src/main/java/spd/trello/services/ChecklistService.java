@@ -2,45 +2,47 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Checklist;
-import spd.trello.repository.InterfaceRepository;
+import spd.trello.repository.ChecklistRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 @Service
-public class ChecklistService extends AbstractService<Checklist> {
-    public ChecklistService(InterfaceRepository<Checklist> repository, ChecklistCardService checklistCardService) {
+public class ChecklistService extends AbstractService<Checklist, ChecklistRepository> {
+    public ChecklistService(ChecklistRepository repository, CheckableItemService checkableItemService) {
         super(repository);
-        this.checklistCardService = checklistCardService;
+        this.checkableItemService = checkableItemService;
     }
 
-    private final ChecklistCardService checklistCardService;
+    private final CheckableItemService checkableItemService;
 
     @Override
-    public Checklist create(Checklist entity) {
-        Checklist checklist = new Checklist();
-        checklist.setId(UUID.randomUUID());
-        checklist.setCreatedBy(entity.getCreatedBy());
-        checklist.setCreatedDate(Date.valueOf(LocalDate.now()));
-        checklist.setName(entity.getName());
-        checklist.setCardId(entity.getCardId());
-        repository.create(checklist);
-        return repository.findById(checklist.getId());
+    public Checklist save(Checklist entity) {
+        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        return repository.save(entity);
     }
 
     @Override
     public Checklist update(Checklist entity) {
-        Checklist oldChecklist = repository.findById(entity.getId());
+        Checklist oldChecklist = getById(entity.getId());
+        entity.setCreatedBy(oldChecklist.getCreatedBy());
+        entity.setCreatedDate(oldChecklist.getCreatedDate());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCardId(oldChecklist.getCardId());
         if (entity.getName() == null) {
             entity.setName(oldChecklist.getName());
         }
-        return repository.update(entity);
+        return repository.save(entity);
     }
 
-        public List<Checklist> getAllChecklists(UUID cardId) {
-        return checklistCardService.getAllChecklistsForCard(cardId);
+    @Override
+    public void delete(UUID id) {
+        checkableItemService.deleteCheckableItemsForChecklist(id);
+        super.delete(id);
+    }
+
+    public void deleteCheckListsForCard(UUID cardId) {
+        repository.findAllByCardId(cardId).forEach(checklist -> delete(checklist.getId()));
     }
 }
