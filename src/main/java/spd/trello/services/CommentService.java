@@ -2,45 +2,48 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Comment;
-import spd.trello.repository.InterfaceRepository;
+import spd.trello.repository.CommentRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 @Service
-public class CommentService extends AbstractService<Comment> {
-    public CommentService(InterfaceRepository<Comment> repository, CommentCardService commentCardService) {
-        super(repository);
-        this.commentCardService = commentCardService;
-    }
+public class CommentService extends AbstractService<Comment, CommentRepository> {
 
-    private final CommentCardService commentCardService;
+    public CommentService(CommentRepository repository, AttachmentService attachmentService) {
+        super(repository);
+        this.attachmentService = attachmentService;
+    }
 
     @Override
-    public Comment create(Comment entity) {
-        Comment comment = new Comment();
-        comment.setId(UUID.randomUUID());
-        comment.setCreatedBy(entity.getCreatedBy());
-        comment.setCreatedDate(Date.valueOf(LocalDate.now()));
-        comment.setText(entity.getText());
-        comment.setCardId(entity.getCardId());
-        repository.create(comment);
-        return repository.findById(comment.getId());
+    public Comment save(Comment entity) {
+        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        return repository.save(entity);
     }
+
+    private final AttachmentService attachmentService;
 
     @Override
     public Comment update(Comment entity) {
-        Comment oldCard = repository.findById(entity.getId());
+        Comment oldCard = getById(entity.getId());
+        entity.setCreatedBy(oldCard.getCreatedBy());
+        entity.setCreatedDate(oldCard.getCreatedDate());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCardId(oldCard.getCardId());
         if (entity.getText() == null) {
             entity.setText(oldCard.getText());
         }
-        return repository.update(entity);
+        return repository.save(entity);
     }
 
-    public List<Comment> getAllCommentsForCard(UUID cardId) {
-        return commentCardService.getAllCommentsForCard(cardId);
+    @Override
+    public void delete(UUID id) {
+        attachmentService.deleteAttachmentsForComment(id);
+        super.delete(id);
+    }
+
+    public void deleteCommentsForCard(UUID cardId) {
+        repository.findAllByCardId(cardId).forEach(comment -> delete(comment.getId()));
     }
 }
