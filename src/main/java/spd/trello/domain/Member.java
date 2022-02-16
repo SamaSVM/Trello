@@ -5,13 +5,20 @@ import lombok.EqualsAndHashCode;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.domain.perent.Resource;
 
+import javax.persistence.*;
 import java.util.UUID;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
+@Entity
+@Table(name = "members")
 public class Member extends Resource {
-    private UUID userId;
+    @Column(name = "member_role")
+    @Enumerated(EnumType.STRING)
     private MemberRole memberRole = MemberRole.GUEST;
+
+    @Column(name = "user_id")
+    private UUID userId;
 
     @Override
     public String toString() {
@@ -21,8 +28,9 @@ public class Member extends Resource {
                 ", updatedBy=" + super.getUpdatedBy() +
                 ", cratedDate=" + super.getCreatedDate() +
                 ", updatedDate=" + super.getUpdatedDate() +
-                ", userId=" + userId +
                 ", memberRole=" + memberRole +
                 '}';
     }
 }
+
+

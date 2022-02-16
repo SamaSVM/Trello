@@ -2,70 +2,54 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Member;
-import spd.trello.repository.InterfaceRepository;
+import spd.trello.repository.MemberRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
-public class MemberService extends AbstractService<Member> {
-    public MemberService(
-            InterfaceRepository<Member> repository,
-            MemberWorkspaceService memberWorkspaceService,
-            MemberBoardService memberBoardService,
-            MemberCardService memberCardService
-    ) {
+public class MemberService extends AbstractService<Member, MemberRepository> {
+    public MemberService(MemberRepository repository, WorkspaceService workspaceService, CardService cardService, BoardService boardService) {
         super(repository);
-        this.memberWorkspaceService = memberWorkspaceService;
-        this.memberBoardService = memberBoardService;
-        this.memberCardService = memberCardService;
+        this.workspaceService = workspaceService;
+        this.cardService = cardService;
+        this.boardService = boardService;
     }
 
-    private final MemberWorkspaceService memberWorkspaceService;
-    private final MemberBoardService memberBoardService;
-    private final MemberCardService memberCardService;
+    private final WorkspaceService workspaceService;
+    private final CardService cardService;
+    private final BoardService boardService;
 
     @Override
-    public Member create(Member entity) {
-        Member member = new Member();
-        member.setId(UUID.randomUUID());
-        member.setCreatedBy(entity.getCreatedBy());
-        member.setCreatedDate(Date.valueOf(LocalDate.now()));
-        member.setUserId(entity.getUserId());
-        member.setMemberRole(entity.getMemberRole());
-        repository.create(member);
-        return repository.findById(member.getId());
+    public Member save(Member entity) {
+        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        return repository.save(entity);
     }
 
     @Override
     public Member update(Member entity) {
-        Member oldMember = findById(entity.getId());
+        Member oldMember = getById(entity.getId());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCreatedBy(oldMember.getCreatedBy());
+        entity.setCreatedDate(oldMember.getCreatedDate());
+        entity.setUserId(oldMember.getUserId());
         if (entity.getMemberRole() == null) {
             entity.setMemberRole(oldMember.getMemberRole());
         }
-        return repository.update(entity);
+        return repository.save(entity);
     }
 
-    public List<Member> getAllMembersForWorkspace(UUID workspaceId) {
-        List<Member> result = new ArrayList<>();
-        memberWorkspaceService.findMembersByWorkspaceId(workspaceId).
-                forEach(memberId -> result.add(findById(memberId)));
-        return result;
+    @Override
+    public void delete(UUID id) {
+        workspaceService.deleteMemberInWorkspaces(id);
+        boardService.deleteMemberInBoards(id);
+        cardService.deleteMemberInCards(id);
+        super.delete(id);
     }
 
-    public List<Member> getAllMembersForBoard(UUID boardId) {
-        List<Member> result = new ArrayList<>();
-        memberBoardService.findMembersByBoardId(boardId).forEach(memberId -> result.add(findById(memberId)));
-        return result;
-    }
 
-    public List<Member> getAllMembersForCard(UUID cardId) {
-        List<Member> result = new ArrayList<>();
-        memberCardService.findMembersByCardId(cardId).forEach(memberId -> result.add(findById(memberId)));
-        return result;
+    public void deleteMembersForUser(UUID userId){
+        repository.findByUserId(userId).forEach(member -> delete(member.getId()));
     }
 }
