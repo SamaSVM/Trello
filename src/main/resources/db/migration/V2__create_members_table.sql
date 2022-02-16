@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS members
     created_date TIMESTAMP        NOT NULL,
     updated_date TIMESTAMP,
     member_role  VARCHAR(25)      NOT NULL,
-    user_id      UUID             /*NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id)*/
+    user_id      UUID             NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );

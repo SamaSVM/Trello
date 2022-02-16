@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS attachments
     updated_date TIMESTAMP,
     name         VARCHAR(255)     NOT NULL,
     link         VARCHAR(255)     NOT NULL,
-    card_id      UUID             /*NOT NULL,
-    FOREIGN KEY (card_id) REFERENCES cards (id)*/
+    comment_id   UUID             NULL,
+    card_id      UUID             NULL,
+    FOREIGN KEY (card_id) REFERENCES cards (id),
+    FOREIGN KEY (comment_id) REFERENCES comments (id)
 );

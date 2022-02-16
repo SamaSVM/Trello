@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS checklists
     created_date TIMESTAMP        NOT NULL,
     updated_date TIMESTAMP,
     name         VARCHAR(255)     NOT NULL,
-    card_id      UUID             /*NOT NULL,
-    FOREIGN KEY (card_id) REFERENCES cards (id)*/
+    card_id      UUID             NOT NULL,
+    FOREIGN KEY (card_id) REFERENCES cards (id)
 );

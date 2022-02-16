@@ -10,6 +10,6 @@ CREATE TABLE IF NOT EXISTS boards
     visibility   VARCHAR(25)      NOT NULL,
     favourite    BOOLEAN          NOT NULL,
     archived     BOOLEAN          NOT NULL,
-    workspace_id UUID             /*NOT NULL,
-    FOREIGN KEY (workspace_id) REFERENCES workspaces (id)*/
+    workspace_id UUID             NOT NULL,
+    FOREIGN KEY (workspace_id) REFERENCES workspaces (id)
 );
