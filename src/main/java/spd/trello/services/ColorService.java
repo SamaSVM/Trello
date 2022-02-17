@@ -31,6 +31,8 @@ public class ColorService extends AbstractService<Color, ColorRepository> {
 
     public void deleteColorForLabel(UUID labelId) {
         Color color = repository.findByLabelId(labelId);
-        delete(color.getId());
+        if(color != null) {
+            delete(color.getId());
+        }
     }
 }
