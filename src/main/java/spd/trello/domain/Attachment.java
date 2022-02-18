@@ -27,19 +27,4 @@ public class Attachment extends Resource {
 
     @Column(name = "card_id")
     private UUID cardId;
-
-    @Override
-    public String toString() {
-        return "Attachment{" +
-                "id=" + super.getId() +
-                ", createdBy=" + super.getCreatedBy() +
-                ", updatedBy=" + super.getUpdatedBy() +
-                ", cratedDate=" + super.getCreatedDate() +
-                ", updatedDate=" + super.getUpdatedDate() +
-                ", name='" + name + '\'' +
-                ", link='" + link + '\'' +
-                ", commentId=" + commentId +
-                ", cardId=" + cardId +
-                '}';
-    }
 }

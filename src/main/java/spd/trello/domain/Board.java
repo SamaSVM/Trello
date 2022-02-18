@@ -44,22 +44,4 @@ public class Board extends Resource {
     )
     @Column(name = "member_id")
     private Set<UUID> membersIds = new HashSet<>();
-
-
-    @Override
-    public String toString() {
-        return "Board{" +
-                "id=" + super.getId() +
-                ", createdBy=" + super.getCreatedBy() +
-                ", updatedBy=" + super.getUpdatedBy() +
-                ", cratedDate=" + super.getCreatedDate() +
-                ", updatedDate=" + super.getUpdatedDate() +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", visibility=" + visibility +
-                ", favourite=" + favourite +
-                ", archived=" + archived +
-                ", workspaceId=" + workspaceId +
-                '}';
-    }
 }

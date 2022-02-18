@@ -24,17 +24,4 @@ public class Checklist extends Resource {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "checklistId", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("checklist")
     private List<CheckableItem> checkableItems = new ArrayList<>();
-
-    @Override
-    public String toString() {
-        return "Checklist{" +
-                "id=" + super.getId() +
-                ", createdBy=" + super.getCreatedBy() +
-                ", updatedBy=" + super.getUpdatedBy() +
-                ", cratedDate=" + super.getCreatedDate() +
-                ", updatedDate=" + super.getUpdatedDate() +
-                ", name='" + name + '\'' +
-                ", cardId=" + cardId +
-                '}';
-    }
 }

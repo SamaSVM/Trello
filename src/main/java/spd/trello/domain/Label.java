@@ -30,14 +30,4 @@ public class Label extends Domain {
     )
     @Column(name = "id")
     private Set<UUID> color = new HashSet<>();
-
-    @Override
-    public String toString() {
-        return "Label{" +
-                "id=" + super.getId() +
-                ", name='" + name + '\'' +
-                ", color=" + color +
-                ", cardId=" + cardId +
-                '}';
-    }
 }

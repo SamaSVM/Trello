@@ -22,15 +22,4 @@ public class User extends Domain {
 
     @Column(name = "time_zone")
     private String timeZone;
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + super.getId() +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", timeZone=" + timeZone +
-                '}';
-    }
 }

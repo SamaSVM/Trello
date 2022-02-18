@@ -23,14 +23,4 @@ public class CheckableItem extends Domain {
 
     @Column(name = "checklist_id")
     private UUID checklistId;
-
-    @Override
-    public String toString() {
-        return "CheckableItem{" +
-                "id=" + super.getId() +
-                ", name='" + name + '\'' +
-                ", checked=" + checked +
-                ", checklistId=" + checklistId +
-                '}';
-    }
 }

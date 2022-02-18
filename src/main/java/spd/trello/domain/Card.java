@@ -81,20 +81,5 @@ public class Card extends Resource {
     )
     @Column(name = "id")
     private Set<UUID> attachments = new HashSet<>();
-
-    @Override
-    public String toString() {
-        return "Card{" +
-                "id=" + super.getId() +
-                ", createdBy=" + super.getCreatedBy() +
-                ", updatedBy=" + super.getUpdatedBy() +
-                ", cratedDate=" + super.getCreatedDate() +
-                ", updatedDate=" + super.getUpdatedDate() +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", archived=" + archived +
-                ", listId=" + cardListId +
-                '}';
-    }
 }
 

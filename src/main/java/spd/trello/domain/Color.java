@@ -25,15 +25,4 @@ public class Color extends Domain {
 
     @Column(name = "label_id")
     private UUID labelId;
-
-    @Override
-    public String toString() {
-        return "Color{" +
-                "id=" + super.getId() +
-                ", red=" + red +
-                ", green=" + green +
-                ", blue=" + blue +
-                ", labelId=" + labelId +
-                '}';
-    }
 }

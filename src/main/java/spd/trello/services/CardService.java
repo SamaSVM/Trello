@@ -12,7 +12,9 @@ import java.util.UUID;
 
 @Service
 public class CardService extends AbstractService<Card, CardRepository> {
-    public CardService(CardRepository repository, ReminderService reminderService, ChecklistService checklistService, LabelService labelService, CommentService commentService, AttachmentService attachmentService) {
+    public CardService(CardRepository repository, ReminderService reminderService,
+                       ChecklistService checklistService, LabelService labelService,
+                       CommentService commentService, AttachmentService attachmentService) {
         super(repository);
         this.reminderService = reminderService;
         this.checklistService = checklistService;
@@ -31,6 +33,9 @@ public class CardService extends AbstractService<Card, CardRepository> {
     @Override
     public Card save(Card entity) {
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        //todo
+        //+ reminder
+        //+ checklist
         return repository.save(entity);
     }
 
@@ -65,7 +70,7 @@ public class CardService extends AbstractService<Card, CardRepository> {
         for (Card card : cards) {
             Set<UUID> membersIds = card.getMembersIds();
             membersIds.remove(memberId);
-            if (card.getMembersIds().isEmpty()){
+            if (card.getMembersIds().isEmpty()) {
                 delete(card.getId());
             }
         }

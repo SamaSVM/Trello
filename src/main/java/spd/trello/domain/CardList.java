@@ -22,17 +22,4 @@ public class CardList extends Resource {
 
     @Column(name = "board_id")
     private UUID boardId;
-
-    @Override
-    public String toString() {
-        return "CardList{" +
-                "id=" + super.getId() +
-                ", createdBy=" + super.getCreatedBy() +
-                ", updatedBy=" + super.getUpdatedBy() +
-                ", cratedDate=" + super.getCreatedDate() +
-                ", updatedDate=" + super.getUpdatedDate() +
-                ", name='" + name + '\'' +
-                ", archived=" + archived +
-                '}';
-    }
 }
