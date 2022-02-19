@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.CardListService;
 
 import java.sql.Date;
@@ -27,14 +29,16 @@ public class CardListTest {
         Member member = helper.getNewMember(user);
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
+
         CardList cardList = new CardList();
-        cardList.setCreatedBy("test14@mail");
+        cardList.setCreatedBy(user.getEmail());
         cardList.setName("testCardList");
         cardList.setBoardId(board.getId());
-        CardList testCardList = service.create(cardList);
+        CardList testCardList = service.save(cardList);
+
         assertNotNull(testCardList);
         assertAll(
-                () -> assertEquals("test14@mail", testCardList.getCreatedBy()),
+                () -> assertEquals(user.getEmail(), testCardList.getCreatedBy()),
                 () -> assertNull(testCardList.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testCardList.getCreatedDate()),
                 () -> assertNull(testCardList.getUpdatedDate()),
@@ -50,16 +54,22 @@ public class CardListTest {
         Member member = helper.getNewMember(user);
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = new CardList();
-        cardList.setCreatedBy("test15@mail");
-        cardList.setBoardId(board.getId());
-        cardList.setName("1CardList");
-        CardList testFirstCardList = service.create(cardList);
-        cardList.setName("2CardList");
-        CardList testSecondCardList = service.create(cardList);
+
+        CardList firstCardList = new CardList();
+        firstCardList.setCreatedBy(user.getEmail());
+        firstCardList.setBoardId(board.getId());
+        firstCardList.setName("1CardList");
+        CardList testFirstCardList = service.save(firstCardList);
+
+        CardList secondCardList = new CardList();
+        secondCardList.setCreatedBy(user.getEmail());
+        secondCardList.setBoardId(board.getId());
+        secondCardList.setName("2CardList");
+        CardList testSecondCardList = service.save(secondCardList);
+
         assertNotNull(testFirstCardList);
         assertNotNull(testSecondCardList);
-        List<CardList> testCardLists = service.findAll();
+        List<CardList> testCardLists = service.getAll();
         assertAll(
                 () -> assertTrue(testCardLists.contains(testFirstCardList)),
                 () -> assertTrue(testCardLists.contains(testSecondCardList))
@@ -67,25 +77,20 @@ public class CardListTest {
     }
 
     @Test
-    public void createFailure() {
-        CardList cardList = new CardList();
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.create(cardList),
-                "expected to throw  IllegalStateException, but it didn't"
-        );
-        assertEquals("CardList doesn't creates", ex.getMessage());
-    }
-
-    @Test
     public void findById() {
-        UUID uuid = UUID.randomUUID();
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.findById(uuid),
-                "no exception"
-        );
-        assertEquals("CardList with ID: " + uuid + " doesn't exists", ex.getMessage());
+        User user = helper.getNewUser("findById@CAT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+
+        CardList cardList = new CardList();
+        cardList.setCreatedBy(user.getEmail());
+        cardList.setBoardId(board.getId());
+        cardList.setName("CardList");
+        service.save(cardList);
+
+        CardList testCardList = service.getById(cardList.getId());
+        assertEquals(cardList, testCardList);
     }
 
     @Test
@@ -94,17 +99,16 @@ public class CardListTest {
         Member member = helper.getNewMember(user);
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
+
         CardList cardList = new CardList();
         cardList.setBoardId(board.getId());
-        cardList.setCreatedBy("test17@mail");
+        cardList.setCreatedBy(user.getEmail());
         cardList.setName("testCardList");
-        CardList testCardList = service.create(cardList);
+        CardList testCardList = service.save(cardList);
+
         assertNotNull(testCardList);
-        UUID id = testCardList.getId();
-        assertAll(
-                () -> assertTrue(service.delete(id)),
-                () -> assertFalse(service.delete(id))
-        );
+        service.delete(testCardList.getId());
+        assertFalse(service.getAll().contains(testCardList));
     }
 
     @Test
@@ -113,16 +117,20 @@ public class CardListTest {
         Member member = helper.getNewMember(user);
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
+
         CardList cardList = new CardList();
         cardList.setBoardId(board.getId());
-        cardList.setCreatedBy("test18@mail");
-        cardList.setName("name");
-        CardList updateCardList = service.create(cardList);
+        cardList.setCreatedBy(user.getEmail());
+        cardList.setName("testCardList");
+        CardList updateCardList = service.save(cardList);
+
         assertNotNull(updateCardList);
-        updateCardList.setUpdatedBy("test18@mail");
+        updateCardList.setUpdatedBy(user.getEmail());
         updateCardList.setName("newCardList");
         updateCardList.setArchived(true);
         CardList testCardList = service.update(updateCardList);
+
+        assertNotNull(testCardList);
         assertAll(
                 () -> assertEquals("test18@mail", testCardList.getCreatedBy()),
                 () -> assertEquals("test18@mail", testCardList.getUpdatedBy()),
@@ -135,37 +143,33 @@ public class CardListTest {
     }
 
     @Test
-    public void updateFailure() {
-        CardList testCardList = new CardList();
-        testCardList.setId(UUID.fromString("e3aa391f-2192-4f2a-bf6e-a235459e78e5"));
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.update(testCardList),
-                "expected to throw Illegal state exception, but it didn't"
+    public void createFailure() {
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.save(new CardList()),
+                "no exception"
         );
-        assertEquals("CardList with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
+        assertTrue(ex.getMessage().contains("could not execute statement;"));
     }
 
     @Test
-    public void getAllCardListsForBoard() {
-        User user = helper.getNewUser("getAllCardListsForBoard@CLT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = new CardList();
-        cardList.setBoardId(board.getId());
-        cardList.setCreatedBy("getAllCardListsForBoard@CLT");
-        cardList.setName("1board");
-        CardList firstBoard = service.create(cardList);
-        cardList.setName("2board");
-        CardList secondBoard = service.create(cardList);
-        assertNotNull(firstBoard);
-        assertNotNull(secondBoard);
-        List<CardList> boards = service.getAllCardListsForBoard(board.getId());
-        assertAll(
-                () -> assertTrue(boards.contains(firstBoard)),
-                () -> assertTrue(boards.contains(secondBoard)),
-                () -> assertEquals(2, boards.size())
+    public void findByIdFailure() {
+        ResourceNotFoundException ex = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getById(UUID.randomUUID()),
+                "no exception"
         );
+        assertEquals("Resource not found Exception!", ex.getMessage());
+    }
+
+    @Test
+    public void deleteFailure() {
+        UUID id = UUID.randomUUID();
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.delete(id),
+                "no exception"
+        );
+        assertEquals("No class spd.trello.domain.CardList entity with id " + id + " exists!", ex.getMessage());
     }
 }

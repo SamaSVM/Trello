@@ -7,11 +7,15 @@ import spd.trello.domain.Member;
 import spd.trello.domain.User;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.WorkspaceVisibility;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.WorkspaceService;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,37 +29,56 @@ public class WorkspaceTest {
     private Helper helper;
 
     @Test
-    public void successCreate() {
+    public void create() {
+        User user = helper.getNewUser("create@WT");
+        Member member = helper.getNewMember(user);
+
         Workspace workspace = new Workspace();
-        workspace.setCreatedBy("test4@mail");
+        workspace.setCreatedBy(user.getEmail());
         workspace.setName("testWorkspace");
         workspace.setDescription("testDescription");
-        Workspace testWorkspace = service.create(workspace);
+        Set<UUID> membersIds = workspace.getMembersIds();
+        membersIds.add(member.getId());
+        workspace.setMembersIds(membersIds);
+        Workspace testWorkspace = service.save(workspace);
+
         assertNotNull(testWorkspace);
         assertAll(
-                () -> assertEquals("test4@mail", testWorkspace.getCreatedBy()),
+                () -> assertEquals(user.getEmail(), testWorkspace.getCreatedBy()),
                 () -> assertNull(testWorkspace.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testWorkspace.getCreatedDate()),
                 () -> assertNull(testWorkspace.getUpdatedDate()),
                 () -> assertEquals("testWorkspace", testWorkspace.getName()),
                 () -> assertEquals("testDescription", testWorkspace.getDescription()),
-                () -> assertEquals(WorkspaceVisibility.PRIVATE, testWorkspace.getVisibility())
+                () -> assertEquals(WorkspaceVisibility.PRIVATE, testWorkspace.getVisibility()),
+                () -> assertTrue(testWorkspace.getMembersIds().contains(member.getId()))
         );
     }
 
     @Test
     public void findAll() {
-        Workspace workspace = new Workspace();
-        workspace.setCreatedBy("test5@mail");
-        workspace.setName("1Name");
-        workspace.setDescription("1Des");
-        Workspace testFirstWorkspace = service.create(workspace);
-        workspace.setName("2Name");
-        workspace.setDescription("2Des");
-        Workspace testSecondWorkspace = service.create(workspace);
+        User user = helper.getNewUser("findAll@WT");
+        Member member = helper.getNewMember(user);
+
+        Workspace firstWorkspace = new Workspace();
+        firstWorkspace.setCreatedBy(user.getEmail());
+        firstWorkspace.setName("1Name");
+        firstWorkspace.setDescription("1Des");
+        Set<UUID> membersIds = new HashSet<>();
+        membersIds.add(member.getId());
+        firstWorkspace.setMembersIds(membersIds);
+        Workspace testFirstWorkspace = service.save(firstWorkspace);
+
+        Workspace secondWorkspace = new Workspace();
+        secondWorkspace.setCreatedBy(user.getEmail());
+        secondWorkspace.setName("2Name");
+        secondWorkspace.setDescription("2Des");
+        secondWorkspace.setMembersIds(membersIds);
+        Workspace testSecondWorkspace = service.save(secondWorkspace);
+
         assertNotNull(testFirstWorkspace);
         assertNotNull(testSecondWorkspace);
-        List<Workspace> testWorkspace = service.findAll();
+        List<Workspace> testWorkspace = service.getAll();
         assertAll(
                 () -> assertTrue(testWorkspace.contains(testFirstWorkspace)),
                 () -> assertTrue(testWorkspace.contains(testSecondWorkspace))
@@ -63,93 +86,108 @@ public class WorkspaceTest {
     }
 
     @Test
-    public void createFailure() {
-        Workspace workspace = new Workspace();
-        workspace.setCreatedBy("test6@mail");
-        workspace.setDescription("Description");
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.create(workspace),
-                "expected to throw  IllegalStateException, but it didn't"
-        );
-        assertEquals("Workspace doesn't creates", ex.getMessage());
-    }
-
-    @Test
     public void findById() {
-        UUID uuid = UUID.randomUUID();
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.findById(uuid),
-                "no exception"
-        );
-        assertEquals("Workspace with ID: " + uuid + " doesn't exists", ex.getMessage());
+        User user = helper.getNewUser("findById@WT");
+        Member member = helper.getNewMember(user);
+
+        Workspace workspace = new Workspace();
+        workspace.setCreatedBy(user.getEmail());
+        workspace.setName("Name");
+        workspace.setDescription("Description");
+        Set<UUID> membersIds = new HashSet<>();
+        membersIds.add(member.getId());
+        workspace.setMembersIds(membersIds);
+        service.save(workspace);
+
+        Workspace testMember = service.getById(workspace.getId());
+        assertEquals(workspace, testMember);
     }
 
     @Test
     public void delete() {
+        User user = helper.getNewUser("delete@WT");
+        Member member = helper.getNewMember(user);
+
         Workspace workspace = new Workspace();
-        workspace.setCreatedBy("test7@mail");
-        workspace.setName("testWorkspace");
-        workspace.setDescription("testDescription");
-        Workspace testWorkspace = service.create(workspace);
+        workspace.setCreatedBy(user.getEmail());
+        workspace.setName("Name");
+        workspace.setDescription("Description");
+        Set<UUID> membersIds = new HashSet<>();
+        membersIds.add(member.getId());
+        workspace.setMembersIds(membersIds);
+        Workspace testWorkspace = service.save(workspace);
+
         assertNotNull(testWorkspace);
-        UUID id = testWorkspace.getId();
-        assertAll(
-                () -> assertTrue(service.delete(id)),
-                () -> assertFalse(service.delete(id))
-        );
+        service.delete(testWorkspace.getId());
+        assertFalse(service.getAll().contains(testWorkspace));
     }
 
     @Test
     public void update() {
-        Workspace firstWorkspace = new Workspace();
-        firstWorkspace.setCreatedBy("test8@mail");
-        firstWorkspace.setName("testWorkspace");
-        firstWorkspace.setDescription("testDescription");
-        Workspace workspace = service.create(firstWorkspace);
-        assertNotNull(workspace);
-        workspace.setName("newWorkspace");
-        workspace.setUpdatedBy("test8@mail");
-        workspace.setDescription("newDescription");
-        workspace.setVisibility(WorkspaceVisibility.PUBLIC);
-        Workspace testWorkspace = service.update(workspace);
+        User user = helper.getNewUser("update@WT");
+        Member firstMember = helper.getNewMember(user);
+        Member secondMember = helper.getNewMember(user);
+
+        Workspace workspace = new Workspace();
+        workspace.setCreatedBy(user.getEmail());
+        workspace.setName("testWorkspace");
+        workspace.setDescription("testDescription");
+        Set<UUID> membersIds = new HashSet<>();
+        membersIds.add(firstMember.getId());
+        workspace.setMembersIds(membersIds);
+        Workspace updateWorkspace = service.save(workspace);
+
+        assertNotNull(updateWorkspace);
+        updateWorkspace.setUpdatedBy(user.getEmail());
+        updateWorkspace.setName("newWorkspace");
+        updateWorkspace.setDescription("newDescription");
+        updateWorkspace.setVisibility(WorkspaceVisibility.PUBLIC);
+        membersIds.add(secondMember.getId());
+        updateWorkspace.setMembersIds(membersIds);
+        Workspace testWorkspace = service.update(updateWorkspace);
+
+        assertNotNull(testWorkspace);
         assertAll(
-                () -> assertEquals("test8@mail", testWorkspace.getCreatedBy()),
-                () -> assertEquals("test8@mail", testWorkspace.getUpdatedBy()),
+                () -> assertEquals(user.getEmail(), testWorkspace.getCreatedBy()),
+                () -> assertEquals(user.getEmail(), testWorkspace.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testWorkspace.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testWorkspace.getUpdatedDate()),
                 () -> assertEquals("newWorkspace", testWorkspace.getName()),
                 () -> assertEquals("newDescription", testWorkspace.getDescription()),
-                () -> assertEquals(WorkspaceVisibility.PUBLIC, testWorkspace.getVisibility())
+                () -> assertEquals(WorkspaceVisibility.PUBLIC, testWorkspace.getVisibility()),
+                () -> assertTrue(testWorkspace.getMembersIds().contains(firstMember.getId())),
+                () -> assertTrue(testWorkspace.getMembersIds().contains(secondMember.getId()))
         );
     }
 
     @Test
-    public void updateFailure() {
-        Workspace testWorkspace = new Workspace();
-        testWorkspace.setId(UUID.fromString("e3aa391f-2192-4f2a-bf6e-a235459e78e5"));
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.update(testWorkspace),
-                "expected to throw Illegal state exception, but it didn't"
+    public void createFailure() {
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.save(new Workspace()),
+                "no exception"
         );
-        assertEquals("Workspace with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
+        assertTrue(ex.getMessage().contains("could not execute statement;"));
     }
 
     @Test
-    public void addAndDeleteSecondMember() {
-        User secondUser = helper.getNewUser("addAndDeleteSecondMember2@WT");
-        Member secondMember = helper.getNewMember(secondUser);
-        Workspace workspace = new Workspace();
-        workspace.setCreatedBy("addAndDeleteSecondMember1@WT");
-        workspace.setName("testWorkspace");
-        workspace.setDescription("testDescription");
-        Workspace testWorkspace = service.create(workspace);
-        assertNotNull(testWorkspace);
-        assertAll(
-                () -> assertTrue(service.addMember(secondMember.getId(), testWorkspace.getId())),
-                () -> assertTrue(service.deleteMember(secondMember.getId(), testWorkspace.getId()))
+    public void findByIdFailure() {
+        ResourceNotFoundException ex = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getById(UUID.randomUUID()),
+                "no exception"
         );
+        assertEquals("Resource not found Exception!", ex.getMessage());
+    }
+
+    @Test
+    public void deleteFailure() {
+        UUID id = UUID.randomUUID();
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.delete(id),
+                "no exception"
+        );
+        assertEquals("No class spd.trello.domain.Workspace entity with id " + id + " exists!", ex.getMessage());
     }
 }

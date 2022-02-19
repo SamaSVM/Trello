@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.AttachmentService;
 
@@ -123,17 +124,6 @@ public class AttachmentTest {
     }
 
     @Test
-    public void findByIdFailure() {
-        UUID uuid = UUID.randomUUID();
-        ResourceNotFoundException ex = assertThrows(
-                ResourceNotFoundException.class,
-                () -> service.getById(uuid),
-                "no exception"
-        );
-        assertEquals("Resource not found Exception!", ex.getMessage());
-    }
-
-    @Test
     public void delete() {
         User user = helper.getNewUser("delete@AT");
         Member member = helper.getNewMember(user);
@@ -186,5 +176,36 @@ public class AttachmentTest {
                 () -> assertEquals(comment.getId(), testAttachment.getCommentId()),
                 () -> assertNull(testAttachment.getCardId())
         );
+    }
+
+    @Test
+    public void createFailure() {
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.save(new Attachment()),
+                "no exception"
+        );
+        assertTrue(ex.getMessage().contains("not-null property references a null or transient value"));
+    }
+
+    @Test
+    public void findByIdFailure() {
+        ResourceNotFoundException ex = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getById(UUID.randomUUID()),
+                "no exception"
+        );
+        assertEquals("Resource not found Exception!", ex.getMessage());
+    }
+
+    @Test
+    public void deleteFailure() {
+        UUID id = UUID.randomUUID();
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.delete(id),
+                "no exception"
+        );
+        assertEquals("No class spd.trello.domain.Attachment entity with id " + id + " exists!", ex.getMessage());
     }
 }

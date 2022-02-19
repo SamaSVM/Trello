@@ -6,8 +6,8 @@ import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.services.*;
 
-import java.sql.Date;
-import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -27,11 +27,7 @@ public class Helper {
     @Autowired
     private CommentService commentService;
     @Autowired
-    private ReminderService reminderService;
-    @Autowired
     private ChecklistService checklistService;
-    @Autowired
-    private CheckableItemService checkableItemService;
     @Autowired
     private LabelService labelService;
 
@@ -41,7 +37,7 @@ public class Helper {
         user.setFirstName("testFirstName");
         user.setLastName("testLastName");
         user.setEmail(email);
-        return userService.create(user);
+        return userService.save(user);
     }
 
     public Member getNewMember(User user) {
@@ -49,15 +45,19 @@ public class Helper {
         member.setUserId(user.getId());
         member.setCreatedBy(user.getEmail());
         member.setMemberRole(MemberRole.ADMIN);
-        return memberService.create(member);
+        return memberService.save(member);
     }
 
     public Workspace getNewWorkspace(Member member) {
         Workspace workspace = new Workspace();
+        workspace.setCreatedBy(member.getCreatedBy());
         workspace.setName("MemberName");
         workspace.setDescription("description");
         workspace.setCreatedBy(member.getId().toString());
-        return workspaceService.create(workspace);
+        Set<UUID> membersIds = new HashSet<>();
+        membersIds.add(member.getId());
+        workspace.setMembersIds(membersIds);
+        return workspaceService.save(workspace);
     }
 
     public Board getNewBoard(Member member, UUID workspaceId) {
@@ -66,15 +66,18 @@ public class Helper {
         board.setDescription("description");
         board.setWorkspaceId(workspaceId);
         board.setCreatedBy(member.getId().toString());
-        return boardService.create(board);
+        Set<UUID> membersIds = new HashSet<>();
+        membersIds.add(member.getId());
+        board.setMembersIds(membersIds);
+        return boardService.save(board);
     }
 
     public CardList getNewCardList(Member member, UUID boardId) {
         CardList cardList = new CardList();
         cardList.setBoardId(boardId);
         cardList.setName("CardListName");
-        cardList.setCreatedBy(member.getId().toString());
-        return cardListService.create(cardList);
+        cardList.setCreatedBy(member.getCreatedBy());
+        return cardListService.save(cardList);
     }
 
     public Card getNewCard(Member member, UUID cardListId) {
@@ -82,8 +85,11 @@ public class Helper {
         card.setName("CardName");
         card.setDescription("description");
         card.setCardListId(cardListId);
-        card.setCreatedBy(member.getId().toString());
-        return cardService.create(card);
+        card.setCreatedBy(member.getCreatedBy());
+        Set<UUID> membersIds = new HashSet<>();
+        membersIds.add(member.getId());
+        card.setMembersIds(membersIds);
+        return cardService.save(card);
     }
 
     public Comment getNewComment(Member member, UUID cardId) {
@@ -91,37 +97,21 @@ public class Helper {
         comment.setText("testComment");
         comment.setCardId(cardId);
         comment.setCreatedBy(member.getId().toString());
-        return commentService.create(comment);
-    }
-
-    public Reminder getNewReminder(Member member, UUID cardId) {
-        Reminder reminder = new Reminder();
-        reminder.setCardId(cardId);
-        reminder.setRemindOn(Date.valueOf(LocalDate.of(2222, 1, 1)));
-        reminder.setEnd(Date.valueOf(LocalDate.of(2222, 1, 1)));
-        reminder.setCreatedBy(member.getId().toString());
-        return reminderService.create(reminder);
+        return commentService.save(comment);
     }
 
     public Checklist getNewChecklist(Member member, UUID cardId) {
         Checklist checklist = new Checklist();
         checklist.setName("testChecklist");
         checklist.setCardId(cardId);
-        checklist.setCreatedBy(member.getId().toString());
-        return checklistService.create(checklist);
+        checklist.setCreatedBy(member.getCreatedBy());
+        return checklistService.save(checklist);
     }
 
-    public CheckableItem getNewCheckableItem(UUID checklistId) {
-        CheckableItem checkableItem = new CheckableItem();
-        checkableItem.setName("Name");
-        checkableItem.setChecklistId(checklistId);
-        return checkableItemService.create(checkableItem);
-    }
-
-    public Label getNewLabel(Member member, UUID cardId) {
+    public Label getNewLabel(UUID cardId) {
         Label label = new Label();
         label.setName("Label");
         label.setCardId(cardId);
-        return labelService.create(label);
+        return labelService.save(label);
     }
 }

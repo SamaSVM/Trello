@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.ChecklistService;
 
 import java.sql.Date;
@@ -22,21 +24,23 @@ public class ChecklistTest {
     private Helper helper;
 
     @Test
-    public void successCreate() {
+    public void create() {
         User user = helper.getNewUser("successCreate@CLT");
         Member member = helper.getNewMember(user);
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
+
         Checklist checklist = new Checklist();
         checklist.setCardId(card.getId());
-        checklist.setCreatedBy("successCreate@CLT");
+        checklist.setCreatedBy(user.getEmail());
         checklist.setName("testName");
-        Checklist testChecklist = service.create(checklist);
+        Checklist testChecklist = service.save(checklist);
+
         assertNotNull(testChecklist);
         assertAll(
-                () -> assertEquals("successCreate@CLT", testChecklist.getCreatedBy()),
+                () -> assertEquals(user.getEmail(), testChecklist.getCreatedBy()),
                 () -> assertNull(testChecklist.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testChecklist.getCreatedDate()),
                 () -> assertNull(testChecklist.getUpdatedDate()),
@@ -52,43 +56,47 @@ public class ChecklistTest {
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Checklist checklist = new Checklist();
-        checklist.setCardId(card.getId());
-        checklist.setCreatedBy("findAll@CLT");
-        checklist.setName("1 Checklist");
-        Checklist testFirstChecklist = service.create(checklist);
-        checklist.setName("2 Checklist");
-        Checklist testSecondChecklist = service.create(checklist);
+        Card firstCard = helper.getNewCard(member, cardList.getId());
+        Card secondCard = helper.getNewCard(member, cardList.getId());
+
+        Checklist firstChecklist = new Checklist();
+        firstChecklist.setCardId(firstCard.getId());
+        firstChecklist.setCreatedBy(user.getEmail());
+        firstChecklist.setName("1Checklist");
+        Checklist testFirstChecklist = service.save(firstChecklist);
+
+        Checklist secondChecklist = new Checklist();
+        secondChecklist.setCardId(secondCard.getId());
+        secondChecklist.setCreatedBy(user.getEmail());
+        secondChecklist.setName("2Checklist");
+        Checklist testSecondChecklist = service.save(secondChecklist);
+
         assertNotNull(testFirstChecklist);
         assertNotNull(testSecondChecklist);
-        List<Checklist> testComments = service.findAll();
+        List<Checklist> testChecklists = service.getAll();
         assertAll(
-                () -> assertTrue(testComments.contains(testFirstChecklist)),
-                () -> assertTrue(testComments.contains(testSecondChecklist))
+                () -> assertTrue(testChecklists.contains(testFirstChecklist)),
+                () -> assertTrue(testChecklists.contains(testSecondChecklist))
         );
     }
 
     @Test
-    public void createFailure() {
+    public void findById() {
+        User user = helper.getNewUser("findById@CLT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+
         Checklist checklist = new Checklist();
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.create(checklist),
-                "expected to throw  IllegalStateException, but it didn't"
-        );
-        assertEquals("Checklist doesn't creates", ex.getMessage());
-    }
+        checklist.setCardId(card.getId());
+        checklist.setCreatedBy(user.getEmail());
+        checklist.setName("testName");
+        service.save(checklist);
 
-    @Test
-    public void findByIdFailure() {
-        UUID uuid = UUID.randomUUID();
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.findById(uuid),
-                "no exception"
-        );
-        assertEquals("Checklist with ID: " + uuid + " doesn't exists", ex.getMessage());
+        Checklist testChecklist = service.getById(checklist.getId());
+        assertEquals(checklist, testChecklist);
     }
 
     @Test
@@ -99,17 +107,16 @@ public class ChecklistTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
+
         Checklist checklist = new Checklist();
         checklist.setCardId(card.getId());
-        checklist.setCreatedBy("delete@CLT");
+        checklist.setCreatedBy(user.getEmail());
         checklist.setName("Checklist");
-        Checklist testChecklist = service.create(checklist);
+        Checklist testChecklist = service.save(checklist);
+
         assertNotNull(testChecklist);
-        UUID id = testChecklist.getId();
-        assertAll(
-                () -> assertTrue(service.delete(id)),
-                () -> assertFalse(service.delete(id))
-        );
+        service.delete(testChecklist.getId());
+        assertFalse(service.getAll().contains(testChecklist));
     }
 
     @Test
@@ -120,18 +127,21 @@ public class ChecklistTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
+
         Checklist updateChecklist = new Checklist();
         updateChecklist.setCardId(card.getId());
-        updateChecklist.setCreatedBy("update@CLT");
+        updateChecklist.setCreatedBy(user.getEmail());
         updateChecklist.setName("Checklist");
-        Checklist checklist = service.create(updateChecklist);
+        Checklist checklist = service.save(updateChecklist);
+
         assertNotNull(checklist);
-        checklist.setUpdatedBy("update@CLT");
+        checklist.setUpdatedBy(user.getEmail());
         checklist.setName("newName");
         Checklist testChecklist = service.update(checklist);
+
         assertAll(
-                () -> assertEquals("update@CLT", testChecklist.getCreatedBy()),
-                () -> assertEquals("update@CLT", testChecklist.getUpdatedBy()),
+                () -> assertEquals(user.getEmail(), testChecklist.getCreatedBy()),
+                () -> assertEquals(user.getEmail(), testChecklist.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testChecklist.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testChecklist.getUpdatedDate()),
                 () -> assertEquals("newName", testChecklist.getName())
@@ -139,33 +149,33 @@ public class ChecklistTest {
     }
 
     @Test
-    public void updateFailure() {
-        Checklist testChecklist = new Checklist();
-        testChecklist.setId(UUID.fromString("e3aa391f-2192-4f2a-bf6e-a235459e78e5"));
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.update(testChecklist),
-                "expected to throw Illegal state exception, but it didn't"
+    public void createFailure() {
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.save(new Checklist()),
+                "no exception"
         );
-        assertEquals("Checklist with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
+        assertTrue(ex.getMessage().contains("not-null property references a null or transient value"));
     }
 
     @Test
-    public void getAllChecklistsForCard() {
-        User user = helper.getNewUser("getAllChecklistsForCard@CT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Checklist firstChecklist = helper.getNewChecklist(member, card.getId());
-        Checklist secondChecklist = helper.getNewChecklist(member, card.getId());
-        assertNotNull(card);
-        List<Checklist> checklists = service.getAllChecklists(card.getId());
-        assertAll(
-                () -> assertTrue(checklists.contains(firstChecklist)),
-                () -> assertTrue(checklists.contains(secondChecklist)),
-                () -> assertEquals(2, checklists.size())
+    public void findByIdFailure() {
+        ResourceNotFoundException ex = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getById(UUID.randomUUID()),
+                "no exception"
         );
+        assertEquals("Resource not found Exception!", ex.getMessage());
+    }
+
+    @Test
+    public void deleteFailure() {
+        UUID id = UUID.randomUUID();
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.delete(id),
+                "no exception"
+        );
+        assertEquals("No class spd.trello.domain.Checklist entity with id " + id + " exists!", ex.getMessage());
     }
 }

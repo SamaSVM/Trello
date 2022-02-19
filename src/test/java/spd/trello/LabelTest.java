@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.LabelService;
 
 import java.util.List;
@@ -21,20 +23,22 @@ public class LabelTest {
     private Helper helper;
 
     @Test
-    public void successCreate() {
-        User user = helper.getNewUser("successCreate@LT");
+    public void create() {
+        User user = helper.getNewUser("create@LT");
         Member member = helper.getNewMember(user);
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
+
         Label label = new Label();
         label.setCardId(card.getId());
-        label.setName("successCreate@LT");
-        Label testLabel = service.create(label);
+        label.setName("name");
+        Label testLabel = service.save(label);
+
         assertNotNull(testLabel);
         assertAll(
-                () -> assertEquals("successCreate@LT", testLabel.getName()),
+                () -> assertEquals("name", testLabel.getName()),
                 () -> assertEquals(card.getId(), testLabel.getCardId())
         );
     }
@@ -47,41 +51,43 @@ public class LabelTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
-        Label label = new Label();
-        label.setCardId(card.getId());
-        label.setName("1Label");
-        Label testFirstLabel = service.create(label);
-        label.setName("2Label");
-        Label testSecondLabel = service.create(label);
+
+        Label firstLabel = new Label();
+        firstLabel.setCardId(card.getId());
+        firstLabel.setName("1Label");
+        Label testFirstLabel = service.save(firstLabel);
         assertNotNull(testFirstLabel);
+
+        Label secondLabel = new Label();
+        secondLabel.setCardId(card.getId());
+        secondLabel.setName("2Label");
+        Label testSecondLabel = service.save(secondLabel);
         assertNotNull(testSecondLabel);
-        List<Label> testLabels = service.findAll();
+
+        List<Label> testLabels = service.getAll();
         assertAll(
                 () -> assertTrue(testLabels.contains(testFirstLabel)),
                 () -> assertTrue(testLabels.contains(testSecondLabel))
         );
     }
 
-    @Test
-    public void createFailure() {
-        Label label = new Label();
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.create(label),
-                "expected to throw  IllegalStateException, but it didn't"
-        );
-        assertEquals("Label doesn't creates", ex.getMessage());
-    }
 
     @Test
     public void findById() {
-        UUID uuid = UUID.randomUUID();
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.findById(uuid),
-                "no exception"
-        );
-        assertEquals("Label with ID: " + uuid + " doesn't exists", ex.getMessage());
+        User user = helper.getNewUser("findById@LT");
+        Member member = helper.getNewMember(user);
+        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard(member, cardList.getId());
+
+        Label label = new Label();
+        label.setCardId(card.getId());
+        label.setName("Label");
+        service.save(label);
+
+        Label testLabel = service.getById(label.getId());
+        assertEquals(label, testLabel);
     }
 
     @Test
@@ -92,16 +98,15 @@ public class LabelTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
+
         Label label = new Label();
         label.setCardId(card.getId());
         label.setName("Name");
-        Label testLabel = service.create(label);
+        Label testLabel = service.save(label);
+
         assertNotNull(testLabel);
-        UUID id = testLabel.getId();
-        assertAll(
-                () -> assertTrue(service.delete(id)),
-                () -> assertFalse(service.delete(id))
-        );
+        service.delete(testLabel.getId());
+        assertFalse(service.getAll().contains(testLabel));
     }
 
     @Test
@@ -112,10 +117,12 @@ public class LabelTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
+
         Label updateLabel = new Label();
         updateLabel.setCardId(card.getId());
         updateLabel.setName("Name");
-        Label label = service.create(updateLabel);
+        Label label = service.save(updateLabel);
+
         assertNotNull(label);
         label.setName("newName");
         Label testLabel = service.update(label);
@@ -123,33 +130,33 @@ public class LabelTest {
     }
 
     @Test
-    public void updateFailure() {
-        Label testLabel = new Label();
-        testLabel.setId(UUID.fromString("e3aa391f-2192-4f2a-bf6e-a235459e78e5"));
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.update(testLabel),
-                "expected to throw Illegal state exception, but it didn't"
+    public void createFailure() {
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.save(new Label()),
+                "no exception"
         );
-        assertEquals("Label with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
+        assertTrue(ex.getMessage().contains("not-null property references a null or transient value"));
     }
 
     @Test
-    public void getAllLabelsForCard() {
-        User user = helper.getNewUser("getAllLabelsForCard@CT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Label firstLabel = helper.getNewLabel(member, card.getId());
-        Label secondLabel = helper.getNewLabel(member, card.getId());
-        assertNotNull(card);
-        List<Label> labels = service.getAllLabels(card.getId());
-        assertAll(
-                () -> assertTrue(labels.contains(firstLabel)),
-                () -> assertTrue(labels.contains(secondLabel)),
-                () -> assertEquals(2, labels.size())
+    public void findByIdFailure() {
+        ResourceNotFoundException ex = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getById(UUID.randomUUID()),
+                "no exception"
         );
+        assertEquals("Resource not found Exception!", ex.getMessage());
+    }
+
+    @Test
+    public void deleteFailure() {
+        UUID id = UUID.randomUUID();
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.delete(id),
+                "no exception"
+        );
+        assertEquals("No class spd.trello.domain.Label entity with id " + id + " exists!", ex.getMessage());
     }
 }

@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.User;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.UserService;
 
 import java.time.ZoneId;
@@ -18,12 +20,13 @@ public class UserTest {
     private UserService service;
 
     @Test
-    public void successCreate() {
+    public void create() {
         User user = new User();
         user.setFirstName("createFirstName");
         user.setLastName("createLastName");
         user.setEmail("create@email");
-        User testUser = service.create(user);
+        User testUser = service.save(user);
+
         assertNotNull(testUser);
         assertAll(
                 () -> assertEquals("createFirstName", testUser.getFirstName()),
@@ -34,19 +37,23 @@ public class UserTest {
     }
 
     @Test
-    public void testFindAll() {
-        User user = new User();
-        user.setFirstName("1FirstName");
-        user.setLastName("1LastName");
-        user.setEmail("1@email");
-        User testFirstUser = service.create(user);
-        user.setFirstName("2FirstName");
-        user.setLastName("2LastName");
-        user.setEmail("2@email");
-        User testSecondUser = service.create(user);
+    public void findAll() {
+        User firstUser = new User();
+        firstUser.setFirstName("1FirstName");
+        firstUser.setLastName("1LastName");
+        firstUser.setEmail("1@email");
+        firstUser.setTimeZone("Europe/Paris");
+        User testFirstUser = service.save(firstUser);
+
+        User secondUser = new User();
+        secondUser.setFirstName("2FirstName");
+        secondUser.setLastName("2LastName");
+        secondUser.setEmail("2@email");
+        User testSecondUser = service.save(secondUser);
+
         assertNotNull(testFirstUser);
         assertNotNull(testSecondUser);
-        List<User> testUsers = service.findAll();
+        List<User> testUsers = service.getAll();
         assertAll(
                 () -> assertTrue(testUsers.contains(testFirstUser)),
                 () -> assertTrue(testUsers.contains(testSecondUser))
@@ -54,77 +61,86 @@ public class UserTest {
     }
 
     @Test
-    public void createFailure() {
+    public void findById() {
         User user = new User();
-        user.setFirstName("createFirstName");
-        user.setLastName("createLastName");
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.create(user),
-                "expected to throw Illegal state exception, but it didn't"
-        );
-        assertEquals("User doesn't creates", ex.getMessage());
+        user.setFirstName("FirstName");
+        user.setLastName("LastName");
+        user.setEmail("findById@UT");
+        user.setTimeZone("Europe/Kiev");
+        service.save(user);
+
+        User testUser = service.getById(user.getId());
+        assertEquals(user, testUser);
     }
 
     @Test
-    public void findByIdFailure() {
-        UUID uuid = UUID.randomUUID();
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.findById(uuid),
-                "no exception"
-        );
-        assertEquals("User with ID: " + uuid + " doesn't exists", ex.getMessage());
-    }
-
-    @Test
-    public void testDelete() {
+    public void delete() {
         User user = new User();
         user.setFirstName("deleteFirstName");
         user.setLastName("deleteLastName");
         user.setEmail("delete@email");
-        User testUser = service.create(user);
+        User testUser = service.save(user);
+
         assertNotNull(testUser);
-        UUID id = testUser.getId();
-        assertAll(
-                () -> assertTrue(service.delete(id)),
-                () -> assertFalse(service.delete(id))
-        );
+        service.delete(testUser.getId());
+        assertFalse(service.getAll().contains(testUser));
     }
 
     @Test
-    public void testUpdate() {
+    public void update() {
         User user = new User();
         user.setFirstName("updateFirstName");
         user.setLastName("updateLastName");
         user.setEmail("update@email");
-        User firstUser = service.create(user);
+        User firstUser = service.save(user);
+
         assertNotNull(firstUser);
         UUID id = firstUser.getId();
-        User testUser = new User();
-        testUser.setId(firstUser.getId());
-        testUser.setFirstName("newFirstName");
-        testUser.setLastName("newLastName");
-        testUser.setEmail("new@email");
-        testUser.setTimeZone("Europe/Paris");
-        service.update(testUser);
+        User updateUser = new User();
+        updateUser.setId(id);
+        updateUser.setFirstName("newFirstName");
+        updateUser.setLastName("newLastName");
+        updateUser.setEmail("new@email");
+        updateUser.setTimeZone("Europe/Paris");
+        service.update(updateUser);
+
+        User testUser = service.getById(id);
         assertAll(
-                () -> assertEquals("newFirstName", service.findById(id).getFirstName()),
-                () -> assertEquals("newLastName", service.findById(id).getLastName()),
-                () -> assertEquals("new@email", service.findById(id).getEmail()),
-                () -> assertEquals("Europe/Paris", service.findById(id).getTimeZone())
+                () -> assertEquals("newFirstName", testUser.getFirstName()),
+                () -> assertEquals("newLastName", testUser.getLastName()),
+                () -> assertEquals("update@email", testUser.getEmail()),
+                () -> assertEquals("Europe/Paris", testUser.getTimeZone())
         );
     }
 
     @Test
-    public void updateFailure() {
-        User testUser = new User();
-        testUser.setId(UUID.fromString("e3aa391f-2192-4f2a-bf6e-a235459e78e5"));
-        IllegalStateException ex = assertThrows(
-                IllegalStateException.class,
-                () -> service.update(testUser),
-                "expected to throw Illegal state exception, but it didn't"
+    public void createFailure() {
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.save(new User()),
+                "no exception"
         );
-        assertEquals("User with ID: e3aa391f-2192-4f2a-bf6e-a235459e78e5 doesn't exists", ex.getMessage());
+        assertTrue(ex.getMessage().contains("could not execute statement;"));
+    }
+
+    @Test
+    public void findByIdFailure() {
+        ResourceNotFoundException ex = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.getById(UUID.randomUUID()),
+                "no exception"
+        );
+        assertEquals("Resource not found Exception!", ex.getMessage());
+    }
+
+    @Test
+    public void deleteFailure() {
+        UUID id = UUID.randomUUID();
+        BadRequestException ex = assertThrows(
+                BadRequestException.class,
+                () -> service.delete(id),
+                "no exception"
+        );
+        assertEquals("No class spd.trello.domain.User entity with id " + id + " exists!", ex.getMessage());
     }
 }
