@@ -2,6 +2,7 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.CardList;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.repository.CardListRepository;
 
 import java.sql.Date;
@@ -20,7 +21,11 @@ public class CardListService extends AbstractService<CardList, CardListRepositor
     @Override
     public CardList save(CardList entity) {
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
@@ -33,7 +38,11 @@ public class CardListService extends AbstractService<CardList, CardListRepositor
         if (entity.getName() == null) {
             entity.setName(oldCardList.getName());
         }
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override

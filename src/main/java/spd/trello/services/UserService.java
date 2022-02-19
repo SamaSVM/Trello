@@ -2,6 +2,7 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.User;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.repository.UserRepository;
 
 import java.time.ZoneId;
@@ -21,7 +22,12 @@ public class UserService extends AbstractService<User, UserRepository> {
         if(entity.getTimeZone() == null){
             entity.setTimeZone(ZoneId.systemDefault().toString());
         }
-        return repository.save(entity);
+
+        try {
+            return repository.save(entity);
+        }catch (RuntimeException e){
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
@@ -37,7 +43,12 @@ public class UserService extends AbstractService<User, UserRepository> {
         if (entity.getTimeZone() == null) {
             entity.setTimeZone(oldUser.getTimeZone());
         }
-        return repository.save(entity);
+
+        try {
+            return repository.save(entity);
+        }catch (RuntimeException e){
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override

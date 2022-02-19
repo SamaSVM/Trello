@@ -2,6 +2,7 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Comment;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.repository.CommentRepository;
 
 import java.sql.Date;
@@ -16,13 +17,17 @@ public class CommentService extends AbstractService<Comment, CommentRepository> 
         this.attachmentService = attachmentService;
     }
 
+    private final AttachmentService attachmentService;
+
     @Override
     public Comment save(Comment entity) {
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
-
-    private final AttachmentService attachmentService;
 
     @Override
     public Comment update(Comment entity) {
@@ -34,7 +39,11 @@ public class CommentService extends AbstractService<Comment, CommentRepository> 
         if (entity.getText() == null) {
             entity.setText(oldCard.getText());
         }
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override

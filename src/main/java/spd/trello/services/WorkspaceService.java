@@ -1,10 +1,8 @@
 package spd.trello.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import spd.trello.domain.Board;
-import spd.trello.domain.Member;
 import spd.trello.domain.Workspace;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.repository.WorkspaceRepository;
 
 import java.sql.Date;
@@ -25,7 +23,11 @@ public class WorkspaceService extends AbstractService<Workspace, WorkspaceReposi
     @Override
     public Workspace save(Workspace entity) {
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        }catch (RuntimeException e){
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
@@ -43,7 +45,11 @@ public class WorkspaceService extends AbstractService<Workspace, WorkspaceReposi
         if (entity.getVisibility() == null) {
             entity.setVisibility(oldWorkspace.getVisibility());
         }
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        }catch (RuntimeException e){
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override

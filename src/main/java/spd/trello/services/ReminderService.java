@@ -2,6 +2,7 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Reminder;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.repository.ReminderRepository;
 
 import java.sql.Date;
@@ -17,7 +18,11 @@ public class ReminderService extends AbstractService<Reminder, ReminderRepositor
     @Override
     public Reminder save(Reminder entity) {
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        }catch (RuntimeException e){
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
@@ -35,6 +40,10 @@ public class ReminderService extends AbstractService<Reminder, ReminderRepositor
         if (entity.getRemindOn() == null) {
             entity.setRemindOn(oldReminder.getRemindOn());
         }
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        }catch (RuntimeException e){
+            throw new BadRequestException(e.getMessage());
+        }
     }
 }

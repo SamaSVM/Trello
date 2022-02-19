@@ -2,6 +2,7 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.CheckableItem;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.repository.CheckableItemRepository;
 
 import java.util.UUID;
@@ -20,7 +21,11 @@ public class CheckableItemService extends AbstractService<CheckableItem, Checkab
         if (entity.getName() == null) {
             entity.setName(oldCheckableItem.getName());
         }
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     public void deleteCheckableItemsForChecklist(UUID checklistId) {

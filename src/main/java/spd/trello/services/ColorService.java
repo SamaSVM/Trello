@@ -2,6 +2,7 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Color;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.repository.ColorRepository;
 
 import java.util.UUID;
@@ -26,7 +27,11 @@ public class ColorService extends AbstractService<Color, ColorRepository> {
         if (entity.getBlue() == null) {
             entity.setBlue(oldCard.getBlue());
         }
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     public void deleteColorForLabel(UUID labelId) {

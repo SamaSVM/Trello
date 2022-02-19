@@ -2,9 +2,9 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Label;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.repository.LabelRepository;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,7 +23,11 @@ public class LabelService extends AbstractService<Label, LabelRepository> {
         if (entity.getName() == null) {
             entity.setName(oldLabel.getName());
         }
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override

@@ -2,6 +2,7 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Board;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.repository.BoardRepository;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -21,7 +22,11 @@ public class BoardService extends AbstractService<Board, BoardRepository> {
     @Override
     public Board save(Board entity) {
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
@@ -37,7 +42,11 @@ public class BoardService extends AbstractService<Board, BoardRepository> {
         if (entity.getDescription() == null && oldBoard.getDescription() != null) {
             entity.setDescription(oldBoard.getDescription());
         }
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override

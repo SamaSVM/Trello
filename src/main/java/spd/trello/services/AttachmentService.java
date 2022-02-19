@@ -2,8 +2,7 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Attachment;
-import spd.trello.domain.Board;
-import spd.trello.domain.Member;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.repository.AttachmentRepository;
 
 import java.sql.Date;
@@ -23,7 +22,11 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
             throw new IllegalStateException();
         }
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
@@ -44,7 +47,11 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
         if(entity.getLink() == null) {
             entity.setLink(oldAttachment.getLink());
         }
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     public void deleteAttachmentsForComment(UUID commentId) {

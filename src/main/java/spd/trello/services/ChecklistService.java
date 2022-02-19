@@ -2,6 +2,7 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Checklist;
+import spd.trello.exeption.BadRequestException;
 import spd.trello.repository.ChecklistRepository;
 
 import java.sql.Date;
@@ -20,7 +21,11 @@ public class ChecklistService extends AbstractService<Checklist, ChecklistReposi
     @Override
     public Checklist save(Checklist entity) {
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
@@ -33,7 +38,11 @@ public class ChecklistService extends AbstractService<Checklist, ChecklistReposi
         if (entity.getName() == null) {
             entity.setName(oldChecklist.getName());
         }
-        return repository.save(entity);
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
