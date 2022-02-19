@@ -8,5 +8,4 @@ import java.util.UUID;
 
 @Repository
 public interface ReminderRepository extends AbstractRepository<Reminder> {
-    Reminder getByCardId(UUID cardId);
 }

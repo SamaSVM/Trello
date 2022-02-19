@@ -6,7 +6,6 @@ import spd.trello.repository.ReminderRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Service
 public class ReminderService extends AbstractService<Reminder, ReminderRepository> {
@@ -27,7 +26,6 @@ public class ReminderService extends AbstractService<Reminder, ReminderRepositor
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         entity.setCreatedBy(oldReminder.getCreatedBy());
         entity.setCreatedDate(oldReminder.getCreatedDate());
-        entity.setCardId(oldReminder.getCardId());
         if (entity.getStart() == null) {
             entity.setStart(oldReminder.getStart());
         }
@@ -38,12 +36,5 @@ public class ReminderService extends AbstractService<Reminder, ReminderRepositor
             entity.setRemindOn(oldReminder.getRemindOn());
         }
         return repository.save(entity);
-    }
-
-    public void deleteReminderForCard(UUID cardId) {
-        Reminder reminder = repository.getByCardId(cardId);
-        if(reminder != null) {
-            delete(reminder.getId());
-        }
     }
 }

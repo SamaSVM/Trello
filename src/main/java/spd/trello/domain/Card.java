@@ -1,6 +1,5 @@
 package spd.trello.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.LazyCollection;
@@ -36,14 +35,9 @@ public class Card extends Resource {
     @Column(name = "member_id")
     private Set<UUID> membersIds = new HashSet<>();
 
-    @ElementCollection
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @CollectionTable(
-            name = "reminders",
-            joinColumns=@JoinColumn(name= "card_id")
-    )
-    @Column(name = "id")
-    private Set<UUID> reminder = new HashSet<>();
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "reminder_id", referencedColumnName = "id")
+    private Reminder reminder;
 
     @ElementCollection
     @LazyCollection(LazyCollectionOption.FALSE)

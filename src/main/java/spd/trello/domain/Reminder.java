@@ -1,13 +1,11 @@
 package spd.trello.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import spd.trello.domain.perent.Resource;
 
 import javax.persistence.*;
 import java.sql.Date;
-import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
@@ -25,7 +23,4 @@ public class Reminder extends Resource {
 
     @Column(name = "active")
     private Boolean active = true;
-
-    @Column(name = "card_id")
-    private UUID cardId;
 }
