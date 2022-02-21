@@ -1,4 +1,4 @@
-package spd.trello;
+package spd.trello.unit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class ChecklistTest {
     private ChecklistService service;
 
     @Autowired
-    private Helper helper;
+    private UnitHelper helper;
 
     @Test
     public void create() {
