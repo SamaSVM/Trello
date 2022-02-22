@@ -3,6 +3,7 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Member;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.MemberRepository;
 
 import java.sql.Date;
@@ -27,7 +28,7 @@ public class MemberService extends AbstractService<Member, MemberRepository> {
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
         try {
             return repository.save(entity);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
     }
@@ -35,16 +36,23 @@ public class MemberService extends AbstractService<Member, MemberRepository> {
     @Override
     public Member update(Member entity) {
         Member oldMember = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
+        if (entity.getMemberRole().equals(oldMember.getMemberRole())) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         entity.setCreatedBy(oldMember.getCreatedBy());
         entity.setCreatedDate(oldMember.getCreatedDate());
         entity.setUserId(oldMember.getUserId());
-        if (entity.getMemberRole() == null) {
-            entity.setMemberRole(oldMember.getMemberRole());
-        }
+
         try {
             return repository.save(entity);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
     }
@@ -58,7 +66,7 @@ public class MemberService extends AbstractService<Member, MemberRepository> {
     }
 
 
-    public void deleteMembersForUser(UUID userId){
+    public void deleteMembersForUser(UUID userId) {
         repository.findByUserId(userId).forEach(member -> delete(member.getId()));
     }
 }

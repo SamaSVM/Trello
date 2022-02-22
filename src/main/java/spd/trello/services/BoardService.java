@@ -3,7 +3,9 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Board;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.BoardRepository;
+
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
@@ -32,6 +34,18 @@ public class BoardService extends AbstractService<Board, BoardRepository> {
     @Override
     public Board update(Board entity) {
         Board oldBoard = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
+        if (entity.getName() == null && entity.getDescription() == null
+                && entity.getFavourite() == oldBoard.getFavourite() && entity.getArchived() == oldBoard.getArchived()
+                && entity.getMembersId().equals(oldBoard.getMembersId())
+                && entity.getVisibility().equals(oldBoard.getVisibility())) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         entity.setCreatedBy(oldBoard.getCreatedBy());
         entity.setCreatedDate(oldBoard.getCreatedDate());
@@ -55,7 +69,7 @@ public class BoardService extends AbstractService<Board, BoardRepository> {
         super.delete(id);
     }
 
-    public void deleteBoardForWorkspace(UUID workspaceId){
+    public void deleteBoardForWorkspace(UUID workspaceId) {
         repository.findAllByWorkspaceId(workspaceId).forEach(board -> delete(board.getId()));
     }
 
@@ -64,7 +78,7 @@ public class BoardService extends AbstractService<Board, BoardRepository> {
         for (Board board : boards) {
             Set<UUID> membersId = board.getMembersId();
             membersId.remove(memberId);
-            if (board.getMembersId().isEmpty()){
+            if (board.getMembersId().isEmpty()) {
                 delete(board.getId());
             }
         }

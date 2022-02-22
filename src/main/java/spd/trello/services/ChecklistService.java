@@ -3,6 +3,7 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Checklist;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.ChecklistRepository;
 
 import java.sql.Date;
@@ -31,13 +32,20 @@ public class ChecklistService extends AbstractService<Checklist, ChecklistReposi
     @Override
     public Checklist update(Checklist entity) {
         Checklist oldChecklist = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
+        if (entity.getName() == null) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setCreatedBy(oldChecklist.getCreatedBy());
         entity.setCreatedDate(oldChecklist.getCreatedDate());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         entity.setCardId(oldChecklist.getCardId());
-        if (entity.getName() == null) {
-            entity.setName(oldChecklist.getName());
-        }
+
         try {
             return repository.save(entity);
         } catch (RuntimeException e) {

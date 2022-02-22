@@ -3,6 +3,7 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Attachment;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.AttachmentRepository;
 
 import java.sql.Date;
@@ -32,19 +33,28 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
     @Override
     public Attachment update(Attachment entity) {
         Attachment oldAttachment = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
+        if (entity.getLink() == null && entity.getName() == null) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         entity.setCreatedBy(oldAttachment.getCreatedBy());
         entity.setCreatedDate(oldAttachment.getCreatedDate());
-        if(oldAttachment.getCardId() != null) {
+        if (oldAttachment.getCardId() != null) {
             entity.setCardId(oldAttachment.getCardId());
         }
-        if(oldAttachment.getCommentId() != null) {
+        if (oldAttachment.getCommentId() != null) {
             entity.setCommentId(oldAttachment.getCommentId());
         }
-        if(entity.getName() == null) {
+        if (entity.getName() == null) {
             entity.setName(oldAttachment.getName());
         }
-        if(entity.getLink() == null) {
+        if (entity.getLink() == null) {
             entity.setLink(oldAttachment.getLink());
         }
         try {

@@ -3,6 +3,7 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.CheckableItem;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.CheckableItemRepository;
 
 import java.util.UUID;
@@ -17,6 +18,11 @@ public class CheckableItemService extends AbstractService<CheckableItem, Checkab
     @Override
     public CheckableItem update(CheckableItem entity) {
         CheckableItem oldCheckableItem = getById(entity.getId());
+
+        if (entity.getName() == null && entity.getChecked() == oldCheckableItem.getChecked()) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setChecklistId(oldCheckableItem.getChecklistId());
         if (entity.getName() == null) {
             entity.setName(oldCheckableItem.getName());

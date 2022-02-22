@@ -3,6 +3,7 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Workspace;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.WorkspaceRepository;
 
 import java.sql.Date;
@@ -25,7 +26,7 @@ public class WorkspaceService extends AbstractService<Workspace, WorkspaceReposi
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
         try {
             return repository.save(entity);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
     }
@@ -33,6 +34,17 @@ public class WorkspaceService extends AbstractService<Workspace, WorkspaceReposi
     @Override
     public Workspace update(Workspace entity) {
         Workspace oldWorkspace = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
+        if (entity.getName() == null && entity.getDescription() == null
+                && entity.getVisibility().equals(oldWorkspace.getVisibility())
+                && entity.getMembersId().equals(oldWorkspace.getMembersId())) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         entity.setCreatedBy(oldWorkspace.getCreatedBy());
         entity.setCreatedDate(oldWorkspace.getCreatedDate());
@@ -47,7 +59,7 @@ public class WorkspaceService extends AbstractService<Workspace, WorkspaceReposi
         }
         try {
             return repository.save(entity);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
     }
@@ -63,7 +75,7 @@ public class WorkspaceService extends AbstractService<Workspace, WorkspaceReposi
         for (Workspace workspace : workspaces) {
             Set<UUID> membersId = workspace.getMembersId();
             membersId.remove(memberId);
-            if (workspace.getMembersId().isEmpty()){
+            if (workspace.getMembersId().isEmpty()) {
                 delete(workspace.getId());
             }
         }

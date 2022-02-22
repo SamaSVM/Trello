@@ -8,7 +8,7 @@ import spd.trello.repository.AbstractRepository;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class AbstractService<E extends Domain, R extends AbstractRepository<E>> implements CommonService<E>{
+public abstract class AbstractService<E extends Domain, R extends AbstractRepository<E>> implements CommonService<E> {
     R repository;
 
     public AbstractService(R repository) {
@@ -19,7 +19,7 @@ public abstract class AbstractService<E extends Domain, R extends AbstractReposi
     public E save(E entity) {
         try {
             return repository.save(entity);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
     }
@@ -28,7 +28,7 @@ public abstract class AbstractService<E extends Domain, R extends AbstractReposi
     public E update(E entity) {
         try {
             return repository.save(entity);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
     }
@@ -37,14 +37,14 @@ public abstract class AbstractService<E extends Domain, R extends AbstractReposi
     public void delete(UUID id) {
         try {
             repository.deleteById(id);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
     }
 
     @Override
     public E getById(UUID id) {
-        return repository.findById(id).orElseThrow(ResourceNotFoundException ::new);
+        return repository.findById(id).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override

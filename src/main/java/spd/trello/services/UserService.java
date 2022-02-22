@@ -3,6 +3,7 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.User;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.UserRepository;
 
 import java.time.ZoneId;
@@ -15,17 +16,18 @@ public class UserService extends AbstractService<User, UserRepository> {
         super(repository);
         this.memberService = memberService;
     }
+
     private final MemberService memberService;
 
     @Override
     public User save(User entity) {
-        if(entity.getTimeZone() == null){
+        if (entity.getTimeZone() == null) {
             entity.setTimeZone(ZoneId.systemDefault().toString());
         }
 
         try {
             return repository.save(entity);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
     }
@@ -33,6 +35,10 @@ public class UserService extends AbstractService<User, UserRepository> {
     @Override
     public User update(User entity) {
         User oldUser = getById(entity.getId());
+        if (entity.getEmail() == null && entity.getLastName() == null && entity.getFirstName() == null) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setEmail(oldUser.getEmail());
         if (entity.getFirstName() == null) {
             entity.setFirstName(oldUser.getFirstName());
@@ -46,7 +52,7 @@ public class UserService extends AbstractService<User, UserRepository> {
 
         try {
             return repository.save(entity);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
     }

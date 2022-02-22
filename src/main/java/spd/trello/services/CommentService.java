@@ -3,6 +3,7 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Comment;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.CommentRepository;
 
 import java.sql.Date;
@@ -32,13 +33,20 @@ public class CommentService extends AbstractService<Comment, CommentRepository> 
     @Override
     public Comment update(Comment entity) {
         Comment oldCard = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
+        if (entity.getText() == null) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setCreatedBy(oldCard.getCreatedBy());
         entity.setCreatedDate(oldCard.getCreatedDate());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         entity.setCardId(oldCard.getCardId());
-        if (entity.getText() == null) {
-            entity.setText(oldCard.getText());
-        }
+
         try {
             return repository.save(entity);
         } catch (RuntimeException e) {

@@ -3,6 +3,7 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.*;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.*;
 
 import java.sql.Date;
@@ -41,6 +42,16 @@ public class CardService extends AbstractService<Card, CardRepository> {
     @Override
     public Card update(Card entity) {
         Card oldCard = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
+        if (entity.getName() == null && entity.getDescription() == null && entity.getArchived() == oldCard.getArchived()
+                && entity.getMembersId().equals(oldCard.getMembersId())) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setCardListId(oldCard.getCardListId());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
         entity.setCreatedBy(oldCard.getCreatedBy());

@@ -3,6 +3,7 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Label;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.LabelRepository;
 
 import java.util.UUID;
@@ -19,10 +20,13 @@ public class LabelService extends AbstractService<Label, LabelRepository> {
     @Override
     public Label update(Label entity) {
         Label oldLabel = getById(entity.getId());
-        entity.setCardId(oldLabel.getCardId());
+
         if (entity.getName() == null) {
-            entity.setName(oldLabel.getName());
+            throw new ResourceNotFoundException();
         }
+
+        entity.setCardId(oldLabel.getCardId());
+
         try {
             return repository.save(entity);
         } catch (RuntimeException e) {
