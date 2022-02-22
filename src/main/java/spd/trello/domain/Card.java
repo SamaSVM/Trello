@@ -33,7 +33,7 @@ public class Card extends Resource {
             joinColumns=@JoinColumn(name= "card_id")
     )
     @Column(name = "member_id")
-    private Set<UUID> membersIds = new HashSet<>();
+    private Set<UUID> membersId = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "reminder_id", referencedColumnName = "id")

@@ -54,9 +54,9 @@ public class UnitHelper {
         workspace.setName("MemberName");
         workspace.setDescription("description");
         workspace.setCreatedBy(member.getId().toString());
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        workspace.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        workspace.setMembersId(membersId);
         return workspaceService.save(workspace);
     }
 
@@ -66,9 +66,9 @@ public class UnitHelper {
         board.setDescription("description");
         board.setWorkspaceId(workspaceId);
         board.setCreatedBy(member.getId().toString());
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        board.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        board.setMembersId(membersId);
         return boardService.save(board);
     }
 
@@ -86,9 +86,9 @@ public class UnitHelper {
         card.setDescription("description");
         card.setCardListId(cardListId);
         card.setCreatedBy(member.getCreatedBy());
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        card.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        card.setMembersId(membersId);
         return cardService.save(card);
     }
 

@@ -60,11 +60,11 @@ public class BoardService extends AbstractService<Board, BoardRepository> {
     }
 
     public void deleteMemberInBoards(UUID memberId) {
-        List<Board> boards = repository.findAllByMembersIdsEquals(memberId);
+        List<Board> boards = repository.findAllBymembersIdEquals(memberId);
         for (Board board : boards) {
-            Set<UUID> membersIds = board.getMembersIds();
-            membersIds.remove(memberId);
-            if (board.getMembersIds().isEmpty()){
+            Set<UUID> membersId = board.getMembersId();
+            membersId.remove(memberId);
+            if (board.getMembersId().isEmpty()){
                 delete(board.getId());
             }
         }

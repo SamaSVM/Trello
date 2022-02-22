@@ -37,9 +37,9 @@ public class WorkspaceTest {
         workspace.setCreatedBy(user.getEmail());
         workspace.setName("testWorkspace");
         workspace.setDescription("testDescription");
-        Set<UUID> membersIds = workspace.getMembersIds();
-        membersIds.add(member.getId());
-        workspace.setMembersIds(membersIds);
+        Set<UUID> membersId = workspace.getMembersId();
+        membersId.add(member.getId());
+        workspace.setMembersId(membersId);
         Workspace testWorkspace = service.save(workspace);
 
         assertNotNull(testWorkspace);
@@ -51,7 +51,7 @@ public class WorkspaceTest {
                 () -> assertEquals("testWorkspace", testWorkspace.getName()),
                 () -> assertEquals("testDescription", testWorkspace.getDescription()),
                 () -> assertEquals(WorkspaceVisibility.PRIVATE, testWorkspace.getVisibility()),
-                () -> assertTrue(testWorkspace.getMembersIds().contains(member.getId()))
+                () -> assertTrue(testWorkspace.getMembersId().contains(member.getId()))
         );
     }
 
@@ -64,16 +64,16 @@ public class WorkspaceTest {
         firstWorkspace.setCreatedBy(user.getEmail());
         firstWorkspace.setName("1Name");
         firstWorkspace.setDescription("1Des");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        firstWorkspace.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        firstWorkspace.setMembersId(membersId);
         Workspace testFirstWorkspace = service.save(firstWorkspace);
 
         Workspace secondWorkspace = new Workspace();
         secondWorkspace.setCreatedBy(user.getEmail());
         secondWorkspace.setName("2Name");
         secondWorkspace.setDescription("2Des");
-        secondWorkspace.setMembersIds(membersIds);
+        secondWorkspace.setMembersId(membersId);
         Workspace testSecondWorkspace = service.save(secondWorkspace);
 
         assertNotNull(testFirstWorkspace);
@@ -94,9 +94,9 @@ public class WorkspaceTest {
         workspace.setCreatedBy(user.getEmail());
         workspace.setName("Name");
         workspace.setDescription("Description");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        workspace.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        workspace.setMembersId(membersId);
         service.save(workspace);
 
         Workspace testMember = service.getById(workspace.getId());
@@ -112,9 +112,9 @@ public class WorkspaceTest {
         workspace.setCreatedBy(user.getEmail());
         workspace.setName("Name");
         workspace.setDescription("Description");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        workspace.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        workspace.setMembersId(membersId);
         Workspace testWorkspace = service.save(workspace);
 
         assertNotNull(testWorkspace);
@@ -132,9 +132,9 @@ public class WorkspaceTest {
         workspace.setCreatedBy(user.getEmail());
         workspace.setName("testWorkspace");
         workspace.setDescription("testDescription");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(firstMember.getId());
-        workspace.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(firstMember.getId());
+        workspace.setMembersId(membersId);
         Workspace updateWorkspace = service.save(workspace);
 
         assertNotNull(updateWorkspace);
@@ -142,8 +142,8 @@ public class WorkspaceTest {
         updateWorkspace.setName("newWorkspace");
         updateWorkspace.setDescription("newDescription");
         updateWorkspace.setVisibility(WorkspaceVisibility.PUBLIC);
-        membersIds.add(secondMember.getId());
-        updateWorkspace.setMembersIds(membersIds);
+        membersId.add(secondMember.getId());
+        updateWorkspace.setMembersId(membersId);
         Workspace testWorkspace = service.update(updateWorkspace);
 
         assertNotNull(testWorkspace);
@@ -155,8 +155,8 @@ public class WorkspaceTest {
                 () -> assertEquals("newWorkspace", testWorkspace.getName()),
                 () -> assertEquals("newDescription", testWorkspace.getDescription()),
                 () -> assertEquals(WorkspaceVisibility.PUBLIC, testWorkspace.getVisibility()),
-                () -> assertTrue(testWorkspace.getMembersIds().contains(firstMember.getId())),
-                () -> assertTrue(testWorkspace.getMembersIds().contains(secondMember.getId()))
+                () -> assertTrue(testWorkspace.getMembersId().contains(firstMember.getId())),
+                () -> assertTrue(testWorkspace.getMembersId().contains(secondMember.getId()))
         );
     }
 

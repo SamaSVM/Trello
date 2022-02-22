@@ -8,5 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface WorkspaceRepository extends AbstractRepository<Workspace> {
-    List<Workspace> findAllByMembersIdsEquals(UUID memberId);
+    List<Workspace> findAllBymembersIdEquals(UUID memberId);
 }

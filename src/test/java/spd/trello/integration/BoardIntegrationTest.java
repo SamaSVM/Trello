@@ -35,11 +35,11 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
         firstBoard.setCreatedBy(workspace.getCreatedBy());
         firstBoard.setName("1name");
         firstBoard.setWorkspaceId(workspace.getId());
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(workspace.getMembersIds().iterator().next());
-        firstBoard.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(workspace.getMembersId().iterator().next());
+        firstBoard.setMembersId(membersId);
         MvcResult firstMvcResult = super.create(URL_TEMPLATE, firstBoard);
-        Set<UUID> testFirstMembersIds = helper.getIdsFromJson(getValue(firstMvcResult, "$.membersIds").toString());
+        Set<UUID> testFirstMembersId = helper.getIdsFromJson(getValue(firstMvcResult, "$.membersId").toString());
 
         Member secondMember = helper.getNewMember("2create@BIT");
         Board secondBoard = new Board();
@@ -50,10 +50,10 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
         secondBoard.setFavourite(true);
         secondBoard.setArchived(true);
         secondBoard.setWorkspaceId(workspace.getId());
-        membersIds.add(secondMember.getId());
-        secondBoard.setMembersIds(membersIds);
+        membersId.add(secondMember.getId());
+        secondBoard.setMembersId(membersId);
         MvcResult secondMvcResult = super.create(URL_TEMPLATE, secondBoard);
-        Set<UUID> testSecondMembersIds = helper.getIdsFromJson(getValue(secondMvcResult, "$.membersIds").toString());
+        Set<UUID> testSecondMembersId = helper.getIdsFromJson(getValue(secondMvcResult, "$.membersId").toString());
 
         assertAll(
                 () -> assertEquals(HttpStatus.CREATED.value(), firstMvcResult.getResponse().getStatus()),
@@ -68,8 +68,8 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertFalse((Boolean) getValue(firstMvcResult, "$.favourite")),
                 () -> assertFalse((Boolean) getValue(firstMvcResult, "$.archived")),
                 () -> assertEquals(workspace.getId().toString(), getValue(firstMvcResult, "$.workspaceId")),
-                () -> assertTrue(testFirstMembersIds.contains(workspace.getMembersIds().iterator().next())),
-                () -> assertEquals(1, testFirstMembersIds.size()),
+                () -> assertTrue(testFirstMembersId.contains(workspace.getMembersId().iterator().next())),
+                () -> assertEquals(1, testFirstMembersId.size()),
 
                 () -> assertEquals(HttpStatus.CREATED.value(), secondMvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(secondMvcResult, "$.id")),
@@ -83,9 +83,9 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertTrue((Boolean) getValue(secondMvcResult, "$.favourite")),
                 () -> assertTrue((Boolean) getValue(secondMvcResult, "$.archived")),
                 () -> assertEquals(workspace.getId().toString(), getValue(secondMvcResult, "$.workspaceId")),
-                () -> assertTrue(testSecondMembersIds.contains(membersIds.iterator().next())),
-                () -> assertTrue(testSecondMembersIds.contains(membersIds.iterator().next())),
-                () -> assertEquals(2, testSecondMembersIds.size())
+                () -> assertTrue(testSecondMembersId.contains(membersId.iterator().next())),
+                () -> assertTrue(testSecondMembersId.contains(membersId.iterator().next())),
+                () -> assertEquals(2, testSecondMembersId.size())
         );
     }
 
@@ -116,7 +116,7 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
     public void findById() throws Exception {
         Board board = helper.getNewBoard("findById@BIT");
         MvcResult mvcResult = super.findById(URL_TEMPLATE, board.getId());
-        Set<UUID> testMembersIds = helper.getIdsFromJson(getValue(mvcResult, "$.membersIds").toString());
+        Set<UUID> testmembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
@@ -131,8 +131,8 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertFalse((Boolean) getValue(mvcResult, "$.favourite")),
                 () -> assertFalse((Boolean) getValue(mvcResult, "$.archived")),
                 () -> assertEquals(board.getWorkspaceId().toString(), getValue(mvcResult, "$.workspaceId")),
-                () -> assertTrue(testMembersIds.contains(board.getMembersIds().iterator().next())),
-                () -> assertEquals(1, testMembersIds.size())
+                () -> assertTrue(testmembersId.contains(board.getMembersId().iterator().next())),
+                () -> assertEquals(1, testmembersId.size())
         );
     }
 
@@ -175,11 +175,11 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
         board.setVisibility(BoardVisibility.PUBLIC);
         board.setArchived(true);
         board.setFavourite(true);
-        Set<UUID> membersIds = board.getMembersIds();
-        membersIds.add(secondMember.getId());
-        board.setMembersIds(membersIds);
+        Set<UUID> membersId = board.getMembersId();
+        membersId.add(secondMember.getId());
+        board.setMembersId(membersId);
         MvcResult mvcResult = super.update(URL_TEMPLATE, board.getId(), board);
-        Set<UUID> testMembersIds = helper.getIdsFromJson(getValue(mvcResult, "$.membersIds").toString());
+        Set<UUID> testmembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
@@ -194,9 +194,9 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertTrue((Boolean) getValue(mvcResult, "$.favourite")),
                 () -> assertTrue((Boolean) getValue(mvcResult, "$.archived")),
                 () -> assertEquals(board.getWorkspaceId().toString(), getValue(mvcResult, "$.workspaceId")),
-                () -> assertTrue(testMembersIds.contains(membersIds.iterator().next())),
-                () -> assertTrue(testMembersIds.contains(membersIds.iterator().next())),
-                () -> assertEquals(2, testMembersIds.size())
+                () -> assertTrue(testmembersId.contains(membersId.iterator().next())),
+                () -> assertTrue(testmembersId.contains(membersId.iterator().next())),
+                () -> assertEquals(2, testmembersId.size())
         );
     }
 }

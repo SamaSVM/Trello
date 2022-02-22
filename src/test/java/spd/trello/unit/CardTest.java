@@ -39,9 +39,9 @@ public class CardTest {
         card.setCreatedBy(user.getEmail());
         card.setName("testCardName");
         card.setDescription("description");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        card.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        card.setMembersId(membersId);
         Card testCard = service.save(card);
 
         assertNotNull(testCard);
@@ -54,7 +54,7 @@ public class CardTest {
                 () -> assertEquals("description", testCard.getDescription()),
                 () -> assertFalse(testCard.getArchived()),
                 () -> assertEquals(cardList.getId(), testCard.getCardListId()),
-                () -> assertTrue(testCard.getMembersIds().contains(member.getId()))
+                () -> assertTrue(testCard.getMembersId().contains(member.getId()))
         );
     }
 
@@ -71,9 +71,9 @@ public class CardTest {
         firstCard.setCardListId(cardList.getId());
         firstCard.setName("1Card");
         firstCard.setDescription("1description");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        firstCard.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        firstCard.setMembersId(membersId);
         Card testFirstCard = service.save(firstCard);
 
         Card secondCard = new Card();
@@ -81,7 +81,7 @@ public class CardTest {
         secondCard.setCreatedBy(user.getEmail());
         secondCard.setName("2Card");
         secondCard.setDescription("2description");
-        secondCard.setMembersIds(membersIds);
+        secondCard.setMembersId(membersId);
         Card testSecondCard = service.save(secondCard);
 
         assertNotNull(testFirstCard);
@@ -106,9 +106,9 @@ public class CardTest {
         card.setCardListId(cardList.getId());
         card.setName("Card");
         card.setDescription("description");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        card.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        card.setMembersId(membersId);
         service.save(card);
 
         Card testCard = service.getById(card.getId());
@@ -127,9 +127,9 @@ public class CardTest {
         card.setCreatedBy(user.getEmail());
         card.setCardListId(cardList.getId());
         card.setName("Card");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        card.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        card.setMembersId(membersId);
         Card testCard = service.save(card);
 
         assertNotNull(testCard);
@@ -150,9 +150,9 @@ public class CardTest {
         card.setCreatedBy(user.getEmail());
         card.setCardListId(cardList.getId());
         card.setName("Card");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(firstMember.getId());
-        card.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(firstMember.getId());
+        card.setMembersId(membersId);
         Card updateCard = service.save(card);
 
         assertNotNull(updateCard);
@@ -160,8 +160,8 @@ public class CardTest {
         updateCard.setName("newCard");
         updateCard.setDescription("newDescription");
         updateCard.setArchived(true);
-        membersIds.add(secondMember.getId());
-        updateCard.setMembersIds(membersIds);
+        membersId.add(secondMember.getId());
+        updateCard.setMembersId(membersId);
         Card testCard = service.update(updateCard);
 
         assertAll(
@@ -173,8 +173,8 @@ public class CardTest {
                 () -> assertEquals("newDescription", testCard.getDescription()),
                 () -> assertTrue(testCard.getArchived()),
                 () -> assertEquals(cardList.getId(), testCard.getCardListId()),
-                () -> assertTrue(testCard.getMembersIds().contains(firstMember.getId())),
-                () -> assertTrue(testCard.getMembersIds().contains(secondMember.getId()))
+                () -> assertTrue(testCard.getMembersId().contains(firstMember.getId())),
+                () -> assertTrue(testCard.getMembersId().contains(secondMember.getId()))
         );
     }
 

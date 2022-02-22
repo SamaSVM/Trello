@@ -34,5 +34,5 @@ public class Workspace extends Resource {
             joinColumns=@JoinColumn(name= "workspace_id")
     )
     @Column(name = "member_id")
-    private Set<UUID> membersIds = new HashSet<>();
+    private Set<UUID> membersId = new HashSet<>();
 }

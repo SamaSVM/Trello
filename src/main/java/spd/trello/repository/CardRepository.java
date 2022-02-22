@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Repository
 public interface CardRepository extends AbstractRepository<Card> {
-    List<Card> findAllByMembersIdsEquals(UUID memberId);
+    List<Card> findAllBymembersIdEquals(UUID memberId);
 
     List<Card> findAllByCardListId(UUID cardListId);
 }

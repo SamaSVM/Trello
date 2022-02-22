@@ -37,9 +37,9 @@ public class BoardTest {
         board.setName("testBoard");
         board.setDescription("testDescription");
         board.setWorkspaceId(workspace.getId());
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        board.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        board.setMembersId(membersId);
         Board testBoard = service.save(board);
 
         assertNotNull(testBoard);
@@ -54,7 +54,7 @@ public class BoardTest {
                 () -> assertFalse(testBoard.getFavourite()),
                 () -> assertFalse(testBoard.getArchived()),
                 () -> assertEquals(workspace.getId(), testBoard.getWorkspaceId()),
-                () -> assertTrue(testBoard.getMembersIds().contains(member.getId()))
+                () -> assertTrue(testBoard.getMembersId().contains(member.getId()))
         );
     }
 
@@ -69,9 +69,9 @@ public class BoardTest {
         board.setWorkspaceId(workspace.getId());
         board.setName("1Board");
         board.setDescription("1Description");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        board.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        board.setMembersId(membersId);
         Board testFirstBoard = service.save(board);
 
         Board secondBoard = new Board();
@@ -101,9 +101,9 @@ public class BoardTest {
         board.setWorkspaceId(workspace.getId());
         board.setName("Board");
         board.setDescription("Description");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        board.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        board.setMembersId(membersId);
         service.save(board);
 
         Board testBoard = service.getById(board.getId());
@@ -121,9 +121,9 @@ public class BoardTest {
         board.setWorkspaceId(workspace.getId());
         board.setName("Board");
         board.setDescription("Description");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(member.getId());
-        board.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(member.getId());
+        board.setMembersId(membersId);
         Board testBoard = service.save(board);
 
         assertNotNull(testBoard);
@@ -143,9 +143,9 @@ public class BoardTest {
         board.setWorkspaceId(workspace.getId());
         board.setName("Board");
         board.setDescription("Description");
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(firstMember.getId());
-        board.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(firstMember.getId());
+        board.setMembersId(membersId);
         Board updateBoard = service.save(board);
 
         assertNotNull(updateBoard);
@@ -155,8 +155,8 @@ public class BoardTest {
         updateBoard.setVisibility(BoardVisibility.PUBLIC);
         updateBoard.setFavourite(true);
         updateBoard.setArchived(true);
-        membersIds.add(secondMember.getId());
-        updateBoard.setMembersIds(membersIds);
+        membersId.add(secondMember.getId());
+        updateBoard.setMembersId(membersId);
         Board testBoard = service.update(updateBoard);
 
         assertAll(
@@ -170,8 +170,8 @@ public class BoardTest {
                 () -> assertTrue(testBoard.getFavourite()),
                 () -> assertTrue(testBoard.getArchived()),
                 () -> assertEquals(workspace.getId(), testBoard.getWorkspaceId()),
-                () -> assertTrue(testBoard.getMembersIds().contains(firstMember.getId())),
-                () -> assertTrue(testBoard.getMembersIds().contains(secondMember.getId()))
+                () -> assertTrue(testBoard.getMembersId().contains(firstMember.getId())),
+                () -> assertTrue(testBoard.getMembersId().contains(secondMember.getId()))
         );
     }
 

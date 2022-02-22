@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface BoardRepository extends AbstractRepository<Board> {
-    List<Board> findAllByMembersIdsEquals(UUID memberId);
+    List<Board> findAllBymembersIdEquals(UUID memberId);
 
     List<Board> findAllByWorkspaceId(UUID workspaceId);
 }

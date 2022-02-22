@@ -68,11 +68,11 @@ public class CardService extends AbstractService<Card, CardRepository> {
     }
 
     public void deleteMemberInCards(UUID memberId) {
-        List<Card> cards = repository.findAllByMembersIdsEquals(memberId);
+        List<Card> cards = repository.findAllBymembersIdEquals(memberId);
         for (Card card : cards) {
-            Set<UUID> membersIds = card.getMembersIds();
-            membersIds.remove(memberId);
-            if (card.getMembersIds().isEmpty()) {
+            Set<UUID> membersId = card.getMembersId();
+            membersId.remove(memberId);
+            if (card.getMembersId().isEmpty()) {
                 delete(card.getId());
             }
         }

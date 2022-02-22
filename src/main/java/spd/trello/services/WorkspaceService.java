@@ -59,11 +59,11 @@ public class WorkspaceService extends AbstractService<Workspace, WorkspaceReposi
     }
 
     public void deleteMemberInWorkspaces(UUID memberId) {
-        List<Workspace> workspaces = repository.findAllByMembersIdsEquals(memberId);
+        List<Workspace> workspaces = repository.findAllBymembersIdEquals(memberId);
         for (Workspace workspace : workspaces) {
-            Set<UUID> membersIds = workspace.getMembersIds();
-            membersIds.remove(memberId);
-            if (workspace.getMembersIds().isEmpty()){
+            Set<UUID> membersId = workspace.getMembersId();
+            membersId.remove(memberId);
+            if (workspace.getMembersId().isEmpty()){
                 delete(workspace.getId());
             }
         }

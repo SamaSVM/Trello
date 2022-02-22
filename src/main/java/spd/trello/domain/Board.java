@@ -43,5 +43,5 @@ public class Board extends Resource {
             joinColumns=@JoinColumn(name= "board_id")
     )
     @Column(name = "member_id")
-    private Set<UUID> membersIds = new HashSet<>();
+    private Set<UUID> membersId = new HashSet<>();
 }
