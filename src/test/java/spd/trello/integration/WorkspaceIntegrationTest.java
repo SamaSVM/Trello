@@ -31,23 +31,23 @@ public class WorkspaceIntegrationTest extends AbstractIntegrationTest<User>{
         Member firstMember = helper.getNewMember("1create@WIT");
         Workspace firstWorkspace = new Workspace();
         firstWorkspace.setCreatedBy(firstMember.getCreatedBy());
-        Set<UUID> membersIds = new HashSet<>();
-        membersIds.add(firstMember.getId());
-        firstWorkspace.setMembersIds(membersIds);
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(firstMember.getId());
+        firstWorkspace.setMembersId(membersId);
         firstWorkspace.setName("name");
         MvcResult firstMvcResult = super.create(URL_TEMPLATE, firstWorkspace);
-        Set<UUID> testFirstMembersIds = helper.getIdsFromJson(getValue(firstMvcResult, "$.membersIds").toString());
+        Set<UUID> testFirstMembersId = helper.getIdsFromJson(getValue(firstMvcResult, "$.membersId").toString());
 
         Member secondMember = helper.getNewMember("2create@WIT");
         Workspace secondWorkspace = new Workspace();
         secondWorkspace.setCreatedBy(firstMember.getCreatedBy());
-        membersIds.add(secondMember.getId());
-        secondWorkspace.setMembersIds(membersIds);
+        membersId.add(secondMember.getId());
+        secondWorkspace.setMembersId(membersId);
         secondWorkspace.setName("name");
         secondWorkspace.setDescription("description");
         secondWorkspace.setVisibility(WorkspaceVisibility.PUBLIC);
         MvcResult secondMvcResult = super.create(URL_TEMPLATE, secondWorkspace);
-        Set<UUID> testSecondMembersIds = helper.getIdsFromJson(getValue(secondMvcResult, "$.membersIds").toString());
+        Set<UUID> testSecondMembersId = helper.getIdsFromJson(getValue(secondMvcResult, "$.membersId").toString());
 
         assertAll(
                 () -> assertEquals(HttpStatus.CREATED.value(), firstMvcResult.getResponse().getStatus()),
@@ -59,8 +59,8 @@ public class WorkspaceIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertEquals(firstWorkspace.getName(), getValue(firstMvcResult, "$.name")),
                 () -> assertNull(getValue(firstMvcResult, "$.description")),
                 () -> assertEquals(WorkspaceVisibility.PRIVATE.toString(), getValue(firstMvcResult, "$.visibility")),
-                () -> assertTrue(testFirstMembersIds.contains(firstMember.getId())),
-                () -> assertEquals(1, testFirstMembersIds.size()),
+                () -> assertTrue(testFirstMembersId.contains(firstMember.getId())),
+                () -> assertEquals(1, testFirstMembersId.size()),
 
                 () -> assertEquals(HttpStatus.CREATED.value(), secondMvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(secondMvcResult, "$.id")),
@@ -71,9 +71,9 @@ public class WorkspaceIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertEquals(secondWorkspace.getName(), getValue(secondMvcResult, "$.name")),
                 () -> assertEquals(secondWorkspace.getDescription(),getValue(secondMvcResult, "$.description")),
                 () -> assertEquals(secondWorkspace.getVisibility().toString(), getValue(secondMvcResult, "$.visibility")),
-                () -> assertTrue(testSecondMembersIds.contains(firstMember.getId())),
-                () -> assertTrue(testSecondMembersIds.contains(secondMember.getId())),
-                () -> assertEquals(2, testSecondMembersIds.size())
+                () -> assertTrue(testSecondMembersId.contains(firstMember.getId())),
+                () -> assertTrue(testSecondMembersId.contains(secondMember.getId())),
+                () -> assertEquals(2, testSecondMembersId.size())
         );
     }
 
@@ -104,7 +104,7 @@ public class WorkspaceIntegrationTest extends AbstractIntegrationTest<User>{
     public void findById() throws Exception {
         Workspace workspace = helper.getNewWorkspace("findById@WIT");
         MvcResult mvcResult = super.findById(URL_TEMPLATE, workspace.getId());
-        Set<UUID> testMembersIds = helper.getIdsFromJson(getValue(mvcResult, "$.membersIds").toString());
+        Set<UUID> testMembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
@@ -116,8 +116,8 @@ public class WorkspaceIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertEquals(workspace.getName(), getValue(mvcResult, "$.name")),
                 () -> assertNull(getValue(mvcResult, "$.description")),
                 () -> assertEquals(WorkspaceVisibility.PRIVATE.toString(), getValue(mvcResult, "$.visibility")),
-                () -> assertTrue(testMembersIds.contains(workspace.getMembersIds().iterator().next())),
-                () -> assertEquals(1, testMembersIds.size())
+                () -> assertTrue(testMembersId.contains(workspace.getMembersId().iterator().next())),
+                () -> assertEquals(1, testMembersId.size())
         );
     }
 
@@ -158,11 +158,11 @@ public class WorkspaceIntegrationTest extends AbstractIntegrationTest<User>{
         workspace.setName("new name");
         workspace.setDescription("new description");
         workspace.setVisibility(WorkspaceVisibility.PUBLIC);
-        Set<UUID> membersIds = workspace.getMembersIds();
-        membersIds.add(secondMember.getId());
-        workspace.setMembersIds(membersIds);
+        Set<UUID> membersId = workspace.getMembersId();
+        membersId.add(secondMember.getId());
+        workspace.setMembersId(membersId);
         MvcResult mvcResult = super.update(URL_TEMPLATE, workspace.getId(), workspace);
-        Set<UUID> testMembersIds = helper.getIdsFromJson(getValue(mvcResult, "$.membersIds").toString());
+        Set<UUID> testMembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
@@ -173,9 +173,9 @@ public class WorkspaceIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertEquals(workspace.getName(), getValue(mvcResult, "$.name")),
                 () -> assertEquals(workspace.getDescription(), getValue(mvcResult, "$.description")),
                 () -> assertEquals(WorkspaceVisibility.PUBLIC.toString(), getValue(mvcResult, "$.visibility")),
-                () -> assertTrue(testMembersIds.contains(workspace.getMembersIds().iterator().next())),
-                () -> assertTrue(testMembersIds.contains(workspace.getMembersIds().iterator().next())),
-                () -> assertEquals(2, membersIds.size())
+                () -> assertTrue(testMembersId.contains(workspace.getMembersId().iterator().next())),
+                () -> assertTrue(testMembersId.contains(workspace.getMembersId().iterator().next())),
+                () -> assertEquals(2, membersId.size())
         );
     }
 }
