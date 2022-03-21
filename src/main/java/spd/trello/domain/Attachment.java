@@ -22,9 +22,6 @@ public class Attachment extends Resource {
     @Column(name = "link")
     private String link;
 
-    @Column(name = "comment_id")
-    private UUID commentId;
-
     @Column(name = "card_id")
     private UUID cardId;
 }

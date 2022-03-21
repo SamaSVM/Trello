@@ -8,7 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface AttachmentRepository extends AbstractRepository<Attachment> {
-    List<Attachment> findAllByCommentId(UUID commentId);
-
     List<Attachment> findAllByCardId(UUID cardId);
 }

@@ -18,10 +18,6 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
 
     @Override
     public Attachment save(Attachment entity) {
-        if ((entity.getCardId() != null && entity.getCommentId() != null) ||
-                (entity.getCardId() == null && entity.getCommentId() == null)) {
-            throw new IllegalStateException();
-        }
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
         try {
             return repository.save(entity);
@@ -48,9 +44,7 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
         if (oldAttachment.getCardId() != null) {
             entity.setCardId(oldAttachment.getCardId());
         }
-        if (oldAttachment.getCommentId() != null) {
-            entity.setCommentId(oldAttachment.getCommentId());
-        }
+
         if (entity.getName() == null) {
             entity.setName(oldAttachment.getName());
         }
@@ -62,10 +56,6 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
         } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
-    }
-
-    public void deleteAttachmentsForComment(UUID commentId) {
-        repository.findAllByCommentId(commentId).forEach(attachment -> delete(attachment.getId()));
     }
 
     public void deleteAttachmentsForCard(UUID cardId) {
