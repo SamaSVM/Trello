@@ -23,7 +23,7 @@ public class CheckableItemTest {
 
     @Test
     public void create() {
-        User user = helper.getNewUser("create@CIT");
+        User user = helper.getNewUser("create@CheckableItemTest");
         Member member = helper.getNewMember(user);
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
@@ -46,7 +46,7 @@ public class CheckableItemTest {
 
     @Test
     public void findAll() {
-        User user = helper.getNewUser("findAll@CIT");
+        User user = helper.getNewUser("findAll@CheckableItemTest");
         Member member = helper.getNewMember(user);
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
@@ -75,7 +75,7 @@ public class CheckableItemTest {
 
     @Test
     public void findById() {
-        User user = helper.getNewUser("findById@CIT");
+        User user = helper.getNewUser("findById@CheckableItemTest");
         Member member = helper.getNewMember(user);
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
@@ -94,7 +94,7 @@ public class CheckableItemTest {
 
     @Test
     public void delete() {
-        User user = helper.getNewUser("delete@CIT");
+        User user = helper.getNewUser("delete@CheckableItemTest");
         Member member = helper.getNewMember(user);
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
@@ -114,7 +114,7 @@ public class CheckableItemTest {
 
     @Test
     public void update() {
-        User user = helper.getNewUser("update@CIT");
+        User user = helper.getNewUser("update@CheckableItemTest");
         Member member = helper.getNewMember(user);
         Workspace workspace = helper.getNewWorkspace(member);
         Board board = helper.getNewBoard(member, workspace.getId());
