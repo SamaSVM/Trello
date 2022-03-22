@@ -24,7 +24,7 @@ public class ColorService extends AbstractService<Color, ColorRepository> {
                 && entity.getBlue().equals(oldCard.getBlue())) {
             throw new ResourceNotFoundException();
         }
-        entity.setLabelId(oldCard.getLabelId());
+
         if (entity.getRed() == null) {
             entity.setRed(oldCard.getRed());
         }
@@ -41,10 +41,8 @@ public class ColorService extends AbstractService<Color, ColorRepository> {
         }
     }
 
-    public void deleteColorForLabel(UUID labelId) {
-        Color color = repository.findByLabelId(labelId);
-        if (color != null) {
-            delete(color.getId());
-        }
+    @Override
+    public void delete(UUID id) {
+        throw new BadRequestException("This method cannot be called!");
     }
 }

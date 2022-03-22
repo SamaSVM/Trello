@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.services.ColorService;
 import spd.trello.services.LabelService;
 
 import java.util.List;
@@ -20,6 +21,9 @@ public class LabelTest {
     private LabelService service;
 
     @Autowired
+    private ColorService colorService;
+
+    @Autowired
     private UnitHelper helper;
 
     @Test
@@ -30,16 +34,19 @@ public class LabelTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
+        Color color = helper.getNewColor();
 
         Label label = new Label();
         label.setCardId(card.getId());
+        label.setColor(color);
         label.setName("name");
         Label testLabel = service.save(label);
 
         assertNotNull(testLabel);
         assertAll(
                 () -> assertEquals("name", testLabel.getName()),
-                () -> assertEquals(card.getId(), testLabel.getCardId())
+                () -> assertEquals(card.getId(), testLabel.getCardId()),
+                () -> assertEquals(color, testLabel.getColor())
         );
     }
 
@@ -51,15 +58,19 @@ public class LabelTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
+        Color firstColor = helper.getNewColor();
+        Color secondColor = helper.getNewColor();
 
         Label firstLabel = new Label();
         firstLabel.setCardId(card.getId());
+        firstLabel.setColor(firstColor);
         firstLabel.setName("1Label");
         Label testFirstLabel = service.save(firstLabel);
         assertNotNull(testFirstLabel);
 
         Label secondLabel = new Label();
         secondLabel.setCardId(card.getId());
+        secondLabel.setColor(secondColor);
         secondLabel.setName("2Label");
         Label testSecondLabel = service.save(secondLabel);
         assertNotNull(testSecondLabel);
@@ -71,7 +82,6 @@ public class LabelTest {
         );
     }
 
-
     @Test
     public void findById() {
         User user = helper.getNewUser("findById@LT");
@@ -80,9 +90,11 @@ public class LabelTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
+        Color color = helper.getNewColor();
 
         Label label = new Label();
         label.setCardId(card.getId());
+        label.setColor(color);
         label.setName("Label");
         service.save(label);
 
@@ -98,15 +110,21 @@ public class LabelTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
+        Color color = helper.getNewColor();
 
         Label label = new Label();
         label.setCardId(card.getId());
+        label.setColor(color);
         label.setName("Name");
         Label testLabel = service.save(label);
 
         assertNotNull(testLabel);
         service.delete(testLabel.getId());
-        assertFalse(service.getAll().contains(testLabel));
+
+        assertAll(
+                () -> assertFalse(service.getAll().contains(testLabel)),
+                () -> assertThrows(ResourceNotFoundException.class, () -> colorService.getById(color.getId()))
+        );
     }
 
     @Test
@@ -117,9 +135,11 @@ public class LabelTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
+        Color color = helper.getNewColor();
 
         Label updateLabel = new Label();
         updateLabel.setCardId(card.getId());
+        updateLabel.setColor(color);
         updateLabel.setName("Name");
         Label label = service.save(updateLabel);
 

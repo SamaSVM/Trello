@@ -114,4 +114,12 @@ public class UnitHelper {
         label.setCardId(cardId);
         return labelService.save(label);
     }
+
+    public Color getNewColor(){
+        Color color = new Color();
+        color.setRed(1);
+        color.setGreen(2);
+        color.setBlue(3);
+        return color;
+    }
 }

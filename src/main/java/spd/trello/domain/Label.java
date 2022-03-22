@@ -7,8 +7,6 @@ import org.hibernate.annotations.LazyCollectionOption;
 import spd.trello.domain.perent.Domain;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -22,12 +20,7 @@ public class Label extends Domain {
     @Column(name = "card_id")
     private UUID cardId;
 
-    @ElementCollection
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @CollectionTable(
-            name = "colors",
-            joinColumns = @JoinColumn(name = "label_id")
-    )
-    @Column(name = "id")
-    private Set<UUID> color = new HashSet<>();
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "color", referencedColumnName = "id")
+    private Color color;
 }

@@ -7,5 +7,4 @@ import java.util.UUID;
 
 @Repository
 public interface ColorRepository extends AbstractRepository<Color> {
-    Color findByLabelId(UUID labelId);
 }

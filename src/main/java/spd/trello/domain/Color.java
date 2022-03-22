@@ -22,7 +22,4 @@ public class Color extends Domain {
 
     @Column(name = "blue")
     private Integer blue = 0;
-
-    @Column(name = "label_id")
-    private UUID labelId;
 }

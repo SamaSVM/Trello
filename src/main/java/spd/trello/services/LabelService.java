@@ -10,12 +10,10 @@ import java.util.UUID;
 
 @Service
 public class LabelService extends AbstractService<Label, LabelRepository> {
-    public LabelService(LabelRepository repository, ColorService colorService) {
+    public LabelService(LabelRepository repository) {
         super(repository);
-        this.colorService = colorService;
     }
 
-    private final ColorService colorService;
 
     @Override
     public Label update(Label entity) {
@@ -32,12 +30,6 @@ public class LabelService extends AbstractService<Label, LabelRepository> {
         } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
-    }
-
-    @Override
-    public void delete(UUID id) {
-        colorService.deleteColorForLabel(id);
-        super.delete(id);
     }
 
     public void deleteLabelsForCard(UUID cardId) {
