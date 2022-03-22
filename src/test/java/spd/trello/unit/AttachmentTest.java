@@ -31,7 +31,6 @@ public class AttachmentTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
-        Comment comment = helper.getNewComment(member, card.getId());
 
         Attachment firstAttachment = new Attachment();
         firstAttachment.setName("1name");
@@ -40,15 +39,7 @@ public class AttachmentTest {
         firstAttachment.setCardId(card.getId());
         Attachment testFirstAttachment = service.save(firstAttachment);
 
-        Attachment secondAttachment = new Attachment();
-        secondAttachment.setName("2name");
-        secondAttachment.setLink("2link");
-        secondAttachment.setCreatedBy(user.getEmail());
-        secondAttachment.setCommentId(comment.getId());
-        Attachment testSecondAttachment = service.save(secondAttachment);
-
         assertNotNull(testFirstAttachment);
-        assertNotNull(testSecondAttachment);
         assertAll(
                 () -> assertEquals(user.getEmail(), testFirstAttachment.getCreatedBy()),
                 () -> assertNull(testFirstAttachment.getUpdatedBy()),
@@ -56,17 +47,7 @@ public class AttachmentTest {
                 () -> assertNull(testFirstAttachment.getUpdatedDate()),
                 () -> assertEquals("1name", testFirstAttachment.getName()),
                 () -> assertEquals("1link", testFirstAttachment.getLink()),
-                () -> assertNull(testFirstAttachment.getCommentId()),
-                () -> assertEquals(card.getId(), testFirstAttachment.getCardId()),
-
-                () -> assertEquals(user.getEmail(), testSecondAttachment.getCreatedBy()),
-                () -> assertNull(testSecondAttachment.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testSecondAttachment.getCreatedDate()),
-                () -> assertNull(testSecondAttachment.getUpdatedDate()),
-                () -> assertEquals("2name", testSecondAttachment.getName()),
-                () -> assertEquals("2link", testSecondAttachment.getLink()),
-                () -> assertNull(testSecondAttachment.getCardId()),
-                () -> assertEquals(comment.getId(), testSecondAttachment.getCommentId())
+                () -> assertEquals(card.getId(), testFirstAttachment.getCardId())
         );
     }
 
@@ -78,7 +59,6 @@ public class AttachmentTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
-        Comment comment = helper.getNewComment(member, card.getId());
 
         Attachment firstAttachment = new Attachment();
         firstAttachment.setName("1name");
@@ -91,7 +71,7 @@ public class AttachmentTest {
         secondAttachment.setName("2name");
         secondAttachment.setLink("2link");
         secondAttachment.setCreatedBy(user.getEmail());
-        secondAttachment.setCommentId(comment.getId());
+        secondAttachment.setCardId(card.getId());
         Attachment testSecondAttachment = service.save(secondAttachment);
 
         assertNotNull(testFirstAttachment);
@@ -151,13 +131,12 @@ public class AttachmentTest {
         Board board = helper.getNewBoard(member, workspace.getId());
         CardList cardList = helper.getNewCardList(member, board.getId());
         Card card = helper.getNewCard(member, cardList.getId());
-        Comment comment = helper.getNewComment(member, card.getId());
 
         Attachment attachment = new Attachment();
         attachment.setName("name");
         attachment.setLink("link");
         attachment.setCreatedBy(user.getEmail());
-        attachment.setCommentId(comment.getId());
+        attachment.setCardId(card.getId());
         Attachment updateAttachment = service.save(attachment);
 
         updateAttachment.setUpdatedBy(user.getEmail());
@@ -168,13 +147,11 @@ public class AttachmentTest {
 
         assertAll(
                 () -> assertEquals(user.getEmail(), testAttachment.getCreatedBy()),
-                () -> assertNull(user.getEmail(), testAttachment.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testAttachment.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testAttachment.getUpdatedDate()),
                 () -> assertEquals("newName", testAttachment.getName()),
                 () -> assertEquals("newLink", testAttachment.getLink()),
-                () -> assertEquals(comment.getId(), testAttachment.getCommentId()),
-                () -> assertNull(testAttachment.getCardId())
+                () -> assertEquals(card.getId(), testAttachment.getCardId())
         );
     }
 
