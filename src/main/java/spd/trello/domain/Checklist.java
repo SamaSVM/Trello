@@ -24,18 +24,6 @@ public class Checklist extends Resource {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "checklistId", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("checklist")
+    @EqualsAndHashCode.Exclude
     private List<CheckableItem> checkableItems = new ArrayList<>();
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Checklist checklist = (Checklist) o;
-        return Objects.equals(name, checklist.name) && Objects.equals(cardId, checklist.cardId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, cardId);
-    }
 }

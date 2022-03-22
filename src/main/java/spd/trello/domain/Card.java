@@ -33,10 +33,12 @@ public class Card extends Resource {
             joinColumns=@JoinColumn(name= "card_id")
     )
     @Column(name = "member_id")
+    @EqualsAndHashCode.Exclude
     private Set<UUID> membersId = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "reminder_id", referencedColumnName = "id")
+    @EqualsAndHashCode.Exclude
     private Reminder reminder;
 
     @ElementCollection
@@ -46,6 +48,7 @@ public class Card extends Resource {
             joinColumns=@JoinColumn(name= "card_id")
     )
     @Column(name = "id")
+    @EqualsAndHashCode.Exclude
     private Set<UUID> checklists = new HashSet<>();
 
 
@@ -56,6 +59,7 @@ public class Card extends Resource {
             joinColumns=@JoinColumn(name= "card_id")
     )
     @Column(name = "id")
+    @EqualsAndHashCode.Exclude
     private Set<UUID> labels = new HashSet<>();
 
     @ElementCollection
@@ -65,6 +69,7 @@ public class Card extends Resource {
             joinColumns=@JoinColumn(name= "card_id")
     )
     @Column(name = "id")
+    @EqualsAndHashCode.Exclude
     private Set<UUID> comments = new HashSet<>();
 
     @ElementCollection
@@ -74,6 +79,7 @@ public class Card extends Resource {
             joinColumns=@JoinColumn(name= "card_id")
     )
     @Column(name = "id")
+    @EqualsAndHashCode.Exclude
     private Set<UUID> attachments = new HashSet<>();
 }
 
