@@ -54,9 +54,7 @@ public class WorkspaceService extends AbstractService<Workspace, WorkspaceReposi
         if (entity.getDescription() == null && oldWorkspace.getDescription() != null) {
             entity.setDescription(oldWorkspace.getDescription());
         }
-        if (entity.getVisibility() == null) {
-            entity.setVisibility(oldWorkspace.getVisibility());
-        }
+
         try {
             return repository.save(entity);
         } catch (RuntimeException e) {
