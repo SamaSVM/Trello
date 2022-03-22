@@ -13,12 +13,9 @@ import java.util.UUID;
 @Service
 public class CommentService extends AbstractService<Comment, CommentRepository> {
 
-    public CommentService(CommentRepository repository, AttachmentService attachmentService) {
+    public CommentService(CommentRepository repository) {
         super(repository);
-        this.attachmentService = attachmentService;
     }
-
-    private final AttachmentService attachmentService;
 
     @Override
     public Comment save(Comment entity) {
@@ -52,12 +49,6 @@ public class CommentService extends AbstractService<Comment, CommentRepository> 
         } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
-    }
-
-    @Override
-    public void delete(UUID id) {
-        attachmentService.deleteAttachmentsForComment(id);
-        super.delete(id);
     }
 
     public void deleteCommentsForCard(UUID cardId) {
