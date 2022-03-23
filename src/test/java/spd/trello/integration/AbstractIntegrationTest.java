@@ -16,20 +16,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @AutoConfigureMockMvc
 public class AbstractIntegrationTest<E extends Domain> implements CommonIntegrationTest<E> {
-
-    @Autowired
+    
     private MockMvc mockMvc;
 
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     @Override
-    public MvcResult create(String urlTemplate, Domain entity) throws Exception {
+    public MvcResult create(String urlTemplate, E entity) throws Exception {
         return mockMvc.perform(
-                        post(urlTemplate, entity)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(entity))
-                ).andReturn();
+                post(urlTemplate, entity)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(entity))
+        ).andReturn();
     }
 
     @Override
@@ -40,31 +39,31 @@ public class AbstractIntegrationTest<E extends Domain> implements CommonIntegrat
     @Override
     public MvcResult findById(String urlTemplate, UUID id) throws Exception {
         return mockMvc.perform(
-                        get(urlTemplate + "/{id}", id)
-                                .accept(MediaType.APPLICATION_JSON)
-                ).andReturn();
+                get(urlTemplate + "/{id}", id)
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andReturn();
     }
 
     @Override
     public MvcResult deleteById(String urlTemplate, UUID id) throws Exception {
         return mockMvc.perform(
-                        delete(urlTemplate + "/{id}", id)
-                                .accept(MediaType.APPLICATION_JSON)
-                ).andReturn();
+                delete(urlTemplate + "/{id}", id)
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andReturn();
     }
 
     @Override
-    public MvcResult update(String urlTemplate, UUID id, Domain entity) throws Exception {
+    public MvcResult update(String urlTemplate, UUID id, E entity) throws Exception {
         return mockMvc.perform(
-                        put(urlTemplate + "/{id}", id, entity)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(entity))
-                ).andReturn();
+                put(urlTemplate + "/{id}", id, entity)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(entity))
+        ).andReturn();
     }
 
 
-    public Object getValue (MvcResult mvcResult, String jsonPath) throws UnsupportedEncodingException {
+    public Object getValue(MvcResult mvcResult, String jsonPath) throws UnsupportedEncodingException {
         return JsonPath.read(mvcResult.getResponse().getContentAsString(), jsonPath);
     }
 }
