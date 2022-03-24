@@ -17,7 +17,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class MemberIntegrationTest extends AbstractIntegrationTest<User>{
+public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
     private final String URL_TEMPLATE = "/members";
 
     @Autowired
@@ -45,7 +45,8 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertNull(getValue(firstMvcResult, "$.updatedBy")),
                 () -> assertNull(getValue(firstMvcResult, "$.updatedDate")),
                 () -> assertEquals(user.getId().toString(), getValue(firstMvcResult, "$.userId")),
-                () -> assertEquals(firstMember.getMemberRole().toString(), getValue(firstMvcResult, "$.memberRole")),
+                () -> assertEquals(firstMember.getMemberRole().toString(),
+                        getValue(firstMvcResult, "$.memberRole")),
 
                 () -> assertEquals(HttpStatus.CREATED.value(), secondMvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(secondMvcResult, "$.id")),
@@ -60,7 +61,7 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<User>{
 
     @Test
     public void createFailure() throws Exception {
-        User entity = new User();
+        Member entity = new Member();
         MvcResult mvcResult = super.create(URL_TEMPLATE, entity);
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus());
@@ -110,11 +111,11 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<User>{
         Member member = helper.getNewMember("deleteById@MIT");
         MvcResult mvcResult = super.deleteById(URL_TEMPLATE, member.getId());
         MvcResult deleteMvcResult = super.findAll(URL_TEMPLATE);
-        List<Member> testUsers = helper.getMembersArray(deleteMvcResult);
+        List<Member> testMembers = helper.getMembersArray(deleteMvcResult);
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
-                () -> assertFalse(testUsers.contains(member))
+                () -> assertFalse(testMembers.contains(member))
         );
     }
 
@@ -143,6 +144,23 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(member.getUserId().toString(), getValue(mvcResult, "$.userId")),
                 () -> assertEquals(member.getMemberRole().toString(), getValue(mvcResult, "$.memberRole"))
+        );
+    }
+
+    @Test
+    public void updateFailure() throws Exception {
+        Member firstMember = helper.getNewMember("updateFuilure@MIT");
+        firstMember.setUpdatedBy(firstMember.getCreatedBy());
+
+        Member secondMember = new Member();
+        secondMember.setId(firstMember.getId());
+
+        MvcResult firstMvcResult = super.update(URL_TEMPLATE, firstMember.getId(), firstMember);
+        MvcResult secondMvcResult = super.update(URL_TEMPLATE, secondMember.getId(), secondMember);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND.value(), firstMvcResult.getResponse().getStatus()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), secondMvcResult.getResponse().getStatus())
         );
     }
 }
