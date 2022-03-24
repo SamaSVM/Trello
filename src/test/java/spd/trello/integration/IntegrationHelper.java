@@ -174,6 +174,29 @@ public class IntegrationHelper {
         });
     }
 
+    public Label getNewLabel(String email) {
+        Card card = getNewCard(email);
+        Label label = new Label();
+        label.setCardId(card.getId());
+        label.setName("name");
+        label.setColor(getNewColor());
+        return labelRepository.save(label);
+    }
+
+    public List<Label> getLabelsArray(MvcResult mvcResult)
+            throws UnsupportedEncodingException, JsonProcessingException {
+        return new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+    }
+
+    public Color getNewColor() {
+        Color color = new Color();
+        color.setRed(1);
+        color.setGreen(2);
+        color.setBlue(3);
+        return color;
+    }
+
     public Reminder getNewReminder(String email) {
         Reminder reminder = new Reminder();
         reminder.setCreatedBy(email);

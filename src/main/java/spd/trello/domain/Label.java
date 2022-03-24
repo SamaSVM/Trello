@@ -2,8 +2,6 @@ package spd.trello.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import spd.trello.domain.perent.Domain;
 
 import javax.persistence.*;
