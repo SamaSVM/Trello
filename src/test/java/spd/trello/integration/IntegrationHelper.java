@@ -174,23 +174,19 @@ public class IntegrationHelper {
         });
     }
 
-    public Label getNewLabel(String email) {
-        Card card = getNewCard(email);
-        Label label = new Label();
-        label.setCardId(card.getId());
-        label.setName("name");
-        return labelRepository.save(label);
-    }
-
-    public List<Label> getLabelsArray(MvcResult mvcResult)
-            throws UnsupportedEncodingException, JsonProcessingException {
-        return new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {
-        });
+    public Reminder getNewReminder(String email) {
+        Reminder reminder = new Reminder();
+        reminder.setCreatedBy(email);
+        reminder.setCreatedDate(Date.valueOf(LocalDate.now()));
+        reminder.setRemindOn(Date.valueOf(LocalDate.now()));
+        reminder.setStart(Date.valueOf(LocalDate.now()));
+        reminder.setEnd(Date.valueOf(LocalDate.now()));
+        return reminder;
     }
 
     public Set<UUID> getMembersIdFromCardList(CardList cardList) {
         Optional<Board> board = boardRepository.findById(cardList.getBoardId());
-        return board.get().getMembersId();
+        return board.orElseThrow().getMembersId();
     }
 
     public Set<UUID> getIdsFromJson(String json) throws JsonProcessingException {
