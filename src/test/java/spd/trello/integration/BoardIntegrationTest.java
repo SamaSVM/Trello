@@ -8,10 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import spd.trello.domain.Board;
 import spd.trello.domain.Member;
-import spd.trello.domain.User;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.BoardVisibility;
-import spd.trello.domain.enums.WorkspaceVisibility;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -22,76 +20,84 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
+public class BoardIntegrationTest extends AbstractIntegrationTest<Board> {
     private final String URL_TEMPLATE = "/boards";
 
     @Autowired
     private IntegrationHelper helper;
 
     @Test
-    public void create() throws Exception {
-        Workspace workspace = helper.getNewWorkspace("1create@BIT");
-        Board firstBoard = new Board();
-        firstBoard.setCreatedBy(workspace.getCreatedBy());
-        firstBoard.setName("1name");
-        firstBoard.setWorkspaceId(workspace.getId());
+    public void createWithoutArg() throws Exception {
+        Workspace workspace = helper.getNewWorkspace("createWithoutArg@BIT");
+        Board board = new Board();
+        board.setCreatedBy(workspace.getCreatedBy());
+        board.setName("name");
+        board.setWorkspaceId(workspace.getId());
         Set<UUID> membersId = new HashSet<>();
         membersId.add(workspace.getMembersId().iterator().next());
-        firstBoard.setMembersId(membersId);
-        MvcResult firstMvcResult = super.create(URL_TEMPLATE, firstBoard);
-        Set<UUID> testFirstMembersId = helper.getIdsFromJson(getValue(firstMvcResult, "$.membersId").toString());
-
-        Member secondMember = helper.getNewMember("2create@BIT");
-        Board secondBoard = new Board();
-        secondBoard.setCreatedBy(workspace.getCreatedBy());
-        secondBoard.setName("2name");
-        secondBoard.setDescription("2description");
-        secondBoard.setVisibility(BoardVisibility.PUBLIC);
-        secondBoard.setFavourite(true);
-        secondBoard.setArchived(true);
-        secondBoard.setWorkspaceId(workspace.getId());
-        membersId.add(secondMember.getId());
-        secondBoard.setMembersId(membersId);
-        MvcResult secondMvcResult = super.create(URL_TEMPLATE, secondBoard);
-        Set<UUID> testSecondMembersId = helper.getIdsFromJson(getValue(secondMvcResult, "$.membersId").toString());
+        board.setMembersId(membersId);
+        MvcResult mvcResult = super.create(URL_TEMPLATE, board);
+        Set<UUID> testMembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
 
         assertAll(
-                () -> assertEquals(HttpStatus.CREATED.value(), firstMvcResult.getResponse().getStatus()),
-                () -> assertNotNull(getValue(firstMvcResult, "$.id")),
-                () -> assertEquals(firstBoard.getCreatedBy(), getValue(firstMvcResult, "$.createdBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(firstMvcResult, "$.createdDate")),
-                () -> assertNull(getValue(firstMvcResult, "$.updatedBy")),
-                () -> assertNull(getValue(firstMvcResult, "$.updatedDate")),
-                () -> assertEquals(firstBoard.getName(), getValue(firstMvcResult, "$.name")),
-                () -> assertNull(getValue(firstMvcResult, "$.description")),
-                () -> assertEquals(firstBoard.getVisibility().toString(), getValue(firstMvcResult, "$.visibility")),
-                () -> assertFalse((Boolean) getValue(firstMvcResult, "$.favourite")),
-                () -> assertFalse((Boolean) getValue(firstMvcResult, "$.archived")),
-                () -> assertEquals(workspace.getId().toString(), getValue(firstMvcResult, "$.workspaceId")),
-                () -> assertTrue(testFirstMembersId.contains(workspace.getMembersId().iterator().next())),
-                () -> assertEquals(1, testFirstMembersId.size()),
+                () -> assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus()),
+                () -> assertNotNull(getValue(mvcResult, "$.id")),
+                () -> assertEquals(board.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
+                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertNull(getValue(mvcResult, "$.updatedBy")),
+                () -> assertNull(getValue(mvcResult, "$.updatedDate")),
+                () -> assertEquals(board.getName(), getValue(mvcResult, "$.name")),
+                () -> assertNull(getValue(mvcResult, "$.description")),
+                () -> assertEquals(board.getVisibility().toString(), getValue(mvcResult, "$.visibility")),
+                () -> assertFalse((Boolean) getValue(mvcResult, "$.favourite")),
+                () -> assertFalse((Boolean) getValue(mvcResult, "$.archived")),
+                () -> assertEquals(workspace.getId().toString(), getValue(mvcResult, "$.workspaceId")),
+                () -> assertTrue(testMembersId.contains(workspace.getMembersId().iterator().next())),
+                () -> assertEquals(1, testMembersId.size())
+        );
+    }
 
-                () -> assertEquals(HttpStatus.CREATED.value(), secondMvcResult.getResponse().getStatus()),
-                () -> assertNotNull(getValue(secondMvcResult, "$.id")),
-                () -> assertEquals(secondBoard.getCreatedBy(), getValue(secondMvcResult, "$.createdBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(secondMvcResult, "$.createdDate")),
-                () -> assertNull(getValue(secondMvcResult, "$.updatedBy")),
-                () -> assertNull(getValue(secondMvcResult, "$.updatedDate")),
-                () -> assertEquals(secondBoard.getName(), getValue(secondMvcResult, "$.name")),
-                () -> assertEquals(secondBoard.getDescription(),getValue(secondMvcResult, "$.description")),
-                () -> assertEquals(secondBoard.getVisibility().toString(), getValue(secondMvcResult, "$.visibility")),
-                () -> assertTrue((Boolean) getValue(secondMvcResult, "$.favourite")),
-                () -> assertTrue((Boolean) getValue(secondMvcResult, "$.archived")),
-                () -> assertEquals(workspace.getId().toString(), getValue(secondMvcResult, "$.workspaceId")),
-                () -> assertTrue(testSecondMembersId.contains(membersId.iterator().next())),
-                () -> assertTrue(testSecondMembersId.contains(membersId.iterator().next())),
-                () -> assertEquals(2, testSecondMembersId.size())
+    @Test
+    public void createFromArg() throws Exception {
+        Workspace workspace = helper.getNewWorkspace("createFromArg1@BIT");
+        Member secondMember = helper.getNewMember("createFromArg2@BIT");
+        Board board = new Board();
+        board.setCreatedBy(workspace.getCreatedBy());
+        board.setName("name");
+        board.setDescription("description");
+        board.setVisibility(BoardVisibility.PUBLIC);
+        board.setFavourite(true);
+        board.setArchived(true);
+        board.setWorkspaceId(workspace.getId());
+        Set<UUID> membersId = new HashSet<>();
+        membersId.add(workspace.getMembersId().iterator().next());
+        membersId.add(secondMember.getId());
+        board.setMembersId(membersId);
+        MvcResult mvcResult = super.create(URL_TEMPLATE, board);
+        Set<UUID> testMembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
+
+        assertAll(
+                () -> assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus()),
+                () -> assertNotNull(getValue(mvcResult, "$.id")),
+                () -> assertEquals(board.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
+                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertNull(getValue(mvcResult, "$.updatedBy")),
+                () -> assertNull(getValue(mvcResult, "$.updatedDate")),
+                () -> assertEquals(board.getName(), getValue(mvcResult, "$.name")),
+                () -> assertEquals(board.getDescription(), getValue(mvcResult, "$.description")),
+                () -> assertEquals(board.getVisibility().toString(), getValue(mvcResult, "$.visibility")),
+                () -> assertTrue((Boolean) getValue(mvcResult, "$.favourite")),
+                () -> assertTrue((Boolean) getValue(mvcResult, "$.archived")),
+                () -> assertEquals(workspace.getId().toString(), getValue(mvcResult, "$.workspaceId")),
+                () -> assertTrue(testMembersId.contains(membersId.iterator().next())),
+                () -> assertTrue(testMembersId.contains(membersId.iterator().next())),
+                () -> assertEquals(2, testMembersId.size())
         );
     }
 
     @Test
     public void createFailure() throws Exception {
-        User entity = new User();
+        Board entity = new Board();
         MvcResult mvcResult = super.create(URL_TEMPLATE, entity);
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus());
@@ -116,7 +122,7 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
     public void findById() throws Exception {
         Board board = helper.getNewBoard("findById@BIT");
         MvcResult mvcResult = super.findById(URL_TEMPLATE, board.getId());
-        Set<UUID> testmembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
+        Set<UUID> testMembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
@@ -131,8 +137,8 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertFalse((Boolean) getValue(mvcResult, "$.favourite")),
                 () -> assertFalse((Boolean) getValue(mvcResult, "$.archived")),
                 () -> assertEquals(board.getWorkspaceId().toString(), getValue(mvcResult, "$.workspaceId")),
-                () -> assertTrue(testmembersId.contains(board.getMembersId().iterator().next())),
-                () -> assertEquals(1, testmembersId.size())
+                () -> assertTrue(testMembersId.contains(board.getMembersId().iterator().next())),
+                () -> assertEquals(1, testMembersId.size())
         );
     }
 
@@ -148,11 +154,11 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
         Board board = helper.getNewBoard("deleteById@BIT");
         MvcResult mvcResult = super.deleteById(URL_TEMPLATE, board.getId());
         MvcResult deleteMvcResult = super.findAll(URL_TEMPLATE);
-        List<Board> testUsers = helper.getBoardsArray(deleteMvcResult);
+        List<Board> testBoards = helper.getBoardsArray(deleteMvcResult);
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
-                () -> assertFalse(testUsers.contains(board))
+                () -> assertFalse(testBoards.contains(board))
         );
     }
 
@@ -179,7 +185,7 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
         membersId.add(secondMember.getId());
         board.setMembersId(membersId);
         MvcResult mvcResult = super.update(URL_TEMPLATE, board.getId(), board);
-        Set<UUID> testmembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
+        Set<UUID> testMembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
@@ -187,16 +193,34 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertEquals(board.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
                 () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
                 () -> assertEquals(board.getUpdatedBy(), getValue(mvcResult, "$.updatedBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()),getValue(mvcResult, "$.updatedDate")),
+                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(board.getName(), getValue(mvcResult, "$.name")),
-                () -> assertEquals(board.getDescription(),getValue(mvcResult, "$.description")),
+                () -> assertEquals(board.getDescription(), getValue(mvcResult, "$.description")),
                 () -> assertEquals(board.getVisibility().toString(), getValue(mvcResult, "$.visibility")),
                 () -> assertTrue((Boolean) getValue(mvcResult, "$.favourite")),
                 () -> assertTrue((Boolean) getValue(mvcResult, "$.archived")),
                 () -> assertEquals(board.getWorkspaceId().toString(), getValue(mvcResult, "$.workspaceId")),
-                () -> assertTrue(testmembersId.contains(membersId.iterator().next())),
-                () -> assertTrue(testmembersId.contains(membersId.iterator().next())),
-                () -> assertEquals(2, testmembersId.size())
+                () -> assertTrue(testMembersId.contains(membersId.iterator().next())),
+                () -> assertTrue(testMembersId.contains(membersId.iterator().next())),
+                () -> assertEquals(2, testMembersId.size())
+        );
+    }
+
+    @Test
+    public void updateFailure() throws Exception {
+        Board firstBoard = helper.getNewBoard("1updateFailure@BoardIntegrationTest");
+        firstBoard.setName(null);
+        firstBoard.setUpdatedBy(firstBoard.getCreatedBy());
+
+        Board secondBoard = new Board();
+        secondBoard.setId(firstBoard.getId());
+
+        MvcResult firstMvcResult = super.update(URL_TEMPLATE, firstBoard.getId(), firstBoard);
+        MvcResult secondMvcResult = super.update(URL_TEMPLATE, secondBoard.getId(), secondBoard);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND.value(), firstMvcResult.getResponse().getStatus()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), secondMvcResult.getResponse().getStatus())
         );
     }
 }
