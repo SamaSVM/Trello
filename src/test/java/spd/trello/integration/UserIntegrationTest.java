@@ -15,7 +15,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class UserIntegrationTest extends AbstractIntegrationTest<User>{
+public class UserIntegrationTest extends AbstractIntegrationTest<User> {
     private final String URL_TEMPLATE = "/users";
 
     @Autowired
@@ -136,5 +136,15 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User>{
                 () -> assertEquals(user.getLastName(), getValue(mvcResult, "$.lastName")),
                 () -> assertEquals(user.getTimeZone(), getValue(mvcResult, "$.timeZone"))
         );
+    }
+
+    @Test
+    public void updateFailure() throws Exception {
+        User user = helper.getNewUser("updateFailure@UIT");
+        User updateUser = new User();
+        user.setId(user.getId());
+        MvcResult mvcResult = super.update(URL_TEMPLATE, updateUser.getId(), updateUser);
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
     }
 }
