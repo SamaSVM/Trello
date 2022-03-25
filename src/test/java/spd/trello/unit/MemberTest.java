@@ -25,7 +25,7 @@ public class MemberTest {
 
     @Test
     public void successCreate() {
-        User user = helper.getNewUser("test@mail");
+        User user = helper.getNewUser("test@MT");
 
         Member member = new Member();
         member.setCreatedBy(user.getEmail());
@@ -44,38 +44,21 @@ public class MemberTest {
 
     @Test
     public void findAll() {
-        User user = helper.getNewUser("test1@mail");
+        Member firstMember = helper.getNewMember("1findAll@MT");
+        Member secondMember = helper.getNewMember("2findAll@MT");
 
-        Member firstMember = new Member();
-        firstMember.setCreatedBy(user.getEmail());
-        firstMember.setUserId(user.getId());
-        firstMember.setMemberRole(MemberRole.MEMBER);
-        Member testFirstMember = service.save(firstMember);
-
-        Member secondMember = new Member();
-        secondMember.setCreatedBy(user.getEmail());
-        secondMember.setUserId(user.getId());
-        secondMember.setMemberRole(MemberRole.ADMIN);
-        Member testSecondMember = service.save(secondMember);
-
-        assertNotNull(testFirstMember);
-        assertNotNull(testSecondMember);
+        assertNotNull(firstMember);
+        assertNotNull(secondMember);
         List<Member> testMembers = service.getAll();
         assertAll(
-                () -> assertTrue(testMembers.contains(testFirstMember)),
-                () -> assertTrue(testMembers.contains(testSecondMember))
+                () -> assertTrue(testMembers.contains(firstMember)),
+                () -> assertTrue(testMembers.contains(secondMember))
         );
     }
 
     @Test
     public void findById() {
-        User user = helper.getNewUser("findById@MT");
-
-        Member member = new Member();
-        member.setCreatedBy(user.getEmail());
-        member.setUserId(user.getId());
-        member.setMemberRole(MemberRole.MEMBER);
-        service.save(member);
+        Member member = helper.getNewMember("findById@MT");
 
         Member testMember = service.getById(member.getId());
         assertEquals(member, testMember);
@@ -83,43 +66,30 @@ public class MemberTest {
 
     @Test
     public void delete() {
-        User user = helper.getNewUser("test2@mail");
+        Member member = helper.getNewMember("delete@MT");
 
-        Member member = new Member();
-        member.setCreatedBy(user.getEmail());
-        member.setUserId(user.getId());
-        member.setMemberRole(MemberRole.MEMBER);
-        Member testMember = service.save(member);
-
-        assertNotNull(testMember);
-        service.delete(testMember.getId());
-        assertFalse(service.getAll().contains(testMember));
+        assertNotNull(member);
+        service.delete(member.getId());
+        assertFalse(service.getAll().contains(member));
     }
 
     @Test
     public void update() {
-        User user = helper.getNewUser("test3@mail");
+        Member member = helper.getNewMember("update@MT");
 
-        Member member = new Member();
-        member.setCreatedBy(user.getEmail());
-        member.setUserId(user.getId());
+        assertNotNull(member);
         member.setMemberRole(MemberRole.MEMBER);
-        Member memberForUpdate = service.save(member);
-
-        assertNotNull(memberForUpdate);
-        memberForUpdate.setUpdatedBy(user.getEmail());
-        memberForUpdate.setMemberRole(MemberRole.ADMIN);
-        memberForUpdate.setUpdatedBy(user.getEmail());
-        Member testMember = service.update(memberForUpdate);
+        member.setUpdatedBy("newMember");
+        Member testMember = service.update(member);
 
         assertNotNull(testMember);
         assertAll(
-                () -> assertEquals(user.getEmail(), testMember.getCreatedBy()),
-                () -> assertEquals(user.getEmail(), testMember.getUpdatedBy()),
+                () -> assertEquals(member.getCreatedBy(), testMember.getCreatedBy()),
+                () -> assertEquals(member.getUpdatedBy(), testMember.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testMember.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testMember.getUpdatedDate()),
-                () -> assertEquals(MemberRole.ADMIN, testMember.getMemberRole()),
-                () -> assertEquals(user.getId(), testMember.getUserId())
+                () -> assertEquals(MemberRole.MEMBER, testMember.getMemberRole()),
+                () -> assertEquals(member.getUserId(), testMember.getUserId())
         );
     }
 
