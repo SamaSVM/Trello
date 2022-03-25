@@ -11,7 +11,6 @@ import spd.trello.services.BoardService;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -28,23 +27,20 @@ public class BoardTest {
 
     @Test
     public void create() {
-        User user = helper.getNewUser("test9@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
+        Workspace workspace = helper.getNewWorkspace("create@BT");
 
         Board board = new Board();
-        board.setCreatedBy(user.getEmail());
+        board.setCreatedBy(workspace.getCreatedBy());
         board.setName("testBoard");
         board.setDescription("testDescription");
         board.setWorkspaceId(workspace.getId());
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(member.getId());
+        Set<UUID> membersId = workspace.getMembersId();
         board.setMembersId(membersId);
         Board testBoard = service.save(board);
 
         assertNotNull(testBoard);
         assertAll(
-                () -> assertEquals(user.getEmail(), testBoard.getCreatedBy()),
+                () -> assertEquals(workspace.getCreatedBy(), testBoard.getCreatedBy()),
                 () -> assertNull(testBoard.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testBoard.getCreatedDate()),
                 () -> assertNull(testBoard.getUpdatedDate()),
@@ -54,57 +50,27 @@ public class BoardTest {
                 () -> assertFalse(testBoard.getFavourite()),
                 () -> assertFalse(testBoard.getArchived()),
                 () -> assertEquals(workspace.getId(), testBoard.getWorkspaceId()),
-                () -> assertTrue(testBoard.getMembersId().contains(member.getId()))
+                () -> assertEquals(workspace.getMembersId(), testBoard.getMembersId())
         );
     }
 
     @Test
     public void findAll() {
-        User user = helper.getNewUser("test10@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
+        Board firstBoard = helper.getNewBoard("1findAll@BT");
+        Board secondBoard = helper.getNewBoard("2findAll@BT");
 
-        Board board = new Board();
-        board.setCreatedBy(user.getEmail());
-        board.setWorkspaceId(workspace.getId());
-        board.setName("1Board");
-        board.setDescription("1Description");
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(member.getId());
-        board.setMembersId(membersId);
-        Board testFirstBoard = service.save(board);
-
-        Board secondBoard = new Board();
-        secondBoard.setCreatedBy(user.getEmail());
-        secondBoard.setWorkspaceId(workspace.getId());
-        secondBoard.setName("2Board");
-        board.setCreatedBy(user.getEmail());
-        Board testSecondBoard = service.save(secondBoard);
-
-        assertNotNull(testFirstBoard);
-        assertNotNull(testSecondBoard);
+        assertNotNull(firstBoard);
+        assertNotNull(secondBoard);
         List<Board> testBoard = service.getAll();
         assertAll(
-                () -> assertTrue(testBoard.contains(testFirstBoard)),
-                () -> assertTrue(testBoard.contains(testSecondBoard))
+                () -> assertTrue(testBoard.contains(firstBoard)),
+                () -> assertTrue(testBoard.contains(secondBoard))
         );
     }
 
     @Test
     public void findById() {
-        User user = helper.getNewUser("findById@BT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-
-        Board board = new Board();
-        board.setCreatedBy(user.getEmail());
-        board.setWorkspaceId(workspace.getId());
-        board.setName("Board");
-        board.setDescription("Description");
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(member.getId());
-        board.setMembersId(membersId);
-        service.save(board);
+        Board board = helper.getNewBoard("findById@BT");
 
         Board testBoard = service.getById(board.getId());
         assertEquals(board, testBoard);
@@ -112,56 +78,33 @@ public class BoardTest {
 
     @Test
     public void delete() {
-        User user = helper.getNewUser("delete@BT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
+        Board board = helper.getNewBoard("delete@BT");
 
-        Board board = new Board();
-        board.setCreatedBy(user.getEmail());
-        board.setWorkspaceId(workspace.getId());
-        board.setName("Board");
-        board.setDescription("Description");
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(member.getId());
-        board.setMembersId(membersId);
-        Board testBoard = service.save(board);
-
-        assertNotNull(testBoard);
-        service.delete(testBoard.getId());
-        assertFalse(service.getAll().contains(testBoard));
+        assertNotNull(board);
+        service.delete(board.getId());
+        assertFalse(service.getAll().contains(board));
     }
 
     @Test
     public void update() {
-        User user = helper.getNewUser("update@BT");
-        Member firstMember = helper.getNewMember(user);
-        Member secondMember = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(firstMember);
+        Board board = helper.getNewBoard("update@BT");
+        Member secondMember = helper.getNewMember("2update@BT");
 
-        Board board = new Board();
-        board.setCreatedBy(user.getEmail());
-        board.setWorkspaceId(workspace.getId());
-        board.setName("Board");
-        board.setDescription("Description");
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(firstMember.getId());
-        board.setMembersId(membersId);
-        Board updateBoard = service.save(board);
-
-        assertNotNull(updateBoard);
-        updateBoard.setName("newBoard");
-        updateBoard.setDescription("newDescription");
-        updateBoard.setUpdatedBy(user.getEmail());
-        updateBoard.setVisibility(BoardVisibility.PUBLIC);
-        updateBoard.setFavourite(true);
-        updateBoard.setArchived(true);
+        assertNotNull(board);
+        board.setName("newBoard");
+        board.setDescription("newDescription");
+        board.setUpdatedBy(board.getCreatedBy());
+        board.setVisibility(BoardVisibility.PUBLIC);
+        board.setFavourite(true);
+        board.setArchived(true);
+        Set<UUID> membersId = board.getMembersId();
         membersId.add(secondMember.getId());
-        updateBoard.setMembersId(membersId);
-        Board testBoard = service.update(updateBoard);
+        board.setMembersId(membersId);
+        Board testBoard = service.update(board);
 
         assertAll(
-                () -> assertEquals(user.getEmail(), testBoard.getCreatedBy()),
-                () -> assertEquals(user.getEmail(), testBoard.getUpdatedBy()),
+                () -> assertEquals(board.getCreatedBy(), testBoard.getCreatedBy()),
+                () -> assertEquals(board.getUpdatedBy(), testBoard.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testBoard.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testBoard.getUpdatedDate()),
                 () -> assertEquals("newBoard", testBoard.getName()),
@@ -169,8 +112,8 @@ public class BoardTest {
                 () -> assertEquals(BoardVisibility.PUBLIC, testBoard.getVisibility()),
                 () -> assertTrue(testBoard.getFavourite()),
                 () -> assertTrue(testBoard.getArchived()),
-                () -> assertEquals(workspace.getId(), testBoard.getWorkspaceId()),
-                () -> assertTrue(testBoard.getMembersId().contains(firstMember.getId())),
+                () -> assertEquals(board.getWorkspaceId(), testBoard.getWorkspaceId()),
+                () -> assertEquals(2, testBoard.getMembersId().size()),
                 () -> assertTrue(testBoard.getMembersId().contains(secondMember.getId()))
         );
     }

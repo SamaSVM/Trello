@@ -49,8 +49,9 @@ public class UnitHelper {
         return memberService.save(member);
     }
 
-    public Workspace getNewWorkspace(Member member) {
+    public Workspace getNewWorkspace(String email) {
         Workspace workspace = new Workspace();
+        Member member = getNewMember(email);
         workspace.setCreatedBy(member.getCreatedBy());
         workspace.setName("MemberName");
         workspace.setDescription("description");
@@ -61,14 +62,14 @@ public class UnitHelper {
         return workspaceService.save(workspace);
     }
 
-    public Board getNewBoard(Member member, UUID workspaceId) {
+    public Board getNewBoard(String email) {
+        Workspace workspace = getNewWorkspace(email);
         Board board = new Board();
         board.setName("BoardName");
         board.setDescription("description");
-        board.setWorkspaceId(workspaceId);
-        board.setCreatedBy(member.getId().toString());
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(member.getId());
+        board.setWorkspaceId(workspace.getId());
+        board.setCreatedBy(workspace.getCreatedBy());
+        Set<UUID> membersId = workspace.getMembersId();
         board.setMembersId(membersId);
         return boardService.save(board);
     }
