@@ -18,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserTest {
     @Autowired
     private UserService service;
+    @Autowired
+    private UnitHelper helper;
 
     @Test
     public void create() {
@@ -38,36 +40,21 @@ public class UserTest {
 
     @Test
     public void findAll() {
-        User firstUser = new User();
-        firstUser.setFirstName("1FirstName");
-        firstUser.setLastName("1LastName");
-        firstUser.setEmail("1@email");
-        firstUser.setTimeZone("Europe/Paris");
-        User testFirstUser = service.save(firstUser);
+        User firstUser = helper.getNewUser("1findAll@UT");
+        User secondUser = helper.getNewUser("2findAll@UT");
 
-        User secondUser = new User();
-        secondUser.setFirstName("2FirstName");
-        secondUser.setLastName("2LastName");
-        secondUser.setEmail("2@email");
-        User testSecondUser = service.save(secondUser);
-
-        assertNotNull(testFirstUser);
-        assertNotNull(testSecondUser);
+        assertNotNull(firstUser);
+        assertNotNull(secondUser);
         List<User> testUsers = service.getAll();
         assertAll(
-                () -> assertTrue(testUsers.contains(testFirstUser)),
-                () -> assertTrue(testUsers.contains(testSecondUser))
+                () -> assertTrue(testUsers.contains(firstUser)),
+                () -> assertTrue(testUsers.contains(secondUser))
         );
     }
 
     @Test
     public void findById() {
-        User user = new User();
-        user.setFirstName("FirstName");
-        user.setLastName("LastName");
-        user.setEmail("findById@UT");
-        user.setTimeZone("Europe/Kiev");
-        service.save(user);
+        User user = helper.getNewUser("findById@UT");
 
         User testUser = service.getById(user.getId());
         assertEquals(user, testUser);
@@ -75,40 +62,28 @@ public class UserTest {
 
     @Test
     public void delete() {
-        User user = new User();
-        user.setFirstName("deleteFirstName");
-        user.setLastName("deleteLastName");
-        user.setEmail("delete@email");
-        User testUser = service.save(user);
+        User user = helper.getNewUser("delete@UT");
 
-        assertNotNull(testUser);
-        service.delete(testUser.getId());
-        assertFalse(service.getAll().contains(testUser));
+        assertNotNull(user);
+        service.delete(user.getId());
+        assertFalse(service.getAll().contains(user));
     }
 
     @Test
     public void update() {
-        User user = new User();
-        user.setFirstName("updateFirstName");
-        user.setLastName("updateLastName");
-        user.setEmail("update@email");
-        User firstUser = service.save(user);
-
+        User firstUser = helper.getNewUser("update@UT");
         assertNotNull(firstUser);
-        UUID id = firstUser.getId();
-        User updateUser = new User();
-        updateUser.setId(id);
-        updateUser.setFirstName("newFirstName");
-        updateUser.setLastName("newLastName");
-        updateUser.setEmail("new@email");
-        updateUser.setTimeZone("Europe/Paris");
-        service.update(updateUser);
+        firstUser.setFirstName("newFirstName");
+        firstUser.setLastName("newLastName");
+        firstUser.setEmail("new@email");
+        firstUser.setTimeZone("Europe/Paris");
+        service.update(firstUser);
 
-        User testUser = service.getById(id);
+        User testUser = service.getById(firstUser.getId());
         assertAll(
                 () -> assertEquals("newFirstName", testUser.getFirstName()),
                 () -> assertEquals("newLastName", testUser.getLastName()),
-                () -> assertEquals("update@email", testUser.getEmail()),
+                () -> assertEquals("update@UT", testUser.getEmail()),
                 () -> assertEquals("Europe/Paris", testUser.getTimeZone())
         );
     }
