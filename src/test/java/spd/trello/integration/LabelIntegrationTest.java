@@ -129,15 +129,8 @@ public class LabelIntegrationTest extends AbstractIntegrationTest<Label>{
         firstLabel.setCardId(null);
         firstLabel.setColor(null);
 
-        Label secondLabel = new Label();
-        secondLabel.setId(firstLabel.getId());
+        MvcResult mvcResult = super.update(URL_TEMPLATE, firstLabel.getId(), firstLabel);
 
-        MvcResult firstMvcResult = super.update(URL_TEMPLATE, firstLabel.getId(), firstLabel);
-        MvcResult secondMvcResult = super.update(URL_TEMPLATE, secondLabel.getId(), secondLabel);
-
-        assertAll(
-                () -> assertEquals(HttpStatus.NOT_FOUND.value(), firstMvcResult.getResponse().getStatus()),
-                () -> assertEquals(HttpStatus.NOT_FOUND.value(), secondMvcResult.getResponse().getStatus())
-        );
+        assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
     }
 }
