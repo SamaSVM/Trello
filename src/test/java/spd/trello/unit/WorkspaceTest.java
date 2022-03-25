@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.Member;
-import spd.trello.domain.User;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.WorkspaceVisibility;
 import spd.trello.exeption.BadRequestException;
@@ -30,11 +29,10 @@ public class WorkspaceTest {
 
     @Test
     public void create() {
-        User user = helper.getNewUser("create@WT");
-        Member member = helper.getNewMember(user);
+        Member member = helper.getNewMember("create@WT");
 
         Workspace workspace = new Workspace();
-        workspace.setCreatedBy(user.getEmail());
+        workspace.setCreatedBy(member.getCreatedBy());
         workspace.setName("testWorkspace");
         workspace.setDescription("testDescription");
         Set<UUID> membersId = workspace.getMembersId();
@@ -44,7 +42,7 @@ public class WorkspaceTest {
 
         assertNotNull(testWorkspace);
         assertAll(
-                () -> assertEquals(user.getEmail(), testWorkspace.getCreatedBy()),
+                () -> assertEquals(member.getCreatedBy(), testWorkspace.getCreatedBy()),
                 () -> assertNull(testWorkspace.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testWorkspace.getCreatedDate()),
                 () -> assertNull(testWorkspace.getUpdatedDate()),
@@ -57,11 +55,10 @@ public class WorkspaceTest {
 
     @Test
     public void findAll() {
-        User user = helper.getNewUser("findAll@WT");
-        Member member = helper.getNewMember(user);
+        Member member = helper.getNewMember("findAll@WT");
 
         Workspace firstWorkspace = new Workspace();
-        firstWorkspace.setCreatedBy(user.getEmail());
+        firstWorkspace.setCreatedBy(member.getCreatedBy());
         firstWorkspace.setName("1Name");
         firstWorkspace.setDescription("1Des");
         Set<UUID> membersId = new HashSet<>();
@@ -70,7 +67,7 @@ public class WorkspaceTest {
         Workspace testFirstWorkspace = service.save(firstWorkspace);
 
         Workspace secondWorkspace = new Workspace();
-        secondWorkspace.setCreatedBy(user.getEmail());
+        secondWorkspace.setCreatedBy(member.getCreatedBy());
         secondWorkspace.setName("2Name");
         secondWorkspace.setDescription("2Des");
         secondWorkspace.setMembersId(membersId);
@@ -87,11 +84,10 @@ public class WorkspaceTest {
 
     @Test
     public void findById() {
-        User user = helper.getNewUser("findById@WT");
-        Member member = helper.getNewMember(user);
+        Member member = helper.getNewMember("findById@WT");
 
         Workspace workspace = new Workspace();
-        workspace.setCreatedBy(user.getEmail());
+        workspace.setCreatedBy(member.getCreatedBy());
         workspace.setName("Name");
         workspace.setDescription("Description");
         Set<UUID> membersId = new HashSet<>();
@@ -105,11 +101,10 @@ public class WorkspaceTest {
 
     @Test
     public void delete() {
-        User user = helper.getNewUser("delete@WT");
-        Member member = helper.getNewMember(user);
+        Member member = helper.getNewMember("delete@WT");
 
         Workspace workspace = new Workspace();
-        workspace.setCreatedBy(user.getEmail());
+        workspace.setCreatedBy(member.getCreatedBy());
         workspace.setName("Name");
         workspace.setDescription("Description");
         Set<UUID> membersId = new HashSet<>();
@@ -124,12 +119,11 @@ public class WorkspaceTest {
 
     @Test
     public void update() {
-        User user = helper.getNewUser("update@WT");
-        Member firstMember = helper.getNewMember(user);
-        Member secondMember = helper.getNewMember(user);
+        Member firstMember = helper.getNewMember("1update@WT");
+        Member secondMember = helper.getNewMember("2update@WT");
 
         Workspace workspace = new Workspace();
-        workspace.setCreatedBy(user.getEmail());
+        workspace.setCreatedBy(firstMember.getCreatedBy());
         workspace.setName("testWorkspace");
         workspace.setDescription("testDescription");
         Set<UUID> membersId = new HashSet<>();
@@ -138,7 +132,7 @@ public class WorkspaceTest {
         Workspace updateWorkspace = service.save(workspace);
 
         assertNotNull(updateWorkspace);
-        updateWorkspace.setUpdatedBy(user.getEmail());
+        updateWorkspace.setUpdatedBy(secondMember.getCreatedBy());
         updateWorkspace.setName("newWorkspace");
         updateWorkspace.setDescription("newDescription");
         updateWorkspace.setVisibility(WorkspaceVisibility.PUBLIC);
@@ -148,8 +142,8 @@ public class WorkspaceTest {
 
         assertNotNull(testWorkspace);
         assertAll(
-                () -> assertEquals(user.getEmail(), testWorkspace.getCreatedBy()),
-                () -> assertEquals(user.getEmail(), testWorkspace.getUpdatedBy()),
+                () -> assertEquals(firstMember.getCreatedBy(), testWorkspace.getCreatedBy()),
+                () -> assertEquals(secondMember.getCreatedBy(), testWorkspace.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testWorkspace.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testWorkspace.getUpdatedDate()),
                 () -> assertEquals("newWorkspace", testWorkspace.getName()),

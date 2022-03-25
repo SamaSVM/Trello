@@ -40,8 +40,9 @@ public class UnitHelper {
         return userService.save(user);
     }
 
-    public Member getNewMember(User user) {
+    public Member getNewMember(String email) {
         Member member = new Member();
+        User user = getNewUser(email);
         member.setUserId(user.getId());
         member.setCreatedBy(user.getEmail());
         member.setMemberRole(MemberRole.ADMIN);
