@@ -83,14 +83,14 @@ public class UnitHelper {
         return cardListService.save(cardList);
     }
 
-    public Card getNewCard(Member member, UUID cardListId) {
+    public Card getNewCard(String email) {
+        CardList cardList = getNewCardList(email);
         Card card = new Card();
         card.setName("CardName");
         card.setDescription("description");
-        card.setCardListId(cardListId);
-        card.setCreatedBy(member.getCreatedBy());
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(member.getId());
+        card.setCardListId(cardList.getId());
+        card.setCreatedBy(cardList.getCreatedBy());
+        Set<UUID> membersId = boardService.getById(cardList.getBoardId()).getMembersId();
         card.setMembersId(membersId);
         return cardService.save(card);
     }

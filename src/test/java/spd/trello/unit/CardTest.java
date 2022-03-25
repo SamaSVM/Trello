@@ -6,11 +6,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.services.BoardService;
 import spd.trello.services.CardService;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -24,29 +24,27 @@ public class CardTest {
     private CardService service;
 
     @Autowired
+    private BoardService boardService;
+
+    @Autowired
     private UnitHelper helper;
 
     @Test
     public void create() {
-        User user = helper.getNewUser("test19@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
+        CardList cardList = helper.getNewCardList("create@CardT");
 
         Card card = new Card();
         card.setCardListId(cardList.getId());
-        card.setCreatedBy(user.getEmail());
+        card.setCreatedBy(cardList.getCreatedBy());
         card.setName("testCardName");
         card.setDescription("description");
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(member.getId());
+        Set<UUID> membersId = boardService.getById(cardList.getBoardId()).getMembersId();
         card.setMembersId(membersId);
         Card testCard = service.save(card);
 
         assertNotNull(testCard);
         assertAll(
-                () -> assertEquals(user.getEmail(), testCard.getCreatedBy()),
+                () -> assertEquals(cardList.getCreatedBy(), testCard.getCreatedBy()),
                 () -> assertNull(testCard.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testCard.getCreatedDate()),
                 () -> assertNull(testCard.getUpdatedDate()),
@@ -54,35 +52,14 @@ public class CardTest {
                 () -> assertEquals("description", testCard.getDescription()),
                 () -> assertFalse(testCard.getArchived()),
                 () -> assertEquals(cardList.getId(), testCard.getCardListId()),
-                () -> assertTrue(testCard.getMembersId().contains(member.getId()))
+                () -> assertEquals(1, testCard.getMembersId().size())
         );
     }
 
     @Test
     public void findAll() {
-        User user = helper.getNewUser("test20@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-
-        Card firstCard = new Card();
-        firstCard.setCreatedBy(user.getEmail());
-        firstCard.setCardListId(cardList.getId());
-        firstCard.setName("1Card");
-        firstCard.setDescription("1description");
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(member.getId());
-        firstCard.setMembersId(membersId);
-        Card testFirstCard = service.save(firstCard);
-
-        Card secondCard = new Card();
-        secondCard.setCardListId(cardList.getId());
-        secondCard.setCreatedBy(user.getEmail());
-        secondCard.setName("2Card");
-        secondCard.setDescription("2description");
-        secondCard.setMembersId(membersId);
-        Card testSecondCard = service.save(secondCard);
+        Card testFirstCard = helper.getNewCard("findAll@CardT");
+        Card testSecondCard = helper.getNewCard("2findAll@CardT");
 
         assertNotNull(testFirstCard);
         assertNotNull(testSecondCard);
@@ -95,21 +72,7 @@ public class CardTest {
 
     @Test
     public void findById() {
-        User user = helper.getNewUser("findById@CT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-
-        Card card = new Card();
-        card.setCreatedBy(user.getEmail());
-        card.setCardListId(cardList.getId());
-        card.setName("Card");
-        card.setDescription("description");
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(member.getId());
-        card.setMembersId(membersId);
-        service.save(card);
+        Card card = helper.getNewCard("findById@CardT");
 
         Card testCard = service.getById(card.getId());
         assertEquals(card, testCard);
@@ -117,63 +80,38 @@ public class CardTest {
 
     @Test
     public void delete() {
-        User user = helper.getNewUser("test22@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
+        Card card = helper.getNewCard("delete@CardT");
 
-        Card card = new Card();
-        card.setCreatedBy(user.getEmail());
-        card.setCardListId(cardList.getId());
-        card.setName("Card");
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(member.getId());
-        card.setMembersId(membersId);
-        Card testCard = service.save(card);
-
-        assertNotNull(testCard);
-        service.delete(testCard.getId());
-        assertFalse(service.getAll().contains(testCard));
+        assertNotNull(card);
+        service.delete(card.getId());
+        assertFalse(service.getAll().contains(card));
     }
 
     @Test
     public void update() {
-        User user = helper.getNewUser("test23@mail");
-        Member firstMember = helper.getNewMember(user);
-        Member secondMember = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(firstMember);
-        Board board = helper.getNewBoard(firstMember, workspace.getId());
-        CardList cardList = helper.getNewCardList(firstMember, board.getId());
+        Card card = helper.getNewCard("update@CardT");
+        Member secondMember = helper.getNewMember("2update@CardT");
 
-        Card card = new Card();
-        card.setCreatedBy(user.getEmail());
-        card.setCardListId(cardList.getId());
-        card.setName("Card");
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(firstMember.getId());
-        card.setMembersId(membersId);
-        Card updateCard = service.save(card);
-
-        assertNotNull(updateCard);
-        updateCard.setUpdatedBy(user.getEmail());
-        updateCard.setName("newCard");
-        updateCard.setDescription("newDescription");
-        updateCard.setArchived(true);
+        assertNotNull(card);
+        card.setUpdatedBy(card.getCreatedBy());
+        card.setName("newCard");
+        card.setDescription("newDescription");
+        card.setArchived(true);
+        Set<UUID> membersId = card.getMembersId();
         membersId.add(secondMember.getId());
-        updateCard.setMembersId(membersId);
-        Card testCard = service.update(updateCard);
+        card.setMembersId(membersId);
+        Card testCard = service.update(card);
 
         assertAll(
-                () -> assertEquals(user.getEmail(), testCard.getCreatedBy()),
-                () -> assertEquals(user.getEmail(), testCard.getUpdatedBy()),
+                () -> assertEquals(card.getCreatedBy(), testCard.getCreatedBy()),
+                () -> assertEquals(card.getUpdatedBy(), testCard.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testCard.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testCard.getUpdatedDate()),
                 () -> assertEquals("newCard", testCard.getName()),
                 () -> assertEquals("newDescription", testCard.getDescription()),
                 () -> assertTrue(testCard.getArchived()),
-                () -> assertEquals(cardList.getId(), testCard.getCardListId()),
-                () -> assertTrue(testCard.getMembersId().contains(firstMember.getId())),
+                () -> assertEquals(card.getCardListId(), testCard.getCardListId()),
+                () -> assertEquals(2, testCard.getMembersId().size()),
                 () -> assertTrue(testCard.getMembersId().contains(secondMember.getId()))
         );
     }
