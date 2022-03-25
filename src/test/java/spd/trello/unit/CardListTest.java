@@ -25,24 +25,21 @@ public class CardListTest {
 
     @Test
     public void successCreate() {
-        User user = helper.getNewUser("test14@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
+        Board board = helper.getNewBoard("successCreate@CLT");
 
         CardList cardList = new CardList();
-        cardList.setCreatedBy(user.getEmail());
+        cardList.setCreatedBy(board.getCreatedBy());
         cardList.setName("testCardList");
         cardList.setBoardId(board.getId());
         CardList testCardList = service.save(cardList);
 
         assertNotNull(testCardList);
         assertAll(
-                () -> assertEquals(user.getEmail(), testCardList.getCreatedBy()),
+                () -> assertEquals(board.getCreatedBy(), testCardList.getCreatedBy()),
                 () -> assertNull(testCardList.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testCardList.getCreatedDate()),
                 () -> assertNull(testCardList.getUpdatedDate()),
-                () -> assertEquals("testCardList", testCardList.getName()),
+                () -> assertEquals(cardList.getName(), testCardList.getName()),
                 () -> assertFalse(testCardList.getArchived()),
                 () -> assertEquals(board.getId(), testCardList.getBoardId())
         );
@@ -50,22 +47,8 @@ public class CardListTest {
 
     @Test
     public void findAll() {
-        User user = helper.getNewUser("test15@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-
-        CardList firstCardList = new CardList();
-        firstCardList.setCreatedBy(user.getEmail());
-        firstCardList.setBoardId(board.getId());
-        firstCardList.setName("1CardList");
-        CardList testFirstCardList = service.save(firstCardList);
-
-        CardList secondCardList = new CardList();
-        secondCardList.setCreatedBy(user.getEmail());
-        secondCardList.setBoardId(board.getId());
-        secondCardList.setName("2CardList");
-        CardList testSecondCardList = service.save(secondCardList);
+        CardList testFirstCardList = helper.getNewCardList("findAll@CLT");
+        CardList testSecondCardList = helper.getNewCardList("2findAll@CLT");
 
         assertNotNull(testFirstCardList);
         assertNotNull(testSecondCardList);
@@ -78,16 +61,7 @@ public class CardListTest {
 
     @Test
     public void findById() {
-        User user = helper.getNewUser("findById@CAT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-
-        CardList cardList = new CardList();
-        cardList.setCreatedBy(user.getEmail());
-        cardList.setBoardId(board.getId());
-        cardList.setName("CardList");
-        service.save(cardList);
+        CardList cardList = helper.getNewCardList("findById@CLT");
 
         CardList testCardList = service.getById(cardList.getId());
         assertEquals(cardList, testCardList);
@@ -95,50 +69,32 @@ public class CardListTest {
 
     @Test
     public void delete() {
-        User user = helper.getNewUser("test17@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList("delete@CLT");
 
-        CardList cardList = new CardList();
-        cardList.setBoardId(board.getId());
-        cardList.setCreatedBy(user.getEmail());
-        cardList.setName("testCardList");
-        CardList testCardList = service.save(cardList);
-
-        assertNotNull(testCardList);
-        service.delete(testCardList.getId());
-        assertFalse(service.getAll().contains(testCardList));
+        assertNotNull(cardList);
+        service.delete(cardList.getId());
+        assertFalse(service.getAll().contains(cardList));
     }
 
     @Test
     public void update() {
-        User user = helper.getNewUser("test18@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
+        CardList cardList = helper.getNewCardList("update@CLT");
 
-        CardList cardList = new CardList();
-        cardList.setBoardId(board.getId());
-        cardList.setCreatedBy(user.getEmail());
-        cardList.setName("testCardList");
-        CardList updateCardList = service.save(cardList);
-
-        assertNotNull(updateCardList);
-        updateCardList.setUpdatedBy(user.getEmail());
-        updateCardList.setName("newCardList");
-        updateCardList.setArchived(true);
-        CardList testCardList = service.update(updateCardList);
+        assertNotNull(cardList);
+        cardList.setUpdatedBy(cardList.getCreatedBy());
+        cardList.setName("newCardList");
+        cardList.setArchived(true);
+        CardList testCardList = service.update(cardList);
 
         assertNotNull(testCardList);
         assertAll(
-                () -> assertEquals("test18@mail", testCardList.getCreatedBy()),
-                () -> assertEquals("test18@mail", testCardList.getUpdatedBy()),
+                () -> assertEquals(cardList.getCreatedBy(), testCardList.getCreatedBy()),
+                () -> assertEquals(cardList.getUpdatedBy(), testCardList.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testCardList.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testCardList.getUpdatedDate()),
-                () -> assertEquals("newCardList", testCardList.getName()),
+                () -> assertEquals(cardList.getName(), testCardList.getName()),
                 () -> assertTrue(testCardList.getArchived()),
-                () -> assertEquals(board.getId(), testCardList.getBoardId())
+                () -> assertEquals(cardList.getBoardId(), testCardList.getBoardId())
         );
     }
 

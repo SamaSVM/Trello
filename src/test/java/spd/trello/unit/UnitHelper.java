@@ -74,11 +74,12 @@ public class UnitHelper {
         return boardService.save(board);
     }
 
-    public CardList getNewCardList(Member member, UUID boardId) {
+    public CardList getNewCardList(String email) {
+        Board board = getNewBoard(email);
         CardList cardList = new CardList();
-        cardList.setBoardId(boardId);
+        cardList.setBoardId(board.getId());
         cardList.setName("CardListName");
-        cardList.setCreatedBy(member.getCreatedBy());
+        cardList.setCreatedBy(board.getCreatedBy());
         return cardListService.save(cardList);
     }
 
