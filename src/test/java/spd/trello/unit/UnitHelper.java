@@ -95,11 +95,12 @@ public class UnitHelper {
         return cardService.save(card);
     }
 
-    public Comment getNewComment(Member member, UUID cardId) {
+    public Comment getNewComment(String email) {
+        Card card = getNewCard(email);
         Comment comment = new Comment();
         comment.setText("testComment");
-        comment.setCardId(cardId);
-        comment.setCreatedBy(member.getId().toString());
+        comment.setCardId(card.getId());
+        comment.setCreatedBy(card.getCreatedBy());
         return commentService.save(comment);
     }
 

@@ -26,22 +26,17 @@ public class CommentTest {
 
     @Test
     public void create() {
-        User user = helper.getNewUser("test24@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
+        Card card = helper.getNewCard("create@CT");
 
         Comment comment = new Comment();
         comment.setCardId(card.getId());
-        comment.setCreatedBy(user.getEmail());
+        comment.setCreatedBy(card.getCreatedBy());
         comment.setText("testText");
         Comment testComment = service.save(comment);
 
         assertNotNull(testComment);
         assertAll(
-                () -> assertEquals(user.getEmail(), testComment.getCreatedBy()),
+                () -> assertEquals(comment.getCreatedBy(), testComment.getCreatedBy()),
                 () -> assertNull(testComment.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testComment.getCreatedDate()),
                 () -> assertNull(testComment.getUpdatedDate()),
@@ -52,24 +47,8 @@ public class CommentTest {
 
     @Test
     public void findAll() {
-        User user = helper.getNewUser("test25@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-
-        Comment firstComment = new Comment();
-        firstComment.setCreatedBy(user.getEmail());
-        firstComment.setCardId(card.getId());
-        firstComment.setText("1Comment");
-        Comment testFirstComment = service.save(firstComment);
-
-        Comment secondComment = new Comment();
-        secondComment.setCreatedBy(user.getEmail());
-        secondComment.setCardId(card.getId());
-        secondComment.setText("2Comment");
-        Comment testSecondComment = service.save(secondComment);
+        Comment testFirstComment = helper.getNewComment("findAll@CT");
+        Comment testSecondComment = helper.getNewComment("2findAll@CT");
 
         assertNotNull(testFirstComment);
         assertNotNull(testSecondComment);
@@ -82,18 +61,7 @@ public class CommentTest {
 
     @Test
     public void findById() {
-        User user = helper.getNewUser("findById@ComT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-
-        Comment comment = new Comment();
-        comment.setCreatedBy(user.getEmail());
-        comment.setCardId(card.getId());
-        comment.setText("Comment");
-        service.save(comment);
+        Comment comment = helper.getNewComment("findById@CT");
 
         Comment testComment = service.getById(comment.getId());
         assertEquals(comment, testComment);
@@ -101,50 +69,28 @@ public class CommentTest {
 
     @Test
     public void delete() {
-        User user = helper.getNewUser("test27@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
+        Comment comment = helper.getNewComment("delete@CT");
 
-        Comment comment = new Comment();
-        comment.setCreatedBy(user.getEmail());
-        comment.setCardId(card.getId());
-        comment.setText("Comment");
-        Comment testComment = service.save(comment);
-
-        assertNotNull(testComment);
-        service.delete(testComment.getId());
-        assertFalse(service.getAll().contains(testComment));
+        assertNotNull(comment);
+        service.delete(comment.getId());
+        assertFalse(service.getAll().contains(comment));
     }
 
     @Test
     public void update() {
-        User user = helper.getNewUser("test28@mail");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
+        Comment comment = helper.getNewComment("update@CT");
 
-        Comment comment = new Comment();
-        comment.setCreatedBy(user.getEmail());
-        comment.setCardId(card.getId());
-        comment.setText("Comment");
-        Comment com = service.save(comment);
-
-        assertNotNull(com);
-        com.setUpdatedBy(user.getEmail());
-        com.setText("newText");
-        Comment testComment = service.update(com);
+        assertNotNull(comment);
+        comment.setUpdatedBy(comment.getCreatedBy());
+        comment.setText("newText");
+        Comment testComment = service.update(comment);
 
         assertAll(
-                () -> assertEquals(user.getEmail(), testComment.getCreatedBy()),
-                () -> assertEquals(user.getEmail(), testComment.getUpdatedBy()),
+                () -> assertEquals(comment.getCreatedBy(), testComment.getCreatedBy()),
+                () -> assertEquals(comment.getUpdatedBy(), testComment.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testComment.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testComment.getUpdatedDate()),
-                () -> assertEquals("newText", testComment.getText())
+                () -> assertEquals(comment.getText(), testComment.getText())
         );
     }
 
