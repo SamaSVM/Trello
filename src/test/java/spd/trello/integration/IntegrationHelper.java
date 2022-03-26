@@ -37,6 +37,8 @@ public class IntegrationHelper {
     private LabelRepository labelRepository;
     @Autowired
     private ChecklistRepository checklistRepository;
+    @Autowired
+    private CheckableItemRepository checkableItemRepository;
 
     public User getNewUser(String email) {
         User user = new User();
@@ -170,6 +172,20 @@ public class IntegrationHelper {
     }
 
     public List<Checklist> getChecklistsArray(MvcResult mvcResult)
+            throws UnsupportedEncodingException, JsonProcessingException {
+        return new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+    }
+
+    public CheckableItem getNewCheckableItem(String email) {
+        Checklist checklist = getNewChecklist(email);
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setChecklistId(checklist.getId());
+        checkableItem.setName("name");
+        return checkableItemRepository.save(checkableItem);
+    }
+
+    public List<CheckableItem> getCheckableItemsArray(MvcResult mvcResult)
             throws UnsupportedEncodingException, JsonProcessingException {
         return new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {
         });
