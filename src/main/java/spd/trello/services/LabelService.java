@@ -1,39 +1,38 @@
 package spd.trello.services;
 
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Label;
-import spd.trello.domain.Member;
-import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.InterfaceRepository;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.repository.LabelRepository;
 
 import java.util.UUID;
 
-public class LabelService extends AbstractService<Label>{
-    public LabelService(InterfaceRepository<Label> repository) {
+@Service
+public class LabelService extends AbstractService<Label, LabelRepository> {
+    public LabelService(LabelRepository repository) {
         super(repository);
     }
 
-    public Label create(Member member, UUID cardId, String name) {
-        checkMember(member);
-        Label label = new Label();
-        label.setId(UUID.randomUUID());
-        label.setName(name);
-        label.setCardId(cardId);
-        repository.create(label);
-        return repository.findById(label.getId());
-    }
 
-    public Label update(Member member, Label entity) {
-        Label oldLabel = repository.findById(entity.getId());
-        checkMember(member);
+    @Override
+    public Label update(Label entity) {
+        Label oldLabel = getById(entity.getId());
+
         if (entity.getName() == null) {
-            entity.setName(oldLabel.getName());
+            throw new ResourceNotFoundException();
         }
-        return repository.update(entity);
+
+        entity.setCardId(oldLabel.getCardId());
+
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
-    private  void checkMember(Member member){
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This member cannot update label!");
-        }
+    public void deleteLabelsForCard(UUID cardId) {
+        repository.findAllByCardId(cardId).forEach(label -> delete(label.getId()));
     }
 }

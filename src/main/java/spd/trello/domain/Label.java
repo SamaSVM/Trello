@@ -4,22 +4,21 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import spd.trello.domain.perent.Domain;
 
+import javax.persistence.*;
 import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
+@Entity
+@Table(name = "labels")
 public class Label extends Domain {
+    @Column(name = "name")
     private String name;
-    private UUID colorId;
+
+    @Column(name = "card_id")
     private UUID cardId;
 
-    @Override
-    public String toString() {
-        return "Label{" +
-                "id=" + super.getId() +
-                ", name='" + name + '\'' +
-                ", colorId=" + colorId +
-                ", cardId=" + cardId +
-                '}';
-    }
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "color", referencedColumnName = "id")
+    private Color color;
 }

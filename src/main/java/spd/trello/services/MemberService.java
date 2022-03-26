@@ -1,48 +1,72 @@
 package spd.trello.services;
 
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Member;
-import spd.trello.domain.User;
-import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.InterfaceRepository;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.repository.MemberRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-public class MemberService extends AbstractService<Member> {
-    public MemberService(InterfaceRepository<Member> repository) {
+@Service
+public class MemberService extends AbstractService<Member, MemberRepository> {
+    public MemberService(MemberRepository repository, WorkspaceService workspaceService, CardService cardService, BoardService boardService) {
         super(repository);
+        this.workspaceService = workspaceService;
+        this.cardService = cardService;
+        this.boardService = boardService;
     }
 
-    public Member findById(UUID id) {
-        return repository.findById(id);
-    }
+    private final WorkspaceService workspaceService;
+    private final CardService cardService;
+    private final BoardService boardService;
 
-    public List<Member> findAll() {
-        return repository.findAll();
-    }
-
-    public Member create(User user, MemberRole memberRole) {
-        Member member = new Member();
-        member.setId(UUID.randomUUID());
-        member.setCreatedBy(user.getEmail());
-        member.setCreatedDate(Date.valueOf(LocalDate.now()));
-        member.setUserId(user.getId());
-        if (memberRole != null){
-            member.setMemberRole(memberRole);
+    @Override
+    public Member save(Member entity) {
+        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
         }
-        repository.create(member);
-        return repository.findById(member.getId());
     }
 
-    public Member update(User user, Member entity) {
-        entity.setUpdatedBy(user.getEmail());
+    @Override
+    public Member update(Member entity) {
+        Member oldMember = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
+        if (entity.getMemberRole().equals(oldMember.getMemberRole())) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
-        return repository.update(entity);
+        entity.setCreatedBy(oldMember.getCreatedBy());
+        entity.setCreatedDate(oldMember.getCreatedDate());
+        entity.setUserId(oldMember.getUserId());
+
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
-    public boolean delete(UUID id) {
-        return repository.delete(id);
+    @Override
+    public void delete(UUID id) {
+        workspaceService.deleteMemberInWorkspaces(id);
+        boardService.deleteMemberInBoards(id);
+        cardService.deleteMemberInCards(id);
+        super.delete(id);
+    }
+
+
+    public void deleteMembersForUser(UUID userId) {
+        repository.findByUserId(userId).forEach(member -> delete(member.getId()));
     }
 }

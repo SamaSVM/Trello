@@ -2,28 +2,26 @@ package spd.trello.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.lang.Nullable;
 import spd.trello.domain.perent.Resource;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.io.File;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
+@Entity
+@Table(name = "attachments")
 public class Attachment extends Resource {
+    @Column(name = "name")
     private String name;
-    private String link;
-    private File file;
 
-    @Override
-    public String toString() {
-        return "Attachment{" +
-                "id=" + super.getId() +
-                ", createdBy=" + super.getCreatedBy() +
-                ", updatedBy=" + super.getUpdatedBy() +
-                ", cratedDate=" + super.getCreatedDate() +
-                ", updatedDate=" + super.getUpdatedDate() +
-                ", name='" + name + '\'' +
-                ", link='" + link + '\'' +
-                ", file=" + file +
-                '}';
-    }
+    @Column(name = "link")
+    private String link;
+
+    @Column(name = "card_id")
+    private UUID cardId;
 }

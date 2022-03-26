@@ -1,42 +1,65 @@
 package spd.trello.services;
 
+import org.springframework.stereotype.Service;
 import spd.trello.domain.User;
-import spd.trello.repository.InterfaceRepository;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.repository.UserRepository;
 
 import java.time.ZoneId;
-import java.util.List;
 import java.util.UUID;
 
-public class UserService extends AbstractService<User> {
+@Service
+public class UserService extends AbstractService<User, UserRepository> {
 
-    public UserService(InterfaceRepository<User> repository) {
+    public UserService(UserRepository repository, MemberService memberService) {
         super(repository);
+        this.memberService = memberService;
     }
 
-    public User findById(UUID id) {
-        return repository.findById(id);
+    private final MemberService memberService;
+
+    @Override
+    public User save(User entity) {
+        if (entity.getTimeZone() == null) {
+            entity.setTimeZone(ZoneId.systemDefault().toString());
+        }
+
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
-    public List<User> findAll() {
-        return repository.findAll();
-    }
-
-    public User create(String firstName, String lastName, String email) {
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setTimeZone(ZoneId.systemDefault().toString());
-        repository.create(user);
-        return repository.findById(user.getId());
-    }
-
+    @Override
     public User update(User entity) {
-        return repository.update(entity);
+        User oldUser = getById(entity.getId());
+        if (entity.getEmail() == null && entity.getLastName() == null && entity.getFirstName() == null) {
+            throw new ResourceNotFoundException();
+        }
+
+        entity.setEmail(oldUser.getEmail());
+        if (entity.getFirstName() == null) {
+            entity.setFirstName(oldUser.getFirstName());
+        }
+        if (entity.getLastName() == null) {
+            entity.setLastName(oldUser.getLastName());
+        }
+        if (entity.getTimeZone() == null) {
+            entity.setTimeZone(oldUser.getTimeZone());
+        }
+
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
-    public boolean delete(UUID id) {
-        return repository.delete(id);
+    @Override
+    public void delete(UUID id) {
+        memberService.deleteMembersForUser(id);
+        super.delete(id);
     }
 }

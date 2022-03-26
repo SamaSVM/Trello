@@ -1,40 +1,57 @@
 package spd.trello.services;
 
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Comment;
-import spd.trello.domain.Member;
-import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.InterfaceRepository;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.repository.CommentRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public class CommentService extends AbstractService<Comment> {
-    public CommentService(InterfaceRepository<Comment> repository) {
+@Service
+public class CommentService extends AbstractService<Comment, CommentRepository> {
+
+    public CommentService(CommentRepository repository) {
         super(repository);
     }
 
-    public Comment create(Member member, UUID cardId, String text) {
-        Comment comment = new Comment();
-        comment.setId(UUID.randomUUID());
-        comment.setCreatedBy(member.getCreatedBy());
-        comment.setCreatedDate(Date.valueOf(LocalDate.now()));
-        comment.setText(text);
-        comment.setCardId(cardId);
-        repository.create(comment);
-        return repository.findById(comment.getId());
+    @Override
+    public Comment save(Comment entity) {
+        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
-    public Comment update(Member member, Comment entity) {
-        Comment oldCard = repository.findById(entity.getId());
-        if (!member.getCreatedBy().equals(oldCard.getCreatedBy())) {
-            throw new IllegalStateException("This member cannot update comment!");
+    @Override
+    public Comment update(Comment entity) {
+        Comment oldCard = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
         }
-        entity.setUpdatedBy(member.getCreatedBy());
-        entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+
         if (entity.getText() == null) {
-            entity.setText(oldCard.getText());
+            throw new ResourceNotFoundException();
         }
-        return repository.update(entity);
+
+        entity.setCreatedBy(oldCard.getCreatedBy());
+        entity.setCreatedDate(oldCard.getCreatedDate());
+        entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCardId(oldCard.getCardId());
+
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    public void deleteCommentsForCard(UUID cardId) {
+        repository.findAllByCardId(cardId).forEach(comment -> delete(comment.getId()));
     }
 }

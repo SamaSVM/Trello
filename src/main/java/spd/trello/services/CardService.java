@@ -1,112 +1,95 @@
 package spd.trello.services;
 
-import spd.trello.db.ConnectionPool;
+import org.springframework.stereotype.Service;
 import spd.trello.domain.*;
-import spd.trello.domain.enums.MemberRole;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.*;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-public class CardService extends AbstractService<Card> {
-    public CardService(InterfaceRepository<Card> repository) {
+@Service
+public class CardService extends AbstractService<Card, CardRepository> {
+    public CardService(CardRepository repository, ChecklistService checklistService, LabelService labelService,
+                       CommentService commentService, AttachmentService attachmentService) {
         super(repository);
+        this.checklistService = checklistService;
+        this.labelService = labelService;
+        this.commentService = commentService;
+        this.attachmentService = attachmentService;
     }
 
-    private final MemberCardService memberCardService =
-            new MemberCardService(new MemberCardRepository(ConnectionPool.createDataSource()));
+    private final ChecklistService checklistService;
+    private final LabelService labelService;
+    private final CommentService commentService;
+    private final AttachmentService attachmentService;
 
-    private final CommentCardService commentCardService =
-            new CommentCardService(new CommentCardRepository(ConnectionPool.createDataSource()));
 
-    private final ReminderCardService reminderCardService =
-            new ReminderCardService(new ReminderCardRepository(ConnectionPool.createDataSource()));
-
-    private final ChecklistCardService checklistCardService =
-            new ChecklistCardService(new ChecklistCardRepository(ConnectionPool.createDataSource()));
-
-    private final LabelCardService labelCardService =
-            new LabelCardService(new LabelCardRepository(ConnectionPool.createDataSource()));
-
-    public Card create(Member member, UUID cardListId, String name, String description) {
-        Card card = new Card();
-        card.setId(UUID.randomUUID());
-        card.setCreatedBy(member.getCreatedBy());
-        card.setCreatedDate(Date.valueOf(LocalDate.now()));
-        card.setName(name);
-        card.setDescription(description);
-        card.setCardListId(cardListId);
-        repository.create(card);
-        if (!memberCardService.create(member.getId(), card.getId())) {
-            delete(card.getId());
+    @Override
+    public Card save(Card entity) {
+        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
         }
-        return repository.findById(card.getId());
     }
 
-    public Card update(Member member, Card entity) {
-        checkMember(member, entity.getId());
-        Card oldCard = repository.findById(entity.getId());
-        entity.setUpdatedBy(member.getCreatedBy());
+    @Override
+    public Card update(Card entity) {
+        Card oldCard = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
+        if (entity.getName() == null && entity.getDescription() == null && entity.getArchived() == oldCard.getArchived()
+                && entity.getMembersId().equals(oldCard.getMembersId())) {
+            throw new ResourceNotFoundException();
+        }
+
+        entity.setCardListId(oldCard.getCardListId());
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCreatedBy(oldCard.getCreatedBy());
+        entity.setCreatedDate(oldCard.getCreatedDate());
         if (entity.getName() == null) {
             entity.setName(oldCard.getName());
         }
         if (entity.getDescription() == null && oldCard.getDescription() != null) {
             entity.setDescription(oldCard.getDescription());
         }
-        if (entity.getArchived() == null) {
-            entity.setArchived(oldCard.getArchived());
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
         }
-        return repository.update(entity);
     }
 
     @Override
-    public boolean delete(UUID id) {
-        memberCardService.deleteAllMembersForCard(id);
-        return repository.delete(id);
+    public void delete(UUID id) {
+        checklistService.deleteCheckListsForCard(id);
+        labelService.deleteLabelsForCard(id);
+        commentService.deleteCommentsForCard(id);
+        attachmentService.deleteAttachmentsForCard(id);
+        super.delete(id);
     }
 
-    public boolean addMember(Member member, UUID newMemberId, UUID cardId) {
-        checkMember(member, cardId);
-        return memberCardService.create(newMemberId, cardId);
-    }
-
-    public boolean deleteMember(Member member, UUID memberId, UUID cardId) {
-        checkMember(member, cardId);
-        return memberCardService.delete(memberId, cardId);
-    }
-
-    public List<Member> getAllMembers(Member member, UUID cardId) {
-        checkMember(member, cardId);
-        return memberCardService.findMembersByCardId(cardId);
-    }
-
-    public List<Comment> getAllComments(Member member, UUID cardId) {
-        checkMember(member, cardId);
-        return commentCardService.getAllCommentsForCard(cardId);
-    }
-
-    public List<Reminder> getAllReminders(Member member, UUID cardId) {
-        checkMember(member, cardId);
-        return reminderCardService.getAllCommentsForCard(cardId);
-    }
-
-    public List<Checklist> getAllChecklists(Member member, UUID cardId) {
-        checkMember(member, cardId);
-        return checklistCardService.getAllChecklistsForCard(cardId);
-    }
-
-    public List<Label> getAllLabels(Member member, UUID cardId) {
-        checkMember(member, cardId);
-        return labelCardService.getAllLabelsForCard(cardId);
-    }
-
-    private void checkMember(Member member, UUID cardId) {
-        if (member.getMemberRole() == MemberRole.GUEST ||
-                !memberCardService.findByIds(member.getId(), cardId)) {
-            throw new IllegalStateException("This member cannot update card!");
+    public void deleteMemberInCards(UUID memberId) {
+        List<Card> cards = repository.findAllBymembersIdEquals(memberId);
+        for (Card card : cards) {
+            Set<UUID> membersId = card.getMembersId();
+            membersId.remove(memberId);
+            if (card.getMembersId().isEmpty()) {
+                delete(card.getId());
+            }
         }
+    }
+
+    public void deleteCardsForCardList(UUID cardListId) {
+        repository.findAllByCardListId(cardListId).forEach(card -> delete(card.getId()));
     }
 }

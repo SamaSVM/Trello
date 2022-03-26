@@ -1,82 +1,81 @@
 package spd.trello.services;
 
-import spd.trello.db.ConnectionPool;
-import spd.trello.domain.Board;
-import spd.trello.domain.Member;
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Workspace;
-import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.BoardWorkspaceRepository;
-import spd.trello.repository.InterfaceRepository;
-import spd.trello.repository.MemberWorkspaceRepository;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.repository.WorkspaceRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-public class WorkspaceService extends AbstractService<Workspace> {
-    public WorkspaceService(InterfaceRepository<Workspace> repository) {
+@Service
+public class WorkspaceService extends AbstractService<Workspace, WorkspaceRepository> {
+    public WorkspaceService(WorkspaceRepository repository, BoardService boardService) {
         super(repository);
+        this.boardService = boardService;
     }
 
-    private final MemberWorkspaceService memberWorkspaceService =
-            new MemberWorkspaceService(new MemberWorkspaceRepository(ConnectionPool.createDataSource()));
+    private final BoardService boardService;
 
-    private final BoardWorkspaceService boardWorkspaceService =
-            new BoardWorkspaceService(new BoardWorkspaceRepository(ConnectionPool.createDataSource()));
-
-    public Workspace create(Member member, String name, String description) {
-        Workspace workspace = new Workspace();
-        workspace.setId(UUID.randomUUID());
-        workspace.setCreatedBy(member.getCreatedBy());
-        workspace.setCreatedDate(Date.valueOf(LocalDate.now()));
-        workspace.setName(name);
-        if (description != null) {
-            workspace.setDescription(description);
+    @Override
+    public Workspace save(Workspace entity) {
+        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
         }
-        repository.create(workspace);
-        if (!memberWorkspaceService.create(member.getId(), workspace.getId())) {
-            repository.delete(workspace.getId());
-        }
-        return repository.findById(workspace.getId());
     }
 
-    public Workspace update(Member member, Workspace entity) {
-        checkMember(member, entity.getId());
-        entity.setUpdatedBy(member.getCreatedBy());
+    @Override
+    public Workspace update(Workspace entity) {
+        Workspace oldWorkspace = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
+        if (entity.getName() == null && entity.getDescription() == null
+                && entity.getVisibility().equals(oldWorkspace.getVisibility())
+                && entity.getMembersId().equals(oldWorkspace.getMembersId())) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
-        return repository.update(entity);
+        entity.setCreatedBy(oldWorkspace.getCreatedBy());
+        entity.setCreatedDate(oldWorkspace.getCreatedDate());
+        if (entity.getName() == null) {
+            entity.setName(oldWorkspace.getName());
+        }
+        if (entity.getDescription() == null && oldWorkspace.getDescription() != null) {
+            entity.setDescription(oldWorkspace.getDescription());
+        }
+
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
-    public boolean delete(UUID id) {
-        memberWorkspaceService.deleteAllMembersForWorkspace(id);
-        return repository.delete(id);
+    @Override
+    public void delete(UUID id) {
+        boardService.deleteBoardForWorkspace(id);
+        super.delete(id);
     }
 
-    public boolean addMember(Member member, UUID newMemberId, UUID workspaceId) {
-        checkMember(member, workspaceId);
-        return memberWorkspaceService.create(newMemberId, workspaceId);
-    }
-
-    public boolean deleteMember(Member member, UUID memberId, UUID workspaceId) {
-        checkMember(member, workspaceId);
-        return memberWorkspaceService.delete(memberId, workspaceId);
-    }
-
-    public List<Member> getAllMembers(Member member, UUID workspaceId) {
-        checkMember(member, workspaceId);
-        return memberWorkspaceService.findMembersByWorkspaceId(workspaceId);
-    }
-
-    public List<Board> getAllBoards(Member member, UUID workspaceId) {
-        checkMember(member, workspaceId);
-        return boardWorkspaceService.getAllBoardsForWorkspace(workspaceId);
-    }
-
-    private void checkMember(Member member, UUID workspaceId) {
-        if (member.getMemberRole() == MemberRole.GUEST ||
-                !memberWorkspaceService.findByIds(member.getId(), workspaceId)) {
-            throw new IllegalStateException("This member cannot update workspace!");
+    public void deleteMemberInWorkspaces(UUID memberId) {
+        List<Workspace> workspaces = repository.findAllBymembersIdEquals(memberId);
+        for (Workspace workspace : workspaces) {
+            Set<UUID> membersId = workspace.getMembersId();
+            membersId.remove(memberId);
+            if (workspace.getMembersId().isEmpty()) {
+                delete(workspace.getId());
+            }
         }
     }
 }

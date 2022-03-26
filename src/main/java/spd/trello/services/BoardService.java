@@ -1,99 +1,86 @@
 package spd.trello.services;
 
-import spd.trello.db.ConnectionPool;
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Board;
-import spd.trello.domain.CardList;
-import spd.trello.domain.Member;
-import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.CardListBoardRepository;
-import spd.trello.repository.InterfaceRepository;
-import spd.trello.repository.MemberBoardRepository;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.repository.BoardRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-public class BoardService extends AbstractService<Board> {
-    public BoardService(InterfaceRepository<Board> repository) {
+@Service
+public class BoardService extends AbstractService<Board, BoardRepository> {
+    public BoardService(BoardRepository repository, CardListService cardListService) {
         super(repository);
+        this.cardListService = cardListService;
     }
 
-    private final MemberBoardService memberBoardService =
-            new MemberBoardService(new MemberBoardRepository(ConnectionPool.createDataSource()));
+    private final CardListService cardListService;
 
-    private final CardListBoardService cardListBoardService =
-            new CardListBoardService(new CardListBoardRepository(ConnectionPool.createDataSource()));
-
-    public Board create(Member member, UUID workspaceId, String name, String description) {
-        Board board = new Board();
-        board.setId(UUID.randomUUID());
-        board.setCreatedBy(member.getCreatedBy());
-        board.setCreatedDate(Date.valueOf(LocalDate.now()));
-        board.setName(name);
-        if (description != null) {
-            board.setDescription(description);
+    @Override
+    public Board save(Board entity) {
+        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
         }
-        board.setWorkspaceId(workspaceId);
-        repository.create(board);
-        if (!memberBoardService.create(member.getId(), board.getId())) {
-            delete(board.getId());
-        }
-        return repository.findById(board.getId());
     }
 
-    public Board update(Member member, Board entity) {
-        checkMember(member, entity.getId());
-        Board oldBoard = findById(entity.getId());
-        entity.setUpdatedBy(member.getCreatedBy());
+    @Override
+    public Board update(Board entity) {
+        Board oldBoard = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
+        if (entity.getName() == null && entity.getDescription() == null
+                && entity.getFavourite() == oldBoard.getFavourite() && entity.getArchived() == oldBoard.getArchived()
+                && entity.getMembersId().equals(oldBoard.getMembersId())
+                && entity.getVisibility().equals(oldBoard.getVisibility())) {
+            throw new ResourceNotFoundException();
+        }
+
         entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCreatedBy(oldBoard.getCreatedBy());
+        entity.setCreatedDate(oldBoard.getCreatedDate());
+        entity.setWorkspaceId(oldBoard.getWorkspaceId());
         if (entity.getName() == null) {
             entity.setName(oldBoard.getName());
         }
-        if (entity.getDescription() == null) {
+        if (entity.getDescription() == null && oldBoard.getDescription() != null) {
             entity.setDescription(oldBoard.getDescription());
         }
-        if (entity.getVisibility() == null) {
-            entity.setVisibility(oldBoard.getVisibility());
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
         }
-        if (entity.getFavourite() == null) {
-            entity.setFavourite(oldBoard.getFavourite());
-        }
-        if (entity.getArchived() == null) {
-            entity.setArchived(oldBoard.getArchived());
-        }
-        return repository.update(entity);
     }
 
-    public boolean delete(UUID id) {
-        memberBoardService.deleteAllMembersForBoard(id);
-        return repository.delete(id);
+    @Override
+    public void delete(UUID id) {
+        cardListService.deleteCardListsForBoard(id);
+        super.delete(id);
     }
 
-    public boolean addMember(Member member, UUID newMemberId, UUID boardId) {
-        checkMember(member, boardId);
-        return memberBoardService.create(newMemberId, boardId);
+    public void deleteBoardForWorkspace(UUID workspaceId) {
+        repository.findAllByWorkspaceId(workspaceId).forEach(board -> delete(board.getId()));
     }
 
-    public boolean deleteMember(Member member, UUID memberId, UUID boardId) {
-        checkMember(member, boardId);
-        return memberBoardService.delete(memberId, boardId);
-    }
-
-    public List<Member> getAllMembers(Member member, UUID workspaceId) {
-        checkMember(member, workspaceId);
-        return memberBoardService.findMembersByBoardId(workspaceId);
-    }
-
-    public List<CardList> getAllCardLists(Member member, UUID boardId) {
-        checkMember(member, boardId);
-        return cardListBoardService.getAllCardListsForBoard(boardId);
-    }
-
-    private void checkMember(Member member, UUID boardId) {
-        if (member.getMemberRole() == MemberRole.GUEST ||
-                !memberBoardService.findByIds(member.getId(), boardId)) {
-            throw new IllegalStateException("This member cannot update board!");
+    public void deleteMemberInBoards(UUID memberId) {
+        List<Board> boards = repository.findAllBymembersIdEquals(memberId);
+        for (Board board : boards) {
+            Set<UUID> membersId = board.getMembersId();
+            membersId.remove(memberId);
+            if (board.getMembersId().isEmpty()) {
+                delete(board.getId());
+            }
         }
     }
 }

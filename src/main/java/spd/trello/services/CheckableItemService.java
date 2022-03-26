@@ -1,42 +1,40 @@
 package spd.trello.services;
 
+import org.springframework.stereotype.Service;
 import spd.trello.domain.CheckableItem;
-import spd.trello.domain.Member;
-import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.InterfaceRepository;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.repository.CheckableItemRepository;
 
 import java.util.UUID;
 
-public class CheckableItemService extends AbstractService<CheckableItem>{
-    public CheckableItemService(InterfaceRepository<CheckableItem> repository) {
+@Service
+public class CheckableItemService extends AbstractService<CheckableItem, CheckableItemRepository> {
+
+    public CheckableItemService(CheckableItemRepository repository) {
         super(repository);
     }
 
-    public CheckableItem create(Member member, UUID checklistId, String name) {
-        checkMember(member);
-        CheckableItem checkableItem = new CheckableItem();
-        checkableItem.setId(UUID.randomUUID());
-        checkableItem.setName(name);
-        checkableItem.setChecklistId(checklistId);
-        repository.create(checkableItem);
-        return repository.findById(checkableItem.getId());
-    }
+    @Override
+    public CheckableItem update(CheckableItem entity) {
+        CheckableItem oldCheckableItem = getById(entity.getId());
 
-    public CheckableItem update(Member member, CheckableItem entity) {
-        checkMember(member);
-        CheckableItem oldCheckableItem = repository.findById(entity.getId());
+        if (entity.getName() == null && entity.getChecked() == oldCheckableItem.getChecked()) {
+            throw new ResourceNotFoundException();
+        }
+
+        entity.setChecklistId(oldCheckableItem.getChecklistId());
         if (entity.getName() == null) {
             entity.setName(oldCheckableItem.getName());
         }
-        if (entity.getChecked() == null) {
-            entity.setChecked(oldCheckableItem.getChecked());
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
         }
-        return repository.update(entity);
     }
 
-    private void checkMember(Member member){
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This member cannot update checkableItem!");
-        }
+    public void deleteCheckableItemsForChecklist(UUID checklistId) {
+        repository.findAllByChecklistId(checklistId).forEach(checkableItem -> delete(checkableItem.getId()));
     }
 }

@@ -1,56 +1,65 @@
 package spd.trello.services;
 
-import spd.trello.db.ConnectionPool;
-import spd.trello.domain.CheckableItem;
+import org.springframework.stereotype.Service;
 import spd.trello.domain.Checklist;
-import spd.trello.domain.Member;
-import spd.trello.domain.enums.MemberRole;
-import spd.trello.repository.CheckableItemChecklistRepository;
-import spd.trello.repository.InterfaceRepository;
+import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.repository.ChecklistRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
-public class ChecklistService extends AbstractService<Checklist>{
-    public ChecklistService(InterfaceRepository<Checklist> repository) {
+@Service
+public class ChecklistService extends AbstractService<Checklist, ChecklistRepository> {
+    public ChecklistService(ChecklistRepository repository, CheckableItemService checkableItemService) {
         super(repository);
+        this.checkableItemService = checkableItemService;
     }
 
-    private final CheckableItemChecklistService checkableItemChecklistService =
-            new CheckableItemChecklistService(new CheckableItemChecklistRepository(ConnectionPool.createDataSource()));
+    private final CheckableItemService checkableItemService;
 
-    public Checklist create(Member member, UUID cardId, String name) {
-        Checklist checklist = new Checklist();
-        checklist.setId(UUID.randomUUID());
-        checklist.setCreatedBy(member.getCreatedBy());
-        checklist.setCreatedDate(Date.valueOf(LocalDate.now()));
-        checklist.setName(name);
-        checklist.setCardId(cardId);
-        repository.create(checklist);
-        return repository.findById(checklist.getId());
+    @Override
+    public Checklist save(Checklist entity) {
+        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
-    public Checklist update(Member member, Checklist entity) {
-        checkMember(member);
-        Checklist oldChecklist = repository.findById(entity.getId());
-        entity.setUpdatedBy(member.getCreatedBy());
-        entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+    @Override
+    public Checklist update(Checklist entity) {
+        Checklist oldChecklist = getById(entity.getId());
+
+        if (entity.getUpdatedBy() == null) {
+            throw new BadRequestException("Not found updated by!");
+        }
+
         if (entity.getName() == null) {
-            entity.setName(oldChecklist.getName());
+            throw new ResourceNotFoundException();
         }
-        return repository.update(entity);
+
+        entity.setCreatedBy(oldChecklist.getCreatedBy());
+        entity.setCreatedDate(oldChecklist.getCreatedDate());
+        entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCardId(oldChecklist.getCardId());
+
+        try {
+            return repository.save(entity);
+        } catch (RuntimeException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
-    public List<CheckableItem> getCheckableItems(Member member, UUID checklistId) {
-        checkMember(member);
-        return checkableItemChecklistService.getAllCheckableItemForChecklist(checklistId);
+    @Override
+    public void delete(UUID id) {
+        checkableItemService.deleteCheckableItemsForChecklist(id);
+        super.delete(id);
     }
 
-    private void checkMember(Member member){
-        if (member.getMemberRole() == MemberRole.GUEST) {
-            throw new IllegalStateException("This member cannot update checklist!");
-        }
+    public void deleteCheckListsForCard(UUID cardId) {
+        repository.findAllByCardId(cardId).forEach(checklist -> delete(checklist.getId()));
     }
 }
