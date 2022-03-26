@@ -35,6 +35,8 @@ public class IntegrationHelper {
     private AttachmentRepository attachmentRepository;
     @Autowired
     private LabelRepository labelRepository;
+    @Autowired
+    private ChecklistRepository checklistRepository;
 
     public User getNewUser(String email) {
         User user = new User();
@@ -157,6 +159,22 @@ public class IntegrationHelper {
         });
     }
 
+    public Checklist getNewChecklist(String email) {
+        Card card = getNewCard(email);
+        Checklist checklist = new Checklist();
+        checklist.setCardId(card.getId());
+        checklist.setCreatedBy(card.getCreatedBy());
+        checklist.setCreatedDate(card.getCreatedDate());
+        checklist.setName("name");
+        return checklistRepository.save(checklist);
+    }
+
+    public List<Checklist> getChecklistsArray(MvcResult mvcResult)
+            throws UnsupportedEncodingException, JsonProcessingException {
+        return new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+    }
+
     public Attachment getNewAttachment(String email) {
         Card card = getNewCard(email);
         Attachment attachment = new Attachment();
@@ -195,6 +213,12 @@ public class IntegrationHelper {
         color.setGreen(2);
         color.setBlue(3);
         return color;
+    }
+
+    public List<Color> getColorsArray(MvcResult mvcResult)
+            throws UnsupportedEncodingException, JsonProcessingException {
+        return new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {
+        });
     }
 
     public Reminder getNewReminder(String email) {
