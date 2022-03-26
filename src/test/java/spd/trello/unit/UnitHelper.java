@@ -114,10 +114,12 @@ public class UnitHelper {
         return checklistService.save(checklist);
     }
 
-    public Label getNewLabel(UUID cardId) {
+    public Label getNewLabel(String email) {
+        Card card = getNewCard(email);
         Label label = new Label();
         label.setName("Label");
-        label.setCardId(cardId);
+        label.setCardId(card.getId());
+        label.setColor(getNewColor());
         return labelService.save(label);
     }
 

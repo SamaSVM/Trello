@@ -6,7 +6,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.*;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
-import spd.trello.services.ColorService;
 import spd.trello.services.LabelService;
 
 import java.util.List;
@@ -21,20 +20,12 @@ public class LabelTest {
     private LabelService service;
 
     @Autowired
-    private ColorService colorService;
-
-    @Autowired
     private UnitHelper helper;
 
     @Test
     public void create() {
-        User user = helper.getNewUser("create@LT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Color color = helper.getNewColor();
+        Card card = helper.getNewCard("create@LT");
+        Color color = new Color();
 
         Label label = new Label();
         label.setCardId(card.getId());
@@ -44,7 +35,7 @@ public class LabelTest {
 
         assertNotNull(testLabel);
         assertAll(
-                () -> assertEquals("name", testLabel.getName()),
+                () -> assertEquals(label.getName(), testLabel.getName()),
                 () -> assertEquals(card.getId(), testLabel.getCardId()),
                 () -> assertEquals(color, testLabel.getColor())
         );
@@ -52,51 +43,22 @@ public class LabelTest {
 
     @Test
     public void findAll() {
-        User user = helper.getNewUser("findAll@LT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Color firstColor = helper.getNewColor();
-        Color secondColor = helper.getNewColor();
+        Label firstLabel = helper.getNewLabel("findAll@LT");
+        Label secondLabel = helper.getNewLabel("2findAll@LT");
 
-        Label firstLabel = new Label();
-        firstLabel.setCardId(card.getId());
-        firstLabel.setColor(firstColor);
-        firstLabel.setName("1Label");
-        Label testFirstLabel = service.save(firstLabel);
-        assertNotNull(testFirstLabel);
-
-        Label secondLabel = new Label();
-        secondLabel.setCardId(card.getId());
-        secondLabel.setColor(secondColor);
-        secondLabel.setName("2Label");
-        Label testSecondLabel = service.save(secondLabel);
-        assertNotNull(testSecondLabel);
+        assertNotNull(firstLabel);
+        assertNotNull(secondLabel);
 
         List<Label> testLabels = service.getAll();
         assertAll(
-                () -> assertTrue(testLabels.contains(testFirstLabel)),
-                () -> assertTrue(testLabels.contains(testSecondLabel))
+                () -> assertTrue(testLabels.contains(firstLabel)),
+                () -> assertTrue(testLabels.contains(secondLabel))
         );
     }
 
     @Test
     public void findById() {
-        User user = helper.getNewUser("findById@LT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Color color = helper.getNewColor();
-
-        Label label = new Label();
-        label.setCardId(card.getId());
-        label.setColor(color);
-        label.setName("Label");
-        service.save(label);
+        Label label = helper.getNewLabel("findById@LT");
 
         Label testLabel = service.getById(label.getId());
         assertEquals(label, testLabel);
@@ -104,49 +66,37 @@ public class LabelTest {
 
     @Test
     public void delete() {
-        User user = helper.getNewUser("delete@LT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Color color = helper.getNewColor();
+        Label label = helper.getNewLabel("delete@LT");
 
-        Label label = new Label();
-        label.setCardId(card.getId());
-        label.setColor(color);
-        label.setName("Name");
-        Label testLabel = service.save(label);
+        assertNotNull(label);
+        service.delete(label.getId());
 
-        assertNotNull(testLabel);
-        service.delete(testLabel.getId());
-
-        assertAll(
-                () -> assertFalse(service.getAll().contains(testLabel)),
-                () -> assertThrows(ResourceNotFoundException.class, () -> colorService.getById(color.getId()))
-        );
+        assertFalse(service.getAll().contains(label));
     }
 
     @Test
     public void update() {
-        User user = helper.getNewUser("update@LT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Color color = helper.getNewColor();
+        Label label = helper.getNewLabel("update@LT");
+        Color color = label.getColor();
+        color.setId(null);
+        color.setRed(100);
+        color.setGreen(100);
+        color.setBlue(100);
 
-        Label updateLabel = new Label();
-        updateLabel.setCardId(card.getId());
-        updateLabel.setColor(color);
-        updateLabel.setName("Name");
-        Label label = service.save(updateLabel);
-
-        assertNotNull(label);
+        label.setColor(color);
         label.setName("newName");
+
         Label testLabel = service.update(label);
-        assertEquals("newName", testLabel.getName());
+        assertNotNull(testLabel);
+
+
+        assertAll(
+                () -> assertEquals(label.getName(), testLabel.getName()),
+                () -> assertEquals(label.getCardId(), testLabel.getCardId()),
+                () -> assertEquals(label.getColor().getRed(), testLabel.getColor().getRed()),
+                () -> assertEquals(label.getColor().getGreen(), testLabel.getColor().getGreen()),
+                () -> assertEquals(label.getColor().getBlue(), testLabel.getColor().getBlue())
+        );
     }
 
     @Test
