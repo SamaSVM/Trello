@@ -32,6 +32,8 @@ public class UnitHelper {
     private LabelService labelService;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private CheckableItemService checkableItemService;
 
 
     public User getNewUser(String email) {
@@ -115,6 +117,15 @@ public class UnitHelper {
         return checklistService.save(checklist);
     }
 
+    public CheckableItem getNewCheckableItem(String email) {
+        Checklist checklist = getNewChecklist(email);
+
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setChecklistId(checklist.getId());
+        checkableItem.setName("Name");
+        return checkableItemService.save(checkableItem);
+    }
+
     public Label getNewLabel(String email) {
         Card card = getNewCard(email);
         Label label = new Label();
@@ -124,7 +135,7 @@ public class UnitHelper {
         return labelService.save(label);
     }
 
-    public Color getNewColor(){
+    public Color getNewColor() {
         Color color = new Color();
         color.setRed(1);
         color.setGreen(2);
@@ -132,7 +143,7 @@ public class UnitHelper {
         return color;
     }
 
-    public Attachment getNewAttachment(String email){
+    public Attachment getNewAttachment(String email) {
         Card card = getNewCard(email);
         Attachment attachment = new Attachment();
         attachment.setCardId(card.getId());

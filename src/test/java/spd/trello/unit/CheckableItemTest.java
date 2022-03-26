@@ -23,13 +23,7 @@ public class CheckableItemTest {
 
     @Test
     public void create() {
-        User user = helper.getNewUser("create@CheckableItemTest");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Checklist checklist = helper.getNewChecklist(member, card.getId());
+        Checklist checklist = helper.getNewChecklist("create@CheckableItemTest");
 
         CheckableItem checkableItem = new CheckableItem();
         checkableItem.setChecklistId(checklist.getId());
@@ -38,7 +32,7 @@ public class CheckableItemTest {
 
         assertNotNull(testCheckableItem);
         assertAll(
-                () -> assertEquals("testName", testCheckableItem.getName()),
+                () -> assertEquals(checkableItem.getName(), testCheckableItem.getName()),
                 () -> assertFalse(testCheckableItem.getChecked()),
                 () -> assertEquals(checklist.getId(), testCheckableItem.getChecklistId())
         );
@@ -46,42 +40,22 @@ public class CheckableItemTest {
 
     @Test
     public void findAll() {
-        User user = helper.getNewUser("findAll@CheckableItemTest");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Checklist checklist = helper.getNewChecklist(member, card.getId());
+        CheckableItem firstCheckableItem = helper.getNewCheckableItem("findAll@CheckableItemTest");
+        CheckableItem secondCheckableItem = helper.getNewCheckableItem("2findAll@CheckableItemTest");
 
-        CheckableItem firstCheckableItem = new CheckableItem();
-        firstCheckableItem.setChecklistId(checklist.getId());
-        firstCheckableItem.setName("1CheckableItem");
-        CheckableItem testFirstCheckableItem = service.save(firstCheckableItem);
+        assertNotNull(firstCheckableItem);
+        assertNotNull(secondCheckableItem);
 
-        CheckableItem secondCheckableItem = new CheckableItem();
-        secondCheckableItem.setChecklistId(checklist.getId());
-        secondCheckableItem.setName("2CheckableItem");
-        CheckableItem testSecondCheckableItem = service.save(secondCheckableItem);
-
-        assertNotNull(testFirstCheckableItem);
-        assertNotNull(testSecondCheckableItem);
         List<CheckableItem> testCheckableItems = service.getAll();
         assertAll(
-                () -> assertTrue(testCheckableItems.contains(testFirstCheckableItem)),
-                () -> assertTrue(testCheckableItems.contains(testSecondCheckableItem))
+                () -> assertTrue(testCheckableItems.contains(firstCheckableItem)),
+                () -> assertTrue(testCheckableItems.contains(secondCheckableItem))
         );
     }
 
     @Test
     public void findById() {
-        User user = helper.getNewUser("findById@CheckableItemTest");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Checklist checklist = helper.getNewChecklist(member, card.getId());
+        Checklist checklist = helper.getNewChecklist("findById@CheckableItemTest");
 
         CheckableItem checkableItem = new CheckableItem();
         checkableItem.setChecklistId(checklist.getId());
@@ -94,13 +68,7 @@ public class CheckableItemTest {
 
     @Test
     public void delete() {
-        User user = helper.getNewUser("delete@CheckableItemTest");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Checklist checklist = helper.getNewChecklist(member, card.getId());
+        Checklist checklist = helper.getNewChecklist("delete@CheckableItemTest");
 
         CheckableItem checkableItem = new CheckableItem();
         checkableItem.setChecklistId(checklist.getId());
@@ -114,18 +82,7 @@ public class CheckableItemTest {
 
     @Test
     public void update() {
-        User user = helper.getNewUser("update@CheckableItemTest");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-        Checklist checklist = helper.getNewChecklist(member, card.getId());
-
-        CheckableItem updateCheckableItem = new CheckableItem();
-        updateCheckableItem.setChecklistId(checklist.getId());
-        updateCheckableItem.setName("CheckableItem");
-        CheckableItem checkableItem = service.save(updateCheckableItem);
+        CheckableItem checkableItem = helper.getNewCheckableItem("update@CheckableItemTest");
 
         assertNotNull(checkableItem);
         checkableItem.setName("newName");
@@ -133,7 +90,7 @@ public class CheckableItemTest {
         CheckableItem testCheckableItem = service.update(checkableItem);
 
         assertAll(
-                () -> assertEquals("newName", testCheckableItem.getName()),
+                () -> assertEquals(checkableItem.getName(), testCheckableItem.getName()),
                 () -> assertTrue(testCheckableItem.getChecked())
         );
     }

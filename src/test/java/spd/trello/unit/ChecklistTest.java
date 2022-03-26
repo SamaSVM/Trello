@@ -25,7 +25,7 @@ public class ChecklistTest {
 
     @Test
     public void create() {
-        Card card = helper.getNewCard("successCreate@CLT");
+        Card card = helper.getNewCard("successCreate@ChecklistT");
 
         Checklist checklist = new Checklist();
         checklist.setCardId(card.getId());
