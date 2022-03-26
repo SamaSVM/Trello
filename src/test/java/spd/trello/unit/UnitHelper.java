@@ -30,6 +30,8 @@ public class UnitHelper {
     private ChecklistService checklistService;
     @Autowired
     private LabelService labelService;
+    @Autowired
+    private AttachmentService attachmentService;
 
 
     public User getNewUser(String email) {
@@ -125,5 +127,15 @@ public class UnitHelper {
         color.setGreen(2);
         color.setBlue(3);
         return color;
+    }
+
+    public Attachment getNewAttachment(String email){
+        Card card = getNewCard(email);
+        Attachment attachment = new Attachment();
+        attachment.setCardId(card.getId());
+        attachment.setLink("link");
+        attachment.setName("name");
+        attachment.setCreatedBy(card.getCreatedBy());
+        return attachmentService.save(attachment);
     }
 }

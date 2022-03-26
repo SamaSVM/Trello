@@ -25,54 +25,31 @@ public class AttachmentTest {
 
     @Test
     public void create() {
-        User user = helper.getNewUser("create@AT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
+        Card card = helper.getNewCard("create@AT");
 
-        Attachment firstAttachment = new Attachment();
-        firstAttachment.setName("1name");
-        firstAttachment.setLink("1link");
-        firstAttachment.setCreatedBy(user.getEmail());
-        firstAttachment.setCardId(card.getId());
-        Attachment testFirstAttachment = service.save(firstAttachment);
+        Attachment attachment = new Attachment();
+        attachment.setName("name");
+        attachment.setLink("link");
+        attachment.setCreatedBy(card.getCreatedBy());
+        attachment.setCardId(card.getId());
+        Attachment testAttachment = service.save(attachment);
 
-        assertNotNull(testFirstAttachment);
+        assertNotNull(testAttachment);
         assertAll(
-                () -> assertEquals(user.getEmail(), testFirstAttachment.getCreatedBy()),
-                () -> assertNull(testFirstAttachment.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testFirstAttachment.getCreatedDate()),
-                () -> assertNull(testFirstAttachment.getUpdatedDate()),
-                () -> assertEquals("1name", testFirstAttachment.getName()),
-                () -> assertEquals("1link", testFirstAttachment.getLink()),
-                () -> assertEquals(card.getId(), testFirstAttachment.getCardId())
+                () -> assertEquals(attachment.getCreatedBy(), testAttachment.getCreatedBy()),
+                () -> assertNull(testAttachment.getUpdatedBy()),
+                () -> assertEquals(Date.valueOf(LocalDate.now()), testAttachment.getCreatedDate()),
+                () -> assertNull(testAttachment.getUpdatedDate()),
+                () -> assertEquals(attachment.getName(), testAttachment.getName()),
+                () -> assertEquals(attachment.getLink(), testAttachment.getLink()),
+                () -> assertEquals(card.getId(), testAttachment.getCardId())
         );
     }
 
     @Test
     public void findAll() {
-        User user = helper.getNewUser("findAll@AT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-
-        Attachment firstAttachment = new Attachment();
-        firstAttachment.setName("1name");
-        firstAttachment.setLink("1link");
-        firstAttachment.setCreatedBy(user.getEmail());
-        firstAttachment.setCardId(card.getId());
-        Attachment testFirstAttachment = service.save(firstAttachment);
-
-        Attachment secondAttachment = new Attachment();
-        secondAttachment.setName("2name");
-        secondAttachment.setLink("2link");
-        secondAttachment.setCreatedBy(user.getEmail());
-        secondAttachment.setCardId(card.getId());
-        Attachment testSecondAttachment = service.save(secondAttachment);
+        Attachment testFirstAttachment = helper.getNewAttachment("findAll@AT");
+        Attachment testSecondAttachment = helper.getNewAttachment("2findAll@AT");
 
         assertNotNull(testFirstAttachment);
         assertNotNull(testSecondAttachment);
@@ -85,19 +62,7 @@ public class AttachmentTest {
 
     @Test
     public void findById() {
-        User user = helper.getNewUser("findById@AT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-
-        Attachment attachment = new Attachment();
-        attachment.setName("name");
-        attachment.setLink("link");
-        attachment.setCreatedBy(user.getEmail());
-        attachment.setCardId(card.getId());
-        service.save(attachment);
+        Attachment attachment = helper.getNewAttachment("findById@AT");
 
         Attachment testAttachment = service.getById(attachment.getId());
         assertEquals(attachment, testAttachment);
@@ -105,53 +70,29 @@ public class AttachmentTest {
 
     @Test
     public void delete() {
-        User user = helper.getNewUser("delete@AT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
+        Attachment attachment = helper.getNewAttachment("delete@AT");
 
-        Attachment attachment = new Attachment();
-        attachment.setName("name");
-        attachment.setLink("link");
-        attachment.setCreatedBy(user.getEmail());
-        attachment.setCardId(card.getId());
-        Attachment testAttachment = service.save(attachment);
-
-        service.delete(testAttachment.getId());
-        assertFalse(service.getAll().contains(testAttachment));
+        service.delete(attachment.getId());
+        assertFalse(service.getAll().contains(attachment));
     }
 
     @Test
     public void update() {
-        User user = helper.getNewUser("update@AT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
+        Attachment attachment = helper.getNewAttachment("update@AT");
 
-        Attachment attachment = new Attachment();
-        attachment.setName("name");
-        attachment.setLink("link");
-        attachment.setCreatedBy(user.getEmail());
-        attachment.setCardId(card.getId());
-        Attachment updateAttachment = service.save(attachment);
+        attachment.setUpdatedBy(attachment.getCreatedBy());
+        attachment.setName("newName");
+        attachment.setLink("newLink");
 
-        updateAttachment.setUpdatedBy(user.getEmail());
-        updateAttachment.setName("newName");
-        updateAttachment.setLink("newLink");
-
-        Attachment testAttachment = service.update(updateAttachment);
+        Attachment testAttachment = service.update(attachment);
 
         assertAll(
-                () -> assertEquals(user.getEmail(), testAttachment.getCreatedBy()),
+                () -> assertEquals(attachment.getCreatedBy(), testAttachment.getCreatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testAttachment.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testAttachment.getUpdatedDate()),
-                () -> assertEquals("newName", testAttachment.getName()),
-                () -> assertEquals("newLink", testAttachment.getLink()),
-                () -> assertEquals(card.getId(), testAttachment.getCardId())
+                () -> assertEquals(attachment.getName(), testAttachment.getName()),
+                () -> assertEquals(attachment.getLink(), testAttachment.getLink()),
+                () -> assertEquals(attachment.getCardId(), testAttachment.getCardId())
         );
     }
 
