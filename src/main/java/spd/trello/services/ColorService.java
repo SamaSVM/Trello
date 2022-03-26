@@ -16,6 +16,11 @@ public class ColorService extends AbstractService<Color, ColorRepository> {
     }
 
     @Override
+    public Color save(Color entity) {
+        throw new BadRequestException("This save method cannot be called!");
+    }
+
+    @Override
     public Color update(Color entity) {
         Color oldCard = getById(entity.getId());
 
@@ -43,6 +48,6 @@ public class ColorService extends AbstractService<Color, ColorRepository> {
 
     @Override
     public void delete(UUID id) {
-        throw new BadRequestException("This method cannot be called!");
+        throw new BadRequestException("This delete method cannot be called!");
     }
 }
