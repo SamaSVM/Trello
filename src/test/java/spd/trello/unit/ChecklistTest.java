@@ -25,75 +25,42 @@ public class ChecklistTest {
 
     @Test
     public void create() {
-        User user = helper.getNewUser("successCreate@CLT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
+        Card card = helper.getNewCard("successCreate@CLT");
 
         Checklist checklist = new Checklist();
         checklist.setCardId(card.getId());
-        checklist.setCreatedBy(user.getEmail());
+        checklist.setCreatedBy(card.getCreatedBy());
         checklist.setName("testName");
         Checklist testChecklist = service.save(checklist);
 
         assertNotNull(testChecklist);
         assertAll(
-                () -> assertEquals(user.getEmail(), testChecklist.getCreatedBy()),
+                () -> assertEquals(card.getCreatedBy(), testChecklist.getCreatedBy()),
                 () -> assertNull(testChecklist.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testChecklist.getCreatedDate()),
                 () -> assertNull(testChecklist.getUpdatedDate()),
-                () -> assertEquals("testName", testChecklist.getName()),
+                () -> assertEquals(checklist.getName(), testChecklist.getName()),
                 () -> assertEquals(card.getId(), testChecklist.getCardId())
         );
     }
 
     @Test
     public void findAll() {
-        User user = helper.getNewUser("findAll@CLT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card firstCard = helper.getNewCard(member, cardList.getId());
-        Card secondCard = helper.getNewCard(member, cardList.getId());
+        Checklist firstChecklist = helper.getNewChecklist("findAll@ChecklistT");
+        Checklist secondChecklist = helper.getNewChecklist("2findAll@ChecklistT");
 
-        Checklist firstChecklist = new Checklist();
-        firstChecklist.setCardId(firstCard.getId());
-        firstChecklist.setCreatedBy(user.getEmail());
-        firstChecklist.setName("1Checklist");
-        Checklist testFirstChecklist = service.save(firstChecklist);
-
-        Checklist secondChecklist = new Checklist();
-        secondChecklist.setCardId(secondCard.getId());
-        secondChecklist.setCreatedBy(user.getEmail());
-        secondChecklist.setName("2Checklist");
-        Checklist testSecondChecklist = service.save(secondChecklist);
-
-        assertNotNull(testFirstChecklist);
-        assertNotNull(testSecondChecklist);
+        assertNotNull(firstChecklist);
+        assertNotNull(secondChecklist);
         List<Checklist> testChecklists = service.getAll();
         assertAll(
-                () -> assertTrue(testChecklists.contains(testFirstChecklist)),
-                () -> assertTrue(testChecklists.contains(testSecondChecklist))
+                () -> assertTrue(testChecklists.contains(firstChecklist)),
+                () -> assertTrue(testChecklists.contains(secondChecklist))
         );
     }
 
     @Test
     public void findById() {
-        User user = helper.getNewUser("findById@CLT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-
-        Checklist checklist = new Checklist();
-        checklist.setCardId(card.getId());
-        checklist.setCreatedBy(user.getEmail());
-        checklist.setName("testName");
-        service.save(checklist);
+        Checklist checklist = helper.getNewChecklist("findById@ChecklistT");
 
         Checklist testChecklist = service.getById(checklist.getId());
         assertEquals(checklist, testChecklist);
@@ -101,50 +68,30 @@ public class ChecklistTest {
 
     @Test
     public void delete() {
-        User user = helper.getNewUser("delete@CLT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
+        Checklist checklist = helper.getNewChecklist("delete@ChecklistT");
 
-        Checklist checklist = new Checklist();
-        checklist.setCardId(card.getId());
-        checklist.setCreatedBy(user.getEmail());
-        checklist.setName("Checklist");
-        Checklist testChecklist = service.save(checklist);
+        assertNotNull(checklist);
 
-        assertNotNull(testChecklist);
-        service.delete(testChecklist.getId());
-        assertFalse(service.getAll().contains(testChecklist));
+        service.delete(checklist.getId());
+        assertFalse(service.getAll().contains(checklist));
     }
 
     @Test
     public void update() {
-        User user = helper.getNewUser("update@CLT");
-        Member member = helper.getNewMember(user);
-        Workspace workspace = helper.getNewWorkspace(member);
-        Board board = helper.getNewBoard(member, workspace.getId());
-        CardList cardList = helper.getNewCardList(member, board.getId());
-        Card card = helper.getNewCard(member, cardList.getId());
-
-        Checklist updateChecklist = new Checklist();
-        updateChecklist.setCardId(card.getId());
-        updateChecklist.setCreatedBy(user.getEmail());
-        updateChecklist.setName("Checklist");
-        Checklist checklist = service.save(updateChecklist);
+        Checklist checklist = helper.getNewChecklist("update@ChecklistT");
 
         assertNotNull(checklist);
-        checklist.setUpdatedBy(user.getEmail());
+
+        checklist.setUpdatedBy(checklist.getCreatedBy());
         checklist.setName("newName");
         Checklist testChecklist = service.update(checklist);
 
         assertAll(
-                () -> assertEquals(user.getEmail(), testChecklist.getCreatedBy()),
-                () -> assertEquals(user.getEmail(), testChecklist.getUpdatedBy()),
+                () -> assertEquals(checklist.getCreatedBy(), testChecklist.getCreatedBy()),
+                () -> assertEquals(checklist.getUpdatedBy(), testChecklist.getUpdatedBy()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testChecklist.getCreatedDate()),
                 () -> assertEquals(Date.valueOf(LocalDate.now()), testChecklist.getUpdatedDate()),
-                () -> assertEquals("newName", testChecklist.getName())
+                () -> assertEquals(checklist.getName(), testChecklist.getName())
         );
     }
 

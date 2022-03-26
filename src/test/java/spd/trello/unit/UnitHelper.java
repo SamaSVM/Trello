@@ -106,11 +106,12 @@ public class UnitHelper {
         return commentService.save(comment);
     }
 
-    public Checklist getNewChecklist(Member member, UUID cardId) {
+    public Checklist getNewChecklist(String email) {
+        Card card = getNewCard(email);
         Checklist checklist = new Checklist();
         checklist.setName("testChecklist");
-        checklist.setCardId(cardId);
-        checklist.setCreatedBy(member.getCreatedBy());
+        checklist.setCardId(card.getId());
+        checklist.setCreatedBy(card.getCreatedBy());
         return checklistService.save(checklist);
     }
 
