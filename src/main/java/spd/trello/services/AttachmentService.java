@@ -1,6 +1,6 @@
 package spd.trello.services;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,11 +37,8 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
 
     public Attachment save(String entity, MultipartFile file) {
         try {
-            JSONObject jsonObject = new JSONObject(entity);
-            Attachment attachment = new Attachment();
-            attachment.setCreatedBy(jsonObject.getString("createdBy"));
-            attachment.setCardId(UUID.fromString(jsonObject.getString("cardId")));
-            attachment.setName(jsonObject.getString("name"));
+            ObjectMapper objectMapper = new ObjectMapper();
+            Attachment attachment = objectMapper.readValue(entity, Attachment.class);
             attachment.setCreatedDate(Date.valueOf(LocalDate.now()));
 
             FileDB fileDB = new FileDB();
