@@ -1,16 +1,15 @@
 package spd.trello.services;
 
 import org.springframework.stereotype.Service;
-import spd.trello.domain.*;
+import spd.trello.domain.Card;
+import spd.trello.domain.Reminder;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
-import spd.trello.repository.*;
+import spd.trello.repository.CardRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CardService extends AbstractService<Card, CardRepository> {
@@ -33,6 +32,9 @@ public class CardService extends AbstractService<Card, CardRepository> {
     public Card save(Card entity) {
         entity.setCreatedDate(Date.valueOf(LocalDate.now()));
         try {
+            if (entity.getReminder().getActive()) {
+                runReminder(entity);
+            }
             return repository.save(entity);
         } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
@@ -63,6 +65,9 @@ public class CardService extends AbstractService<Card, CardRepository> {
             entity.setDescription(oldCard.getDescription());
         }
         try {
+            if (entity.getReminder().getActive()) {
+                runReminder(entity);
+            }
             return repository.save(entity);
         } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
@@ -91,5 +96,23 @@ public class CardService extends AbstractService<Card, CardRepository> {
 
     public void deleteCardsForCardList(UUID cardListId) {
         repository.findAllByCardListId(cardListId).forEach(card -> delete(card.getId()));
+    }
+
+    private void runReminder(Card card) {
+        System.out.println("First message " + new java.util.Date());
+        Reminder reminder = card.getReminder();
+        TimerTask task = new TimerTask() {
+            public void run() {
+                var actualCard = repository.findById(card.getId());
+                if (actualCard.get().getReminder().getActive()) {
+                    System.out.println("Hallo! Wakeup: " + new java.util.Date());
+                }
+            }
+        };
+
+        long remindOn = reminder.getRemindOn().getTime();
+        long now = Date.valueOf(LocalDate.now()).getTime();
+        long delay = remindOn - now;
+        new Timer().schedule(task, delay);
     }
 }
