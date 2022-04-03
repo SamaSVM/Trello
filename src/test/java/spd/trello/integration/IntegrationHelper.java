@@ -10,8 +10,7 @@ import spd.trello.domain.*;
 import spd.trello.repository.*;
 
 import java.io.UnsupportedEncodingException;
-import java.sql.Date;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -58,7 +57,7 @@ public class IntegrationHelper {
         User user = getNewUser(email);
         Member member = new Member();
         member.setCreatedBy(user.getEmail());
-        member.setCreatedDate(Date.valueOf(LocalDate.now()));
+        member.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
         member.setUserId(user.getId());
         return memberRepository.save(member);
     }
@@ -73,7 +72,7 @@ public class IntegrationHelper {
         Member member = getNewMember(email);
         Workspace workspace = new Workspace();
         workspace.setCreatedBy(member.getCreatedBy());
-        workspace.setCreatedDate(Date.valueOf(LocalDate.now()));
+        workspace.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
         workspace.setName("name");
         Set<UUID> membersId = new HashSet<>();
         membersId.add(member.getId());
@@ -91,7 +90,7 @@ public class IntegrationHelper {
         Workspace workspace = getNewWorkspace(email);
         Board board = new Board();
         board.setCreatedBy(workspace.getCreatedBy());
-        board.setCreatedDate(Date.valueOf(LocalDate.now()));
+        board.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
         board.setName("name");
         board.setWorkspaceId(workspace.getId());
         board.setMembersId(workspace.getMembersId());
@@ -109,7 +108,7 @@ public class IntegrationHelper {
         CardList cardList = new CardList();
         cardList.setBoardId(board.getId());
         cardList.setCreatedBy(board.getCreatedBy());
-        cardList.setCreatedDate(Date.valueOf(LocalDate.now()));
+        cardList.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
         cardList.setName("name");
         return cardListRepository.save(cardList);
     }
@@ -125,14 +124,14 @@ public class IntegrationHelper {
 
         Reminder reminder = new Reminder();
         reminder.setCreatedBy(cardList.getCreatedBy());
-        reminder.setCreatedDate(Date.valueOf(LocalDate.now()));
-        reminder.setRemindOn(Date.valueOf(LocalDate.now()));
-        reminder.setStart(Date.valueOf(LocalDate.now()));
-        reminder.setEnd(Date.valueOf(LocalDate.now()));
+        reminder.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setRemindOn(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setStart(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setEnd(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
 
         Card card = new Card();
         card.setCreatedBy(cardList.getCreatedBy());
-        card.setCreatedDate(Date.valueOf(LocalDate.now()));
+        card.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
         card.setCardListId(cardList.getId());
         card.setName("name");
         card.setReminder(reminder);
@@ -240,10 +239,10 @@ public class IntegrationHelper {
     public Reminder getNewReminder(String email) {
         Reminder reminder = new Reminder();
         reminder.setCreatedBy(email);
-        reminder.setCreatedDate(Date.valueOf(LocalDate.now()));
-        reminder.setRemindOn(Date.valueOf(LocalDate.now()));
-        reminder.setStart(Date.valueOf(LocalDate.now()));
-        reminder.setEnd(Date.valueOf(LocalDate.now()));
+        reminder.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setRemindOn(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setStart(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setEnd(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
         return reminder;
     }
 

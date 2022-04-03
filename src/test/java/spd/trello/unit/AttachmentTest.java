@@ -3,7 +3,8 @@ package spd.trello.unit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import spd.trello.domain.*;
+import spd.trello.domain.Attachment;
+import spd.trello.domain.Card;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.AttachmentService;
@@ -38,7 +39,8 @@ public class AttachmentTest {
         assertAll(
                 () -> assertEquals(attachment.getCreatedBy(), testAttachment.getCreatedBy()),
                 () -> assertNull(testAttachment.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testAttachment.getCreatedDate()),
+                () -> assertTrue(testAttachment.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertNull(testAttachment.getUpdatedDate()),
                 () -> assertEquals(attachment.getName(), testAttachment.getName()),
                 () -> assertEquals(attachment.getLink(), testAttachment.getLink()),
@@ -88,8 +90,11 @@ public class AttachmentTest {
 
         assertAll(
                 () -> assertEquals(attachment.getCreatedBy(), testAttachment.getCreatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testAttachment.getCreatedDate()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testAttachment.getUpdatedDate()),
+                () -> assertEquals(attachment.getUpdatedBy(), testAttachment.getUpdatedBy()),
+                () -> assertTrue(testAttachment.getCreatedDate().toString().
+                        contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertTrue(testAttachment.getUpdatedDate().toString().
+                        contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals(attachment.getName(), testAttachment.getName()),
                 () -> assertEquals(attachment.getLink(), testAttachment.getLink()),
                 () -> assertEquals(attachment.getCardId(), testAttachment.getCardId())

@@ -3,7 +3,8 @@ package spd.trello.unit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import spd.trello.domain.*;
+import spd.trello.domain.Member;
+import spd.trello.domain.User;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
@@ -36,7 +37,8 @@ public class MemberTest {
         assertNotNull(testMember);
         assertAll(
                 () -> assertEquals(user.getEmail(), testMember.getCreatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testMember.getCreatedDate()),
+                () -> assertTrue(testMember.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals(MemberRole.MEMBER, testMember.getMemberRole()),
                 () -> assertEquals(user.getId(), testMember.getUserId())
         );
@@ -86,8 +88,10 @@ public class MemberTest {
         assertAll(
                 () -> assertEquals(member.getCreatedBy(), testMember.getCreatedBy()),
                 () -> assertEquals(member.getUpdatedBy(), testMember.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testMember.getCreatedDate()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testMember.getUpdatedDate()),
+                () -> assertTrue(testMember.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertTrue(testMember.getUpdatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals(MemberRole.MEMBER, testMember.getMemberRole()),
                 () -> assertEquals(member.getUserId(), testMember.getUserId())
         );

@@ -44,7 +44,8 @@ public class WorkspaceTest {
         assertAll(
                 () -> assertEquals(member.getCreatedBy(), testWorkspace.getCreatedBy()),
                 () -> assertNull(testWorkspace.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testWorkspace.getCreatedDate()),
+                () -> assertTrue(testWorkspace.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertNull(testWorkspace.getUpdatedDate()),
                 () -> assertEquals("testWorkspace", testWorkspace.getName()),
                 () -> assertEquals("testDescription", testWorkspace.getDescription()),
@@ -144,8 +145,10 @@ public class WorkspaceTest {
         assertAll(
                 () -> assertEquals(firstMember.getCreatedBy(), testWorkspace.getCreatedBy()),
                 () -> assertEquals(secondMember.getCreatedBy(), testWorkspace.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testWorkspace.getCreatedDate()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testWorkspace.getUpdatedDate()),
+                () -> assertTrue(testWorkspace.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertTrue(testWorkspace.getUpdatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals("newWorkspace", testWorkspace.getName()),
                 () -> assertEquals("newDescription", testWorkspace.getDescription()),
                 () -> assertEquals(WorkspaceVisibility.PUBLIC, testWorkspace.getVisibility()),

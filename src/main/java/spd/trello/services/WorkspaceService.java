@@ -6,8 +6,7 @@ import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.WorkspaceRepository;
 
-import java.sql.Date;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -23,7 +22,7 @@ public class WorkspaceService extends AbstractService<Workspace, WorkspaceReposi
 
     @Override
     public Workspace save(Workspace entity) {
-        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCreatedDate(LocalDateTime.now());
         try {
             return repository.save(entity);
         } catch (RuntimeException e) {
@@ -45,7 +44,7 @@ public class WorkspaceService extends AbstractService<Workspace, WorkspaceReposi
             throw new ResourceNotFoundException();
         }
 
-        entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setUpdatedDate(LocalDateTime.now());
         entity.setCreatedBy(oldWorkspace.getCreatedBy());
         entity.setCreatedDate(oldWorkspace.getCreatedDate());
         if (entity.getName() == null) {

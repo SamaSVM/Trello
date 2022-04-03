@@ -29,6 +29,7 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'com.h2database:h2:1.4.200'
     implementation 'junit:junit:4.13.1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'

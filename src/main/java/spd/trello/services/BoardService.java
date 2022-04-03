@@ -6,8 +6,7 @@ import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.BoardRepository;
 
-import java.sql.Date;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -23,7 +22,7 @@ public class BoardService extends AbstractService<Board, BoardRepository> {
 
     @Override
     public Board save(Board entity) {
-        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCreatedDate(LocalDateTime.now());
         try {
             return repository.save(entity);
         } catch (RuntimeException e) {
@@ -46,7 +45,7 @@ public class BoardService extends AbstractService<Board, BoardRepository> {
             throw new ResourceNotFoundException();
         }
 
-        entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setUpdatedDate(LocalDateTime.now());
         entity.setCreatedBy(oldBoard.getCreatedBy());
         entity.setCreatedDate(oldBoard.getCreatedDate());
         entity.setWorkspaceId(oldBoard.getWorkspaceId());

@@ -6,6 +6,7 @@ import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
 import spd.trello.services.*;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -89,7 +90,9 @@ public class UnitHelper {
 
     public Card getNewCard(String email) {
         CardList cardList = getNewCardList(email);
+        Reminder reminder = getNewReminder(email);
         Card card = new Card();
+        card.setReminder(reminder);
         card.setName("CardName");
         card.setDescription("description");
         card.setCardListId(cardList.getId());
@@ -97,6 +100,17 @@ public class UnitHelper {
         Set<UUID> membersId = boardService.getById(cardList.getBoardId()).getMembersId();
         card.setMembersId(membersId);
         return cardService.save(card);
+    }
+
+    public Reminder getNewReminder(String email) {
+        Reminder reminder = new Reminder();
+        reminder.setActive(true);
+        reminder.setCreatedBy(email);
+        reminder.setRemindOn(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setStart(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setEnd(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setCreatedDate(LocalDateTime.now());
+        return reminder;
     }
 
     public Comment getNewComment(String email) {

@@ -3,7 +3,9 @@ package spd.trello.unit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import spd.trello.domain.*;
+import spd.trello.domain.Card;
+import spd.trello.domain.CardList;
+import spd.trello.domain.Member;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.BoardService;
@@ -16,7 +18,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class CardTest {
@@ -46,7 +47,8 @@ public class CardTest {
         assertAll(
                 () -> assertEquals(cardList.getCreatedBy(), testCard.getCreatedBy()),
                 () -> assertNull(testCard.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testCard.getCreatedDate()),
+                () -> assertTrue(testCard.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertNull(testCard.getUpdatedDate()),
                 () -> assertEquals("testCardName", testCard.getName()),
                 () -> assertEquals("description", testCard.getDescription()),
@@ -105,8 +107,10 @@ public class CardTest {
         assertAll(
                 () -> assertEquals(card.getCreatedBy(), testCard.getCreatedBy()),
                 () -> assertEquals(card.getUpdatedBy(), testCard.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testCard.getCreatedDate()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testCard.getUpdatedDate()),
+                () -> assertTrue(testCard.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertTrue(testCard.getUpdatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals("newCard", testCard.getName()),
                 () -> assertEquals("newDescription", testCard.getDescription()),
                 () -> assertTrue(testCard.getArchived()),

@@ -2,14 +2,14 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Card;
-import spd.trello.domain.Reminder;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.CardRepository;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class CardService extends AbstractService<Card, CardRepository> {
@@ -30,11 +30,8 @@ public class CardService extends AbstractService<Card, CardRepository> {
 
     @Override
     public Card save(Card entity) {
-        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCreatedDate(LocalDateTime.now());
         try {
-            if (entity.getReminder().getActive()) {
-                runReminder(entity);
-            }
             return repository.save(entity);
         } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
@@ -55,7 +52,7 @@ public class CardService extends AbstractService<Card, CardRepository> {
         }
 
         entity.setCardListId(oldCard.getCardListId());
-        entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setUpdatedDate(LocalDateTime.now());
         entity.setCreatedBy(oldCard.getCreatedBy());
         entity.setCreatedDate(oldCard.getCreatedDate());
         if (entity.getName() == null) {
@@ -65,9 +62,6 @@ public class CardService extends AbstractService<Card, CardRepository> {
             entity.setDescription(oldCard.getDescription());
         }
         try {
-            if (entity.getReminder().getActive()) {
-                runReminder(entity);
-            }
             return repository.save(entity);
         } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
@@ -96,23 +90,5 @@ public class CardService extends AbstractService<Card, CardRepository> {
 
     public void deleteCardsForCardList(UUID cardListId) {
         repository.findAllByCardListId(cardListId).forEach(card -> delete(card.getId()));
-    }
-
-    private void runReminder(Card card) {
-        System.out.println("First message " + new java.util.Date());
-        Reminder reminder = card.getReminder();
-        TimerTask task = new TimerTask() {
-            public void run() {
-                var actualCard = repository.findById(card.getId());
-                if (actualCard.get().getReminder().getActive()) {
-                    System.out.println("Hallo! Wakeup: " + new java.util.Date());
-                }
-            }
-        };
-
-        long remindOn = reminder.getRemindOn().getTime();
-        long now = Date.valueOf(LocalDate.now()).getTime();
-        long delay = remindOn - now;
-        new Timer().schedule(task, delay);
     }
 }
