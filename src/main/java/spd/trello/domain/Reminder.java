@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "reminders")
-public class Reminder extends Resource {
+public class Reminder extends Resource implements Comparable<Reminder> {
     @Column(name = "start")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -35,4 +35,9 @@ public class Reminder extends Resource {
 
     @Column(name = "active")
     private Boolean active = false;
+
+    @Override
+    public int compareTo(Reminder o) {
+        return this.remindOn.compareTo(o.remindOn);
+    }
 }
