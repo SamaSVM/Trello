@@ -1,6 +1,7 @@
 package spd.trello.services;
 
 import org.springframework.stereotype.Service;
+import spd.trello.ReminderScheduler;
 import spd.trello.domain.Card;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
@@ -14,25 +15,32 @@ import java.util.UUID;
 @Service
 public class CardService extends AbstractService<Card, CardRepository> {
     public CardService(CardRepository repository, ChecklistService checklistService, LabelService labelService,
-                       CommentService commentService, AttachmentService attachmentService) {
+                       CommentService commentService, AttachmentService attachmentService, ReminderScheduler reminderScheduler) {
         super(repository);
         this.checklistService = checklistService;
         this.labelService = labelService;
         this.commentService = commentService;
         this.attachmentService = attachmentService;
+        this.reminderScheduler = reminderScheduler;
     }
 
     private final ChecklistService checklistService;
     private final LabelService labelService;
     private final CommentService commentService;
     private final AttachmentService attachmentService;
+    private final ReminderScheduler reminderScheduler;
 
 
     @Override
     public Card save(Card entity) {
         entity.setCreatedDate(LocalDateTime.now());
+
         try {
-            return repository.save(entity);
+            Card card = repository.save(entity);
+            if(card.getReminder().getActive()){
+                reminderScheduler.addReminder(entity.getReminder());
+            }
+            return card;
         } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
@@ -51,6 +59,10 @@ public class CardService extends AbstractService<Card, CardRepository> {
             throw new ResourceNotFoundException();
         }
 
+        if(oldCard.getReminder().getActive() && !entity.getReminder().getActive()){
+            reminderScheduler.deleteReminder(oldCard.getReminder());
+        }
+
         entity.setCardListId(oldCard.getCardListId());
         entity.setUpdatedDate(LocalDateTime.now());
         entity.setCreatedBy(oldCard.getCreatedBy());
@@ -62,7 +74,11 @@ public class CardService extends AbstractService<Card, CardRepository> {
             entity.setDescription(oldCard.getDescription());
         }
         try {
-            return repository.save(entity);
+            Card card = repository.save(entity);
+            if (card.getReminder().getActive() && !oldCard.getReminder().equals(card.getReminder())) {
+                reminderScheduler.addReminder(card.getReminder());
+            }
+            return card;
         } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
