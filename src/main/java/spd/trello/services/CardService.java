@@ -104,6 +104,10 @@ public class CardService extends AbstractService<Card, CardRepository> {
         }
     }
 
+    public void runReminder() {
+        reminderScheduler.runReminder();
+    }
+
     public void deleteCardsForCardList(UUID cardListId) {
         repository.findAllByCardListId(cardListId).forEach(card -> delete(card.getId()));
     }
