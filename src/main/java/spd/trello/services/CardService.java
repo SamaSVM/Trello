@@ -3,6 +3,7 @@ package spd.trello.services;
 import org.springframework.stereotype.Service;
 import spd.trello.ReminderScheduler;
 import spd.trello.domain.Card;
+import spd.trello.domain.Reminder;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.CardRepository;
@@ -86,6 +87,11 @@ public class CardService extends AbstractService<Card, CardRepository> {
 
     @Override
     public void delete(UUID id) {
+        Reminder reminder = getById(id).getReminder();
+        if(reminder.getActive()){
+            reminderScheduler.deleteReminder(reminder);
+        }
+
         checklistService.deleteCheckListsForCard(id);
         labelService.deleteLabelsForCard(id);
         commentService.deleteCommentsForCard(id);
