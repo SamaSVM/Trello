@@ -1,7 +1,10 @@
 package spd.trello.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import spd.trello.domain.Attachment;
@@ -46,7 +49,7 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
             FileDB fileDB = new FileDB();
             fileDB.setData(file.getBytes());
             fileDBRepository.save(fileDB);
-            attachment.setFileDB(fileDB);
+            attachment.setFileId(fileDB.getId());
 
             return repository.save(attachment);
         } catch (RuntimeException | IOException e) {
@@ -88,5 +91,15 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
 
     public void deleteAttachmentsForCard(UUID cardId) {
         repository.findAllByCardId(cardId).forEach(attachment -> delete(attachment.getId()));
+    }
+
+    @Transactional
+    public ResponseEntity<byte[]> getFileResponseEntity(UUID id) {
+        Attachment attachment = getById(id);
+        FileDB fileDB = fileDBRepository.getById(attachment.getFileId());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + attachment.getName() + "\"")
+                .body(fileDB.getData());
     }
 }

@@ -24,7 +24,6 @@ public class Attachment extends Resource {
     @Column(name = "card_id")
     private UUID cardId;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "file_id", referencedColumnName = "id")
-    private FileDB fileDB;
+    @Column(name = "file_id")
+    private UUID fileId;
 }
