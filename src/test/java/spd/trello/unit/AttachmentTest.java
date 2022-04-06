@@ -51,12 +51,11 @@ public class AttachmentTest {
         Card card = helper.getNewCard("createWithFile@AT");
 
         FileDB fileDB = new FileDB();
-        fileDB.setName("name");
-        fileDB.setType("image");
         fileDB.setData(new byte[]{1});
 
         Attachment attachment = new Attachment();
         attachment.setName("name");
+        attachment.setType("image");
         attachment.setCreatedBy(card.getCreatedBy());
         attachment.setCardId(card.getId());
         attachment.setFileDB(fileDB);
@@ -110,8 +109,6 @@ public class AttachmentTest {
         Attachment attachment = helper.getNewAttachment("update@AT");
 
         FileDB fileDB = new FileDB();
-        fileDB.setName("name");
-        fileDB.setType("image");
         fileDB.setData(new byte[]{1});
 
         attachment.setUpdatedBy(attachment.getCreatedBy());

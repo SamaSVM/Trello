@@ -35,7 +35,8 @@ public class AttachmentController extends AbstractController<Attachment, Attachm
         Attachment attachment = service.getById(id);
         FileDB fileDB = attachment.getFileDB();
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"" + fileDB.getName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + attachment.getName() + "\"")
                 .body(fileDB.getData());
     }
 }

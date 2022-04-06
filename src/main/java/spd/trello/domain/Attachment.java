@@ -15,6 +15,9 @@ public class Attachment extends Resource {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "type")
+    private String type;
+
     @Column(name = "link")
     private String link;
 

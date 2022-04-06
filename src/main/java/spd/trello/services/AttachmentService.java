@@ -39,12 +39,12 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             Attachment attachment = objectMapper.readValue(entity, Attachment.class);
+            attachment.setName(StringUtils.cleanPath(file.getOriginalFilename()));
+            attachment.setType(file.getContentType());
             attachment.setCreatedDate(Date.valueOf(LocalDate.now()));
 
             FileDB fileDB = new FileDB();
             fileDB.setData(file.getBytes());
-            fileDB.setName(StringUtils.cleanPath(file.getOriginalFilename()));
-            fileDB.setType(file.getContentType());
             fileDBRepository.save(fileDB);
             attachment.setFileDB(fileDB);
 

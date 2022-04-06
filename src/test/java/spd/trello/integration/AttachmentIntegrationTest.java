@@ -52,13 +52,12 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
         Card card = helper.getNewCard("createWithFile@AttachmentIntegrationTest");
 
         FileDB fileDB = new FileDB();
-        fileDB.setName("name");
-        fileDB.setType("image");
         fileDB.setData(new byte[]{1});
 
         Attachment attachment = new Attachment();
         attachment.setCreatedBy(card.getCreatedBy());
         attachment.setName("name");
+        attachment.setType("image");
         attachment.setCardId(card.getId());
         attachment.setFileDB(fileDB);
         MvcResult mvcResult = super.create(URL_TEMPLATE, attachment);
@@ -74,8 +73,6 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
                 () -> assertEquals(attachment.getLink(), getValue(mvcResult, "$.link")),
                 () -> assertEquals(card.getId().toString(), getValue(mvcResult, "$.cardId")),
                 () -> assertEquals(fileDB.getId().toString(), getValue(mvcResult, "$.fileDB.id")),
-                () -> assertEquals(fileDB.getName(), getValue(mvcResult, "$.fileDB.name")),
-                () -> assertEquals(fileDB.getType(), getValue(mvcResult, "$.fileDB.type")),
                 () -> assertNotNull(getValue(mvcResult, "$.fileDB.data"))
         );
     }
@@ -155,8 +152,6 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
         Attachment attachment = helper.getNewAttachment("update@AttachmentIntegrationTest");
         attachment.setUpdatedBy(attachment.getCreatedBy());
         FileDB fileDB = new FileDB();
-        fileDB.setName("name");
-        fileDB.setType("image");
         fileDB.setData(new byte[]{1});
         attachment.setName("new named");
         attachment.setFileDB(fileDB);
@@ -174,8 +169,6 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
                 () -> assertEquals(attachment.getLink(), getValue(mvcResult, "$.link")),
                 () -> assertEquals(attachment.getCardId().toString(), getValue(mvcResult, "$.cardId")),
                 () -> assertEquals(fileDB.getId().toString(), getValue(mvcResult, "$.fileDB.id")),
-                () -> assertEquals(fileDB.getName(), getValue(mvcResult, "$.fileDB.name")),
-                () -> assertEquals(fileDB.getType(), getValue(mvcResult, "$.fileDB.type")),
                 () -> assertNotNull(getValue(mvcResult, "$.fileDB.data"))
         );
     }
