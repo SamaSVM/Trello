@@ -3,6 +3,7 @@ package spd.trello.unit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import spd.trello.ReminderScheduler;
 import spd.trello.domain.Card;
 import spd.trello.domain.CardList;
 import spd.trello.domain.Member;
@@ -29,6 +30,9 @@ public class CardTest {
 
     @Autowired
     private BoardService boardService;
+
+    @Autowired
+    private ReminderScheduler reminderScheduler;
 
     @Autowired
     private UnitHelper helper;
@@ -184,7 +188,7 @@ public class CardTest {
         Set<UUID> membersId = boardService.getById(cardList.getBoardId()).getMembersId();
         card.setMembersId(membersId);
         service.save(card);
-        service.runReminder();
+        reminderScheduler.runReminder();
         Card testCard = service.getById(card.getId());
 
         assertNotNull(testCard);
@@ -214,7 +218,7 @@ public class CardTest {
         card.setReminder(reminder);
 
         service.update(card);
-        service.runReminder();
+        reminderScheduler.runReminder();
         Card testCard = service.getById(card.getId());
 
         assertNotNull(testCard);

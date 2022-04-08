@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
+import spd.trello.ReminderScheduler;
 import spd.trello.domain.Card;
 import spd.trello.domain.CardList;
 import spd.trello.domain.Member;
@@ -26,6 +27,9 @@ public class CardIntegrationTest extends AbstractIntegrationTest<Card> {
 
     @Autowired
     private IntegrationHelper helper;
+
+    @Autowired
+    private ReminderScheduler reminderScheduler;
 
     @Test
     public void create() throws Exception {
@@ -194,6 +198,22 @@ public class CardIntegrationTest extends AbstractIntegrationTest<Card> {
         assertAll(
                 () -> assertEquals(HttpStatus.NOT_FOUND.value(), firstMvcResult.getResponse().getStatus()),
                 () -> assertEquals(HttpStatus.BAD_REQUEST.value(), secondMvcResult.getResponse().getStatus())
+        );
+    }
+
+    @Test
+    public void reminder() throws Exception {
+        Card card = helper.getNewCard("reminder@CardIntegrationTest");
+        Reminder reminder = card.getReminder();
+        reminder.setActive(true);
+        reminder.setRemindOn(LocalDateTime.now());
+        super.update(URL_TEMPLATE, card.getId(), card);
+        reminderScheduler.runReminder();
+        MvcResult mvcResult = super.findById(URL_TEMPLATE, card.getId());
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
+                () -> assertFalse((Boolean) getValue(mvcResult, "$.reminder.active"))
         );
     }
 }

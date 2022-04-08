@@ -104,7 +104,6 @@ public class UnitHelper {
 
     public Reminder getNewReminder(String email) {
         Reminder reminder = new Reminder();
-        reminder.setActive(true);
         reminder.setCreatedBy(email);
         reminder.setRemindOn(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
         reminder.setStart(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
