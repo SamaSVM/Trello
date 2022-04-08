@@ -1,9 +1,7 @@
 package spd.trello.services;
 
 import org.springframework.stereotype.Service;
-import spd.trello.ReminderScheduler;
 import spd.trello.domain.Card;
-import spd.trello.domain.Reminder;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.CardRepository;
@@ -16,20 +14,18 @@ import java.util.UUID;
 @Service
 public class CardService extends AbstractService<Card, CardRepository> {
     public CardService(CardRepository repository, ChecklistService checklistService, LabelService labelService,
-                       CommentService commentService, AttachmentService attachmentService, ReminderScheduler reminderScheduler) {
+                       CommentService commentService, AttachmentService attachmentService) {
         super(repository);
         this.checklistService = checklistService;
         this.labelService = labelService;
         this.commentService = commentService;
         this.attachmentService = attachmentService;
-        this.reminderScheduler = reminderScheduler;
     }
 
     private final ChecklistService checklistService;
     private final LabelService labelService;
     private final CommentService commentService;
     private final AttachmentService attachmentService;
-    private final ReminderScheduler reminderScheduler;
 
 
     @Override
@@ -37,11 +33,7 @@ public class CardService extends AbstractService<Card, CardRepository> {
         entity.setCreatedDate(LocalDateTime.now());
 
         try {
-            Card card = repository.save(entity);
-            if(card.getReminder().getActive()){
-                reminderScheduler.addReminder(entity.getReminder());
-            }
-            return card;
+            return repository.save(entity);
         } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
@@ -60,10 +52,6 @@ public class CardService extends AbstractService<Card, CardRepository> {
             throw new ResourceNotFoundException();
         }
 
-        if(oldCard.getReminder().getActive() && !entity.getReminder().getActive()){
-            reminderScheduler.deleteReminder(oldCard.getReminder());
-        }
-
         entity.setCardListId(oldCard.getCardListId());
         entity.setUpdatedDate(LocalDateTime.now());
         entity.setCreatedBy(oldCard.getCreatedBy());
@@ -75,11 +63,7 @@ public class CardService extends AbstractService<Card, CardRepository> {
             entity.setDescription(oldCard.getDescription());
         }
         try {
-            Card card = repository.save(entity);
-            if (card.getReminder().getActive() && !oldCard.getReminder().equals(card.getReminder())) {
-                reminderScheduler.addReminder(card.getReminder());
-            }
-            return card;
+            return repository.save(entity);
         } catch (RuntimeException e) {
             throw new BadRequestException(e.getMessage());
         }
@@ -87,11 +71,6 @@ public class CardService extends AbstractService<Card, CardRepository> {
 
     @Override
     public void delete(UUID id) {
-        Reminder reminder = getById(id).getReminder();
-        if(reminder.getActive()){
-            reminderScheduler.deleteReminder(reminder);
-        }
-
         checklistService.deleteCheckListsForCard(id);
         labelService.deleteLabelsForCard(id);
         commentService.deleteCommentsForCard(id);
@@ -108,10 +87,6 @@ public class CardService extends AbstractService<Card, CardRepository> {
                 delete(card.getId());
             }
         }
-    }
-
-    public void runReminder() {
-        reminderScheduler.runReminder();
     }
 
     public void deleteCardsForCardList(UUID cardListId) {
