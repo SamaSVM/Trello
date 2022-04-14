@@ -24,11 +24,10 @@ public class ReminderScheduler {
     public void runReminder() {
         List<Reminder> activeReminders =
                 repository.findAllByRemindOnBeforeAndActive(LocalDateTime.now(), true);
-        while (activeReminders.size() != 0) {
-            Reminder reminder = activeReminders.remove(activeReminders.size() - 1);
+        activeReminders.forEach(reminder -> {
             System.out.println("Hallo! Wake Up! " + reminder.getId());
             reminder.setActive(false);
             repository.save(reminder);
-        }
+        });
     }
 }
