@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import spd.trello.domain.Attachment;
 import spd.trello.domain.Card;
+import spd.trello.domain.FileDB;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,8 +24,8 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
     private IntegrationHelper helper;
 
     @Test
-    public void create() throws Exception {
-        Card card = helper.getNewCard("create@AttachmentIntegrationTest");
+    public void createWithLink() throws Exception {
+        Card card = helper.getNewCard("createWithLink@AttachmentIntegrationTest");
         Attachment attachment = new Attachment();
         attachment.setCreatedBy(card.getCreatedBy());
         attachment.setName("name");
@@ -41,7 +42,38 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
                 () -> assertNull(getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(attachment.getName(), getValue(mvcResult, "$.name")),
                 () -> assertEquals(attachment.getLink(), getValue(mvcResult, "$.link")),
-                () -> assertEquals(card.getId().toString(), getValue(mvcResult, "$.cardId"))
+                () -> assertEquals(card.getId().toString(), getValue(mvcResult, "$.cardId")),
+                () -> assertNull(attachment.getFileDB())
+        );
+    }
+
+    @Test
+    public void createWithFile() throws Exception {
+        Card card = helper.getNewCard("createWithFile@AttachmentIntegrationTest");
+
+        FileDB fileDB = new FileDB();
+        fileDB.setData(new byte[]{1});
+
+        Attachment attachment = new Attachment();
+        attachment.setCreatedBy(card.getCreatedBy());
+        attachment.setName("name");
+        attachment.setType("image");
+        attachment.setCardId(card.getId());
+        attachment.setFileDB(fileDB);
+        MvcResult mvcResult = super.create(URL_TEMPLATE, attachment);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus()),
+                () -> assertNotNull(getValue(mvcResult, "$.id")),
+                () -> assertEquals(attachment.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
+                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertNull(getValue(mvcResult, "$.updatedBy")),
+                () -> assertNull(getValue(mvcResult, "$.updatedDate")),
+                () -> assertEquals(attachment.getName(), getValue(mvcResult, "$.name")),
+                () -> assertEquals(attachment.getLink(), getValue(mvcResult, "$.link")),
+                () -> assertEquals(card.getId().toString(), getValue(mvcResult, "$.cardId")),
+                () -> assertEquals(fileDB.getId().toString(), getValue(mvcResult, "$.fileDB.id")),
+                () -> assertNotNull(getValue(mvcResult, "$.fileDB.data"))
         );
     }
 
@@ -119,8 +151,10 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
     public void update() throws Exception {
         Attachment attachment = helper.getNewAttachment("update@AttachmentIntegrationTest");
         attachment.setUpdatedBy(attachment.getCreatedBy());
+        FileDB fileDB = new FileDB();
+        fileDB.setData(new byte[]{1});
         attachment.setName("new named");
-        attachment.setLink("new link");
+        attachment.setFileDB(fileDB);
 
         MvcResult mvcResult = super.update(URL_TEMPLATE, attachment.getId(), attachment);
 
@@ -133,21 +167,20 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
                 () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(attachment.getName(), getValue(mvcResult, "$.name")),
                 () -> assertEquals(attachment.getLink(), getValue(mvcResult, "$.link")),
-                () -> assertEquals(attachment.getCardId().toString(), getValue(mvcResult, "$.cardId"))
+                () -> assertEquals(attachment.getCardId().toString(), getValue(mvcResult, "$.cardId")),
+                () -> assertEquals(fileDB.getId().toString(), getValue(mvcResult, "$.fileDB.id")),
+                () -> assertNotNull(getValue(mvcResult, "$.fileDB.data"))
         );
     }
 
     @Test
     public void updateFailure() throws Exception {
         Attachment firstAttachment = helper.getNewAttachment("1updateFailure@AttachmentIntegrationTest");
-        firstAttachment.setName(null);
-        firstAttachment.setLink(null);
-        firstAttachment.setUpdatedBy(firstAttachment.getCreatedBy());
 
         Attachment secondAttachment = new Attachment();
         secondAttachment.setId(firstAttachment.getId());
 
-        MvcResult firstMvcResult = super.update(URL_TEMPLATE, firstAttachment.getId(), firstAttachment);
+        MvcResult firstMvcResult = super.update(URL_TEMPLATE, UUID.randomUUID(), firstAttachment);
         MvcResult secondMvcResult = super.update(URL_TEMPLATE, secondAttachment.getId(), secondAttachment);
 
         assertAll(
