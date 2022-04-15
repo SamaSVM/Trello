@@ -25,8 +25,8 @@ public class AttachmentTest {
     private UnitHelper helper;
 
     @Test
-    public void create() {
-        Card card = helper.getNewCard("create@AT");
+    public void createWithLink() {
+        Card card = helper.getNewCard("createWithLink@AT");
 
         Attachment attachment = new Attachment();
         attachment.setName("name");
@@ -45,6 +45,34 @@ public class AttachmentTest {
                 () -> assertEquals(attachment.getName(), testAttachment.getName()),
                 () -> assertEquals(attachment.getLink(), testAttachment.getLink()),
                 () -> assertEquals(card.getId(), testAttachment.getCardId())
+        );
+    }
+
+    @Test
+    public void createWithFile() {
+        Card card = helper.getNewCard("createWithFile@AT");
+
+        FileDB fileDB = new FileDB();
+        fileDB.setData(new byte[]{1});
+
+        Attachment attachment = new Attachment();
+        attachment.setName("name");
+        attachment.setType("image");
+        attachment.setCreatedBy(card.getCreatedBy());
+        attachment.setCardId(card.getId());
+        attachment.setFileDB(fileDB);
+        Attachment testAttachment = service.save(attachment);
+
+        assertNotNull(testAttachment);
+        assertAll(
+                () -> assertEquals(attachment.getCreatedBy(), testAttachment.getCreatedBy()),
+                () -> assertNull(testAttachment.getUpdatedBy()),
+                () -> assertEquals(Date.valueOf(LocalDate.now()), testAttachment.getCreatedDate()),
+                () -> assertNull(testAttachment.getUpdatedDate()),
+                () -> assertEquals(attachment.getName(), testAttachment.getName()),
+                () -> assertEquals(attachment.getLink(), testAttachment.getLink()),
+                () -> assertEquals(card.getId(), testAttachment.getCardId()),
+                () -> assertEquals(fileDB, attachment.getFileDB())
         );
     }
 
@@ -82,9 +110,12 @@ public class AttachmentTest {
     public void update() {
         Attachment attachment = helper.getNewAttachment("update@AT");
 
+        FileDB fileDB = new FileDB();
+        fileDB.setData(new byte[]{1});
+
         attachment.setUpdatedBy(attachment.getCreatedBy());
         attachment.setName("newName");
-        attachment.setLink("newLink");
+        attachment.setFileDB(fileDB);
 
         Attachment testAttachment = service.update(attachment);
 
@@ -97,7 +128,8 @@ public class AttachmentTest {
                         contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals(attachment.getName(), testAttachment.getName()),
                 () -> assertEquals(attachment.getLink(), testAttachment.getLink()),
-                () -> assertEquals(attachment.getCardId(), testAttachment.getCardId())
+                () -> assertEquals(attachment.getCardId(), testAttachment.getCardId()),
+                () -> assertEquals(fileDB, attachment.getFileDB())
         );
     }
 
