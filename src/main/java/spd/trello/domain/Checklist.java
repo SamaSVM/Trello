@@ -6,9 +6,10 @@ import lombok.EqualsAndHashCode;
 import spd.trello.domain.perent.Resource;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Data
@@ -17,6 +18,8 @@ import java.util.UUID;
 @Table(name = "checklists")
 public class Checklist extends Resource {
     @Column(name = "name")
+    @NotNull(message = "The name field must be filled.")
+    @Size(min = 2, max = 20, message = "The name field must be between 2 and 20 characters long.")
     private String name;
 
     @Column(name = "card_id")
