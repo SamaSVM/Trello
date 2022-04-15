@@ -11,6 +11,8 @@ import spd.trello.domain.perent.Resource;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
 @Data
@@ -24,11 +26,13 @@ public class Reminder extends Resource {
     private LocalDateTime start;
 
     @Column(name = "\"end\"")
+    @FutureOrPresent(message = "The end field must be present or future.")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime end;
 
     @Column(name = "remind_on")
+    @FutureOrPresent(message = "The remindOn field must be present or future.")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime remindOn;
