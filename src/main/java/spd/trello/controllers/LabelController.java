@@ -7,7 +7,7 @@ import spd.trello.services.LabelService;
 
 @RestController
 @RequestMapping("/labels")
-public class LabelController extends AbstractController<Label, LabelService>{
+public class LabelController extends AbstractController<Label, LabelService> {
     public LabelController(LabelService service) {
         super(service);
     }
