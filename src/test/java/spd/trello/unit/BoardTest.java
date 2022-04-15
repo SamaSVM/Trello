@@ -3,7 +3,9 @@ package spd.trello.unit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import spd.trello.domain.*;
+import spd.trello.domain.Board;
+import spd.trello.domain.Member;
+import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.BoardVisibility;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
@@ -42,7 +44,8 @@ public class BoardTest {
         assertAll(
                 () -> assertEquals(workspace.getCreatedBy(), testBoard.getCreatedBy()),
                 () -> assertNull(testBoard.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testBoard.getCreatedDate()),
+                () -> assertTrue(testBoard.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertNull(testBoard.getUpdatedDate()),
                 () -> assertEquals("testBoard", testBoard.getName()),
                 () -> assertEquals("testDescription", testBoard.getDescription()),
@@ -105,8 +108,10 @@ public class BoardTest {
         assertAll(
                 () -> assertEquals(board.getCreatedBy(), testBoard.getCreatedBy()),
                 () -> assertEquals(board.getUpdatedBy(), testBoard.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testBoard.getCreatedDate()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testBoard.getUpdatedDate()),
+                () -> assertTrue(testBoard.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertTrue(testBoard.getUpdatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals("newBoard", testBoard.getName()),
                 () -> assertEquals("newDescription", testBoard.getDescription()),
                 () -> assertEquals(BoardVisibility.PUBLIC, testBoard.getVisibility()),

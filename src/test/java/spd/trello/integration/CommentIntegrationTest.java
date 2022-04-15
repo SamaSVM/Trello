@@ -9,7 +9,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import spd.trello.domain.Card;
 import spd.trello.domain.Comment;
 
+import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,7 +38,8 @@ public class CommentIntegrationTest extends AbstractIntegrationTest<Comment> {
                 () -> assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(comment.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertTrue(getValue(mvcResult, "$.createdDate").toString().
+                        contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertNull(getValue(mvcResult, "$.updatedBy")),
                 () -> assertNull(getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(comment.getText(), getValue(mvcResult, "$.text")),
@@ -76,7 +79,8 @@ public class CommentIntegrationTest extends AbstractIntegrationTest<Comment> {
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(comment.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertEquals(LocalDateTime.of(2022, 2, 2, 2, 2, 2).toString(),
+                        getValue(mvcResult, "$.createdDate")),
                 () -> assertNull(getValue(mvcResult, "$.updatedBy")),
                 () -> assertNull(getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(comment.getText(), getValue(mvcResult, "$.text")),
@@ -125,9 +129,11 @@ public class CommentIntegrationTest extends AbstractIntegrationTest<Comment> {
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(comment.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertEquals(LocalDateTime.of(2022, 2, 2, 2, 2, 2).toString(),
+                        getValue(mvcResult, "$.createdDate")),
                 () -> assertEquals(comment.getUpdatedBy(), getValue(mvcResult, "$.updatedBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.updatedDate")),
+                () -> assertTrue(getValue(mvcResult, "$.updatedDate").toString().
+                        contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals(comment.getText(), getValue(mvcResult, "$.text")),
                 () -> assertEquals(comment.getCardId().toString(), getValue(mvcResult, "$.cardId"))
         );

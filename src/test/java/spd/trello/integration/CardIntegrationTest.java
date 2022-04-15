@@ -6,9 +6,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import spd.trello.domain.*;
+import spd.trello.ReminderScheduler;
+import spd.trello.domain.Card;
+import spd.trello.domain.CardList;
+import spd.trello.domain.Member;
+import spd.trello.domain.Reminder;
 
+import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -21,6 +27,9 @@ public class CardIntegrationTest extends AbstractIntegrationTest<Card> {
 
     @Autowired
     private IntegrationHelper helper;
+
+    @Autowired
+    private ReminderScheduler reminderScheduler;
 
     @Test
     public void create() throws Exception {
@@ -39,7 +48,8 @@ public class CardIntegrationTest extends AbstractIntegrationTest<Card> {
                 () -> assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(card.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertTrue(getValue(mvcResult, "$.createdDate").toString().
+                        contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertNull(getValue(mvcResult, "$.updatedBy")),
                 () -> assertNull(getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(card.getName(), getValue(mvcResult, "$.name")),
@@ -89,7 +99,8 @@ public class CardIntegrationTest extends AbstractIntegrationTest<Card> {
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(card.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertEquals(LocalDateTime.of(2022, 2, 2, 2, 2, 2).toString(),
+                        getValue(mvcResult, "$.createdDate")),
                 () -> assertNull(getValue(mvcResult, "$.updatedBy")),
                 () -> assertNull(getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(card.getName(), getValue(mvcResult, "$.name")),
@@ -153,9 +164,11 @@ public class CardIntegrationTest extends AbstractIntegrationTest<Card> {
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(card.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertEquals(LocalDateTime.of(2022, 2, 2, 2, 2, 2).toString(),
+                        getValue(mvcResult, "$.createdDate")),
                 () -> assertEquals(card.getUpdatedBy(), getValue(mvcResult, "$.updatedBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.updatedDate")),
+                () -> assertTrue(getValue(mvcResult, "$.updatedDate").toString().
+                        contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals(card.getName(), getValue(mvcResult, "$.name")),
                 () -> assertTrue((Boolean) getValue(mvcResult, "$.archived")),
                 () -> assertEquals(card.getCardListId().toString(), getValue(mvcResult, "$.cardListId")),
@@ -185,6 +198,22 @@ public class CardIntegrationTest extends AbstractIntegrationTest<Card> {
         assertAll(
                 () -> assertEquals(HttpStatus.NOT_FOUND.value(), firstMvcResult.getResponse().getStatus()),
                 () -> assertEquals(HttpStatus.BAD_REQUEST.value(), secondMvcResult.getResponse().getStatus())
+        );
+    }
+
+    @Test
+    public void reminder() throws Exception {
+        Card card = helper.getNewCard("reminder@CardIntegrationTest");
+        Reminder reminder = card.getReminder();
+        reminder.setActive(true);
+        reminder.setRemindOn(LocalDateTime.now());
+        super.update(URL_TEMPLATE, card.getId(), card);
+        reminderScheduler.runReminder();
+        MvcResult mvcResult = super.findById(URL_TEMPLATE, card.getId());
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
+                () -> assertFalse((Boolean) getValue(mvcResult, "$.reminder.active"))
         );
     }
 }

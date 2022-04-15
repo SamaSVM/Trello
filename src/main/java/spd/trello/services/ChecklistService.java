@@ -6,8 +6,7 @@ import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.ChecklistRepository;
 
-import java.sql.Date;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -21,7 +20,7 @@ public class ChecklistService extends AbstractService<Checklist, ChecklistReposi
 
     @Override
     public Checklist save(Checklist entity) {
-        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCreatedDate(LocalDateTime.now());
         try {
             return repository.save(entity);
         } catch (RuntimeException e) {
@@ -43,7 +42,7 @@ public class ChecklistService extends AbstractService<Checklist, ChecklistReposi
 
         entity.setCreatedBy(oldChecklist.getCreatedBy());
         entity.setCreatedDate(oldChecklist.getCreatedDate());
-        entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setUpdatedDate(LocalDateTime.now());
         entity.setCardId(oldChecklist.getCardId());
 
         try {

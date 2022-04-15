@@ -3,7 +3,8 @@ package spd.trello.unit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import spd.trello.domain.*;
+import spd.trello.domain.Card;
+import spd.trello.domain.Comment;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.CommentService;
@@ -14,7 +15,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class CommentTest {
@@ -38,7 +38,8 @@ public class CommentTest {
         assertAll(
                 () -> assertEquals(comment.getCreatedBy(), testComment.getCreatedBy()),
                 () -> assertNull(testComment.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testComment.getCreatedDate()),
+                () -> assertTrue(testComment.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertNull(testComment.getUpdatedDate()),
                 () -> assertEquals("testText", testComment.getText()),
                 () -> assertEquals(card.getId(), testComment.getCardId())
@@ -88,8 +89,10 @@ public class CommentTest {
         assertAll(
                 () -> assertEquals(comment.getCreatedBy(), testComment.getCreatedBy()),
                 () -> assertEquals(comment.getUpdatedBy(), testComment.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testComment.getCreatedDate()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testComment.getUpdatedDate()),
+                () -> assertTrue(testComment.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertTrue(testComment.getUpdatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals(comment.getText(), testComment.getText())
         );
     }

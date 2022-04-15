@@ -3,7 +3,8 @@ package spd.trello.unit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import spd.trello.domain.*;
+import spd.trello.domain.Board;
+import spd.trello.domain.CardList;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.CardListService;
@@ -37,7 +38,8 @@ public class CardListTest {
         assertAll(
                 () -> assertEquals(board.getCreatedBy(), testCardList.getCreatedBy()),
                 () -> assertNull(testCardList.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testCardList.getCreatedDate()),
+                () -> assertTrue(testCardList.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertNull(testCardList.getUpdatedDate()),
                 () -> assertEquals(cardList.getName(), testCardList.getName()),
                 () -> assertFalse(testCardList.getArchived()),
@@ -90,8 +92,10 @@ public class CardListTest {
         assertAll(
                 () -> assertEquals(cardList.getCreatedBy(), testCardList.getCreatedBy()),
                 () -> assertEquals(cardList.getUpdatedBy(), testCardList.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testCardList.getCreatedDate()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testCardList.getUpdatedDate()),
+                () -> assertTrue(testCardList.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertTrue(testCardList.getUpdatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals(cardList.getName(), testCardList.getName()),
                 () -> assertTrue(testCardList.getArchived()),
                 () -> assertEquals(cardList.getBoardId(), testCardList.getBoardId())

@@ -6,8 +6,7 @@ import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.CommentRepository;
 
-import java.sql.Date;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -19,7 +18,7 @@ public class CommentService extends AbstractService<Comment, CommentRepository> 
 
     @Override
     public Comment save(Comment entity) {
-        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCreatedDate(LocalDateTime.now());
         try {
             return repository.save(entity);
         } catch (RuntimeException e) {
@@ -41,7 +40,7 @@ public class CommentService extends AbstractService<Comment, CommentRepository> 
 
         entity.setCreatedBy(oldCard.getCreatedBy());
         entity.setCreatedDate(oldCard.getCreatedDate());
-        entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setUpdatedDate(LocalDateTime.now());
         entity.setCardId(oldCard.getCardId());
 
         try {

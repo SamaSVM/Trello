@@ -10,7 +10,9 @@ import spd.trello.domain.Attachment;
 import spd.trello.domain.Card;
 import spd.trello.domain.FileDB;
 
+import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +39,8 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
                 () -> assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(attachment.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertTrue(getValue(mvcResult, "$.createdDate").toString().
+                        contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertNull(getValue(mvcResult, "$.updatedBy")),
                 () -> assertNull(getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(attachment.getName(), getValue(mvcResult, "$.name")),
@@ -104,12 +107,14 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
     public void findById() throws Exception {
         Attachment attachment = helper.getNewAttachment("findById@AttachmentIntegrationTest");
         MvcResult mvcResult = super.findById(URL_TEMPLATE, attachment.getId());
-
+        System.out.println(getValue(mvcResult, "$.createdDate"));
+        System.out.println(Date.valueOf(LocalDate.now()));
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(attachment.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertEquals(LocalDateTime.of(2022, 2, 2, 2, 2, 2).toString(),
+                        getValue(mvcResult, "$.createdDate")),
                 () -> assertNull(getValue(mvcResult, "$.updatedBy")),
                 () -> assertNull(getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(attachment.getName(), getValue(mvcResult, "$.name")),
@@ -157,14 +162,17 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
         attachment.setFileDB(fileDB);
 
         MvcResult mvcResult = super.update(URL_TEMPLATE, attachment.getId(), attachment);
-
+        System.out.println(getValue(mvcResult, "$.createdDate"));
+        System.out.println(Date.valueOf(LocalDate.now()));
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(attachment.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.createdDate")),
+                () -> assertEquals(LocalDateTime.of(2022, 2, 2, 2, 2, 2).toString(),
+                        getValue(mvcResult, "$.createdDate")),
                 () -> assertEquals(attachment.getUpdatedBy(), getValue(mvcResult, "$.updatedBy")),
-                () -> assertEquals(String.valueOf(LocalDate.now()), getValue(mvcResult, "$.updatedDate")),
+                () -> assertTrue(getValue(mvcResult, "$.updatedDate").toString().
+                        contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals(attachment.getName(), getValue(mvcResult, "$.name")),
                 () -> assertEquals(attachment.getLink(), getValue(mvcResult, "$.link")),
                 () -> assertEquals(attachment.getCardId().toString(), getValue(mvcResult, "$.cardId")),

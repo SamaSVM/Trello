@@ -6,9 +6,8 @@ import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.MemberRepository;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class MemberService extends AbstractService<Member, MemberRepository> {
@@ -25,7 +24,7 @@ public class MemberService extends AbstractService<Member, MemberRepository> {
 
     @Override
     public Member save(Member entity) {
-        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCreatedDate(LocalDateTime.now());
         try {
             return repository.save(entity);
         } catch (RuntimeException e) {
@@ -45,7 +44,7 @@ public class MemberService extends AbstractService<Member, MemberRepository> {
             throw new ResourceNotFoundException();
         }
 
-        entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setUpdatedDate(LocalDateTime.now());
         entity.setCreatedBy(oldMember.getCreatedBy());
         entity.setCreatedDate(oldMember.getCreatedDate());
         entity.setUserId(oldMember.getUserId());

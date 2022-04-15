@@ -1,13 +1,12 @@
 package spd.trello.services;
 
 import org.springframework.stereotype.Service;
-import spd.trello.domain.*;
+import spd.trello.domain.Card;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
-import spd.trello.repository.*;
+import spd.trello.repository.CardRepository;
 
-import java.sql.Date;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -31,7 +30,8 @@ public class CardService extends AbstractService<Card, CardRepository> {
 
     @Override
     public Card save(Card entity) {
-        entity.setCreatedDate(Date.valueOf(LocalDate.now()));
+        entity.setCreatedDate(LocalDateTime.now());
+
         try {
             return repository.save(entity);
         } catch (RuntimeException e) {
@@ -53,7 +53,7 @@ public class CardService extends AbstractService<Card, CardRepository> {
         }
 
         entity.setCardListId(oldCard.getCardListId());
-        entity.setUpdatedDate(Date.valueOf(LocalDate.now()));
+        entity.setUpdatedDate(LocalDateTime.now());
         entity.setCreatedBy(oldCard.getCreatedBy());
         entity.setCreatedDate(oldCard.getCreatedDate());
         if (entity.getName() == null) {

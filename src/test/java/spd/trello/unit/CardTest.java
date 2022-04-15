@@ -3,7 +3,11 @@ package spd.trello.unit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import spd.trello.domain.*;
+import spd.trello.ReminderScheduler;
+import spd.trello.domain.Card;
+import spd.trello.domain.CardList;
+import spd.trello.domain.Member;
+import spd.trello.domain.Reminder;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.BoardService;
@@ -11,12 +15,13 @@ import spd.trello.services.CardService;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class CardTest {
@@ -27,13 +32,24 @@ public class CardTest {
     private BoardService boardService;
 
     @Autowired
+    private ReminderScheduler reminderScheduler;
+
+    @Autowired
     private UnitHelper helper;
 
     @Test
     public void create() {
         CardList cardList = helper.getNewCardList("create@CardT");
 
+        Reminder reminder = new Reminder();
+        reminder.setCreatedBy(cardList.getCreatedBy());
+        reminder.setCreatedDate(LocalDateTime.now());
+        reminder.setStart(LocalDateTime.now());
+        reminder.setEnd(LocalDateTime.now());
+        reminder.setRemindOn(LocalDateTime.now());
+
         Card card = new Card();
+        card.setReminder(reminder);
         card.setCardListId(cardList.getId());
         card.setCreatedBy(cardList.getCreatedBy());
         card.setName("testCardName");
@@ -46,13 +62,15 @@ public class CardTest {
         assertAll(
                 () -> assertEquals(cardList.getCreatedBy(), testCard.getCreatedBy()),
                 () -> assertNull(testCard.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testCard.getCreatedDate()),
+                () -> assertTrue(testCard.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertNull(testCard.getUpdatedDate()),
-                () -> assertEquals("testCardName", testCard.getName()),
-                () -> assertEquals("description", testCard.getDescription()),
+                () -> assertEquals(card.getName(), testCard.getName()),
+                () -> assertEquals(card.getDescription(), testCard.getDescription()),
                 () -> assertFalse(testCard.getArchived()),
                 () -> assertEquals(cardList.getId(), testCard.getCardListId()),
-                () -> assertEquals(1, testCard.getMembersId().size())
+                () -> assertEquals(1, testCard.getMembersId().size()),
+                () -> assertEquals(reminder, testCard.getReminder())
         );
     }
 
@@ -105,8 +123,10 @@ public class CardTest {
         assertAll(
                 () -> assertEquals(card.getCreatedBy(), testCard.getCreatedBy()),
                 () -> assertEquals(card.getUpdatedBy(), testCard.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testCard.getCreatedDate()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testCard.getUpdatedDate()),
+                () -> assertTrue(testCard.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertTrue(testCard.getUpdatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals("newCard", testCard.getName()),
                 () -> assertEquals("newDescription", testCard.getDescription()),
                 () -> assertTrue(testCard.getArchived()),
@@ -145,5 +165,71 @@ public class CardTest {
                 "no exception"
         );
         assertEquals("No class spd.trello.domain.Card entity with id " + id + " exists!", ex.getMessage());
+    }
+
+    @Test
+    public void createReminder() {
+        CardList cardList = helper.getNewCardList("createReminder@CardT");
+
+        Reminder reminder = new Reminder();
+        reminder.setCreatedBy(cardList.getCreatedBy());
+        reminder.setCreatedDate(LocalDateTime.now());
+        reminder.setStart(LocalDateTime.now());
+        reminder.setEnd(LocalDateTime.now());
+        reminder.setRemindOn(LocalDateTime.now());
+        reminder.setActive(true);
+
+        Card card = new Card();
+        card.setReminder(reminder);
+        card.setCardListId(cardList.getId());
+        card.setCreatedBy(cardList.getCreatedBy());
+        card.setName("testCardName");
+        card.setDescription("description");
+        Set<UUID> membersId = boardService.getById(cardList.getBoardId()).getMembersId();
+        card.setMembersId(membersId);
+        service.save(card);
+        reminderScheduler.runReminder();
+        Card testCard = service.getById(card.getId());
+
+        assertNotNull(testCard);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy MM dd HH mm ss");
+        assertAll(
+                () -> assertEquals(reminder.getCreatedBy(), testCard.getReminder().getCreatedBy()),
+                () -> assertEquals(reminder.getCreatedDate().format(dtf), testCard.getReminder().getCreatedDate().format(dtf)),
+                () -> assertEquals(reminder.getStart().format(dtf), testCard.getReminder().getStart().format(dtf)),
+                () -> assertEquals(reminder.getEnd().format(dtf), testCard.getReminder().getEnd().format(dtf)),
+                () -> assertEquals(reminder.getRemindOn().format(dtf), testCard.getReminder().getRemindOn().format(dtf)),
+                () -> assertFalse(testCard.getReminder().getActive())
+        );
+    }
+
+    @Test
+    public void updateReminder() {
+        Card card = helper.getNewCard("updateReminder@CardT");
+        card.setUpdatedBy(card.getCreatedBy());
+
+        Reminder reminder = card.getReminder();
+        reminder.setCreatedBy(card.getCreatedBy());
+        reminder.setCreatedDate(LocalDateTime.now());
+        reminder.setStart(LocalDateTime.now());
+        reminder.setEnd(LocalDateTime.now());
+        reminder.setRemindOn(LocalDateTime.now());
+        reminder.setActive(true);
+        card.setReminder(reminder);
+
+        service.update(card);
+        reminderScheduler.runReminder();
+        Card testCard = service.getById(card.getId());
+
+        assertNotNull(testCard);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy MM dd HH mm ss");
+        assertAll(
+                () -> assertEquals(reminder.getCreatedBy(), testCard.getReminder().getCreatedBy()),
+                () -> assertEquals(reminder.getCreatedDate().format(dtf), testCard.getReminder().getCreatedDate().format(dtf)),
+                () -> assertEquals(reminder.getStart().format(dtf), testCard.getReminder().getStart().format(dtf)),
+                () -> assertEquals(reminder.getEnd().format(dtf), testCard.getReminder().getEnd().format(dtf)),
+                () -> assertEquals(reminder.getRemindOn().format(dtf), testCard.getReminder().getRemindOn().format(dtf)),
+                () -> assertFalse(testCard.getReminder().getActive())
+        );
     }
 }

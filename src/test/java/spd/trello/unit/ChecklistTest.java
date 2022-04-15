@@ -3,7 +3,8 @@ package spd.trello.unit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import spd.trello.domain.*;
+import spd.trello.domain.Card;
+import spd.trello.domain.Checklist;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.ChecklistService;
@@ -37,7 +38,8 @@ public class ChecklistTest {
         assertAll(
                 () -> assertEquals(card.getCreatedBy(), testChecklist.getCreatedBy()),
                 () -> assertNull(testChecklist.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testChecklist.getCreatedDate()),
+                () -> assertTrue(testChecklist.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertNull(testChecklist.getUpdatedDate()),
                 () -> assertEquals(checklist.getName(), testChecklist.getName()),
                 () -> assertEquals(card.getId(), testChecklist.getCardId())
@@ -89,8 +91,10 @@ public class ChecklistTest {
         assertAll(
                 () -> assertEquals(checklist.getCreatedBy(), testChecklist.getCreatedBy()),
                 () -> assertEquals(checklist.getUpdatedBy(), testChecklist.getUpdatedBy()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testChecklist.getCreatedDate()),
-                () -> assertEquals(Date.valueOf(LocalDate.now()), testChecklist.getUpdatedDate()),
+                () -> assertTrue(testChecklist.getCreatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertTrue(testChecklist.getUpdatedDate().toString()
+                        .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertEquals(checklist.getName(), testChecklist.getName())
         );
     }
