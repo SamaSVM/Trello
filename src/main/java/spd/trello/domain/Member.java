@@ -6,6 +6,7 @@ import spd.trello.domain.enums.MemberRole;
 import spd.trello.domain.perent.Resource;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Data
@@ -18,6 +19,7 @@ public class Member extends Resource {
     private MemberRole memberRole = MemberRole.GUEST;
 
     @Column(name = "user_id")
+    @NotNull(message = "The userId field must be filled.")
     private UUID userId;
 }
 
