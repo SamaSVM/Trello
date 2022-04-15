@@ -7,7 +7,7 @@ import spd.trello.services.CommentService;
 
 @RestController
 @RequestMapping("/comments")
-public class CommentController extends AbstractController<Comment, CommentService>{
+public class CommentController extends AbstractController<Comment, CommentService> {
     public CommentController(CommentService service) {
         super(service);
     }
