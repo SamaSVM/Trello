@@ -10,40 +10,35 @@ import spd.trello.repository.CardRepository;
 public class AttachmentValidator extends AbstractValidator<Attachment> {
     private final CardRepository cardRepository;
     private final AttachmentRepository attachmentRepository;
+    private final HelperValidator<Attachment> helper;
 
-    public AttachmentValidator(CardRepository cardRepository, AttachmentRepository attachmentRepository) {
+    public AttachmentValidator(CardRepository cardRepository, AttachmentRepository attachmentRepository,
+                               HelperValidator<Attachment> helper) {
         this.cardRepository = cardRepository;
         this.attachmentRepository = attachmentRepository;
+        this.helper = helper;
     }
 
     @Override
 
     public void validateSaveEntity(Attachment entity) {
+        StringBuilder exceptions = helper.checkCreateEntity(entity);
         if (!cardRepository.existsById(entity.getCardId())) {
-            throw new BadRequestException("The cardId field must belong to a card.");
+            exceptions.append("The cardId field must belong to a card.");
         }
-
-        super.validateSaveEntity(entity);
+        helper.throwException(exceptions);
     }
 
     @Override
     public void validateUpdateEntity(Attachment entity) {
-        Attachment oldAttachment = attachmentRepository.getById(entity.getId());
-        if(!oldAttachment.getCreatedBy().equals(entity.getCreatedBy())){
-            throw new BadRequestException("The createdBy field cannot be updated.");
+        var oldAttachment = attachmentRepository.findById(entity.getId());
+        if (oldAttachment.isEmpty()) {
+            throw new BadRequestException("Cannot update non-existent card!");
         }
-        if(!oldAttachment.getCreatedDate().equals(entity.getCreatedDate())){
-            throw new BadRequestException("The createdDate field cannot be updated.");
+        StringBuilder exceptions = helper.checkUpdateEntity(oldAttachment.get(), entity);
+        if (!oldAttachment.get().getCardId().equals(entity.getCardId())) {
+            exceptions.append("Attachment cannot be transferred to another card. \n");
         }
-        if(!oldAttachment.getCardId().equals(entity.getCardId())){
-            throw new BadRequestException("Attachment cannot be transferred to another card.");
-        }
-        if (entity.getUpdatedBy() == null) {
-            throw new BadRequestException("The updatedBy field must be filled.");
-        }
-        if (entity.getUpdatedDate() == null) {
-            throw new BadRequestException("The updatedDate field must be filled.");
-        }
-        super.validateUpdateEntity(entity);
+        helper.throwException(exceptions);
     }
 }
