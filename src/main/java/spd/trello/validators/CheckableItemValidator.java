@@ -21,7 +21,6 @@ public class CheckableItemValidator extends AbstractValidator<CheckableItem> {
         if (!checklistRepository.existsById(entity.getChecklistId())) {
             throw new BadRequestException("The checklistId field must belong to a checklist.");
         }
-        super.validateSaveEntity(entity);
     }
 
     @Override
@@ -30,6 +29,5 @@ public class CheckableItemValidator extends AbstractValidator<CheckableItem> {
         if (!oldCheckableItem.getChecklistId().equals(entity.getChecklistId())) {
             throw new BadRequestException("CheckableItem cannot be transferred to another checklist.");
         }
-        super.validateUpdateEntity(entity);
     }
 }
