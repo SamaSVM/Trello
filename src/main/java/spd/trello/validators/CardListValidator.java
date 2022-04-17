@@ -43,7 +43,7 @@ public class CardListValidator extends AbstractValidator<CardList> {
         }
         StringBuilder exceptions = helper.checkUpdateEntity(oldCardList.get(), entity);
         if (!oldCardList.get().getBoardId().equals(entity.getBoardId())) {
-            throw new BadRequestException("CardList cannot be transferred to another board.");
+            exceptions.append("CardList cannot be transferred to another board.");
         }
         helper.throwException(exceptions);
     }
