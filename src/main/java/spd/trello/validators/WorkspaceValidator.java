@@ -13,44 +13,39 @@ import java.util.UUID;
 public class WorkspaceValidator extends AbstractValidator<Workspace> {
 
     private final MemberRepository memberRepository;
-
     private final WorkspaceRepository workspaceRepository;
+    private final HelperValidator<Workspace> helper;
 
-    public WorkspaceValidator(MemberRepository memberRepository, WorkspaceRepository workspaceRepository) {
+    public WorkspaceValidator(MemberRepository memberRepository, WorkspaceRepository workspaceRepository,
+                              HelperValidator<Workspace> helper) {
         this.memberRepository = memberRepository;
         this.workspaceRepository = workspaceRepository;
+        this.helper = helper;
     }
 
     @Override
     public void validateSaveEntity(Workspace entity) {
-        validMembersId(entity.getMembersId());
-        super.validateSaveEntity(entity);
+        StringBuilder exceptions = helper.checkCreateEntity(entity);
+        validMembersId(exceptions, entity.getMembersId());
+        helper.throwException(exceptions);
     }
 
     @Override
     public void validateUpdateEntity(Workspace entity) {
-        Workspace oldWorkspace = workspaceRepository.getById(entity.getId());
-        if (!oldWorkspace.getCreatedBy().equals(entity.getCreatedBy())) {
-            throw new BadRequestException("The createdBy field cannot be updated.");
+        var oldWorkspace = workspaceRepository.findById(entity.getId());
+        if (oldWorkspace.isEmpty()) {
+            throw new BadRequestException("Cannot update non-existent workspace!");
         }
-        if (!oldWorkspace.getCreatedDate().equals(entity.getCreatedDate())) {
-            throw new BadRequestException("The createdDate field cannot be updated.");
-        }
-        if (entity.getUpdatedBy() == null) {
-            throw new BadRequestException("The updatedBy field must be filled.");
-        }
-        if (entity.getUpdatedDate() == null) {
-            throw new BadRequestException("The updatedDate field must be filled.");
-        }
-        validMembersId(entity.getMembersId());
-        super.validateUpdateEntity(entity);
+        StringBuilder exceptions = helper.checkUpdateEntity(oldWorkspace.get(), entity);
+        validMembersId(exceptions, entity.getMembersId());
+        helper.throwException(exceptions);
     }
 
-    private void validMembersId(Set<UUID> membersId) {
-        for (UUID id : membersId) {
+    private void validMembersId(StringBuilder exceptions, Set<UUID> membersId) {
+        membersId.forEach(id -> {
             if (memberRepository.existsById(id)) {
-                throw new BadRequestException(id + " - memberId must belong to the member.");
+                exceptions.append(id).append(" - memberId must belong to the member.");
             }
-        }
+        });
     }
 }
