@@ -36,7 +36,7 @@ public class CardListValidator extends AbstractValidator<CardList> {
     public void validateUpdateEntity(CardList entity) {
         var oldCardList = cardListRepository.findById(entity.getId());
         if (oldCardList.isEmpty()) {
-            throw new BadRequestException("Cannot update non-existent workspace!");
+            throw new BadRequestException("Cannot update non-existent card list!");
         }
         if (!oldCardList.get().getArchived() && !entity.getArchived()) {
             throw new BadRequestException("Archived CardList cannot be updated.");
