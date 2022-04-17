@@ -41,6 +41,7 @@ public class UnitHelper {
         User user = new User();
         user.setFirstName("testFirstName");
         user.setLastName("testLastName");
+        user.setTimeZone("Europe/Kiev");
         user.setEmail(email);
         return userService.save(user);
     }
@@ -50,6 +51,7 @@ public class UnitHelper {
         User user = getNewUser(email);
         member.setUserId(user.getId());
         member.setCreatedBy(user.getEmail());
+        member.setCreatedDate(LocalDateTime.now());
         member.setMemberRole(MemberRole.ADMIN);
         return memberService.save(member);
     }
@@ -58,9 +60,9 @@ public class UnitHelper {
         Workspace workspace = new Workspace();
         Member member = getNewMember(email);
         workspace.setCreatedBy(member.getCreatedBy());
+        workspace.setCreatedDate(LocalDateTime.now());
         workspace.setName("MemberName");
         workspace.setDescription("description");
-        workspace.setCreatedBy(member.getId().toString());
         Set<UUID> membersId = new HashSet<>();
         membersId.add(member.getId());
         workspace.setMembersId(membersId);
@@ -74,6 +76,7 @@ public class UnitHelper {
         board.setDescription("description");
         board.setWorkspaceId(workspace.getId());
         board.setCreatedBy(workspace.getCreatedBy());
+        board.setCreatedDate(LocalDateTime.now());
         Set<UUID> membersId = workspace.getMembersId();
         board.setMembersId(membersId);
         return boardService.save(board);
@@ -85,6 +88,7 @@ public class UnitHelper {
         cardList.setBoardId(board.getId());
         cardList.setName("CardListName");
         cardList.setCreatedBy(board.getCreatedBy());
+        cardList.setCreatedDate(LocalDateTime.now());
         return cardListService.save(cardList);
     }
 
@@ -97,6 +101,7 @@ public class UnitHelper {
         card.setDescription("description");
         card.setCardListId(cardList.getId());
         card.setCreatedBy(cardList.getCreatedBy());
+        card.setCreatedDate(LocalDateTime.now());
         Set<UUID> membersId = boardService.getById(cardList.getBoardId()).getMembersId();
         card.setMembersId(membersId);
         return cardService.save(card);
@@ -105,10 +110,10 @@ public class UnitHelper {
     public Reminder getNewReminder(String email) {
         Reminder reminder = new Reminder();
         reminder.setCreatedBy(email);
+        reminder.setCreatedDate(LocalDateTime.now());
         reminder.setRemindOn(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
         reminder.setStart(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
         reminder.setEnd(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setCreatedDate(LocalDateTime.now());
         return reminder;
     }
 
@@ -118,6 +123,7 @@ public class UnitHelper {
         comment.setText("testComment");
         comment.setCardId(card.getId());
         comment.setCreatedBy(card.getCreatedBy());
+        comment.setCreatedDate(LocalDateTime.now());
         return commentService.save(comment);
     }
 
@@ -127,6 +133,7 @@ public class UnitHelper {
         checklist.setName("testChecklist");
         checklist.setCardId(card.getId());
         checklist.setCreatedBy(card.getCreatedBy());
+        checklist.setCreatedDate(LocalDateTime.now());
         return checklistService.save(checklist);
     }
 
@@ -163,6 +170,7 @@ public class UnitHelper {
         attachment.setLink("link");
         attachment.setName("name");
         attachment.setCreatedBy(card.getCreatedBy());
+        attachment.setCreatedDate(LocalDateTime.now());
         return attachmentService.save(attachment);
     }
 }

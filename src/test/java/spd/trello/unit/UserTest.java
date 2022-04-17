@@ -27,6 +27,7 @@ public class UserTest {
         user.setFirstName("createFirstName");
         user.setLastName("createLastName");
         user.setEmail("create@email");
+        user.setTimeZone(ZoneId.systemDefault().toString());
         User testUser = service.save(user);
 
         assertNotNull(testUser);
@@ -75,7 +76,6 @@ public class UserTest {
         assertNotNull(firstUser);
         firstUser.setFirstName("newFirstName");
         firstUser.setLastName("newLastName");
-        firstUser.setEmail("new@email");
         firstUser.setTimeZone("Europe/Paris");
         service.update(firstUser);
 
@@ -83,19 +83,9 @@ public class UserTest {
         assertAll(
                 () -> assertEquals("newFirstName", testUser.getFirstName()),
                 () -> assertEquals("newLastName", testUser.getLastName()),
-                () -> assertEquals("update@UT", testUser.getEmail()),
+                () -> assertEquals("update@ut", testUser.getEmail()),
                 () -> assertEquals("Europe/Paris", testUser.getTimeZone())
         );
-    }
-
-    @Test
-    public void createFailure() {
-        BadRequestException ex = assertThrows(
-                BadRequestException.class,
-                () -> service.save(new User()),
-                "no exception"
-        );
-        assertTrue(ex.getMessage().contains("could not execute statement;"));
     }
 
     @Test
@@ -117,5 +107,31 @@ public class UserTest {
                 "no exception"
         );
         assertEquals("No class spd.trello.domain.User entity with id " + id + " exists!", ex.getMessage());
+    }
+
+    @Test
+    public void validationCreate() {
+        User user = helper.getNewUser("validationCreate@UT");
+        BadRequestException ex = assertThrows(
+                BadRequestException.class, () -> service.save(user), "no exception"
+        );
+        assertEquals("Email is already in use!", ex.getMessage());
+    }
+
+    @Test
+    public void validationUpdate() {
+        User user = helper.getNewUser("validationUpdate@UT");
+        user.setEmail("newValidationUpdate@UT");
+        BadRequestException firstExceptions = assertThrows(
+                BadRequestException.class, () -> service.update(user), "no exception"
+        );
+        user.setId(UUID.randomUUID());
+        BadRequestException secondExceptions = assertThrows(
+                BadRequestException.class, () -> service.update(user), "no exception"
+        );
+        assertAll(
+                () -> assertEquals("The email field cannot be updated!", firstExceptions.getMessage()),
+                () -> assertEquals("Cannot update non-existent user!", secondExceptions.getMessage())
+        );
     }
 }

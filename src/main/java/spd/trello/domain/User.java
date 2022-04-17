@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.ZoneId;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -29,11 +30,11 @@ public class User extends Domain {
     private String lastName;
 
     @Column(name = "email")
+    @NotNull(message = "The email field must be filled.")
     @Email(message = "The email field should look like email.")
     private String email;
 
     @Column(name = "time_zone")
-    @NotNull(message = "The timezone field must be filled.")
     @TimeZone
-    private String timeZone;
+    private String timeZone = ZoneId.systemDefault().toString();
 }
