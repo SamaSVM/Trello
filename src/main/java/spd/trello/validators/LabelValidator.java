@@ -21,16 +21,16 @@ public class LabelValidator extends AbstractValidator<Label> {
         if (!cardRepository.existsById(entity.getCardId())) {
             throw new BadRequestException("The cardId field must belong to a card.");
         }
-        super.validateSaveEntity(entity);
     }
 
     @Override
     public void validateUpdateEntity(Label entity) {
-        Label oldLabel = labelRepository.getById(entity.getId());
-        if(!oldLabel.getCardId().equals(entity.getCardId())){
+        var oldLabel = labelRepository.findById(entity.getId());
+        if (oldLabel.isEmpty()) {
+            throw new BadRequestException("Cannot update non-existent card!");
+        }
+        if(!oldLabel.get().getCardId().equals(entity.getCardId())){
             throw new BadRequestException("Label cannot be transferred to another card.");
         }
-
-        super.validateUpdateEntity(entity);
     }
 }
