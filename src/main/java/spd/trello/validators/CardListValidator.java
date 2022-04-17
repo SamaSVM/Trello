@@ -10,46 +10,41 @@ import spd.trello.repository.CardListRepository;
 public class CardListValidator extends AbstractValidator<CardList> {
 
     private final BoardRepository boardRepository;
-
     private final CardListRepository cardListRepository;
+    private final HelperValidator<CardList> helper;
 
-    public CardListValidator(BoardRepository boardRepository, CardListRepository cardListRepository) {
+    public CardListValidator(BoardRepository boardRepository, CardListRepository cardListRepository,
+                             HelperValidator<CardList> helper) {
         this.boardRepository = boardRepository;
         this.cardListRepository = cardListRepository;
+        this.helper = helper;
     }
 
     @Override
     public void validateSaveEntity(CardList entity) {
         if (entity.getArchived()) {
-            throw new BadRequestException("You cannot create an archived board.");
+            throw new BadRequestException("You cannot create an archived card list.");
         }
+        StringBuilder exceptions = helper.checkCreateEntity(entity);
         if (!boardRepository.existsById(entity.getBoardId())) {
-            throw new BadRequestException("The boardId field must belong to a board.");
+            exceptions.append("The boardId field must belong to a board.");
         }
-        super.validateSaveEntity(entity);
+        helper.throwException(exceptions);
     }
 
     @Override
     public void validateUpdateEntity(CardList entity) {
-        CardList oldCardList = cardListRepository.getById(entity.getId());
-        if (!oldCardList.getArchived() && !entity.getArchived()) {
+        var oldCardList = cardListRepository.findById(entity.getId());
+        if (oldCardList.isEmpty()) {
+            throw new BadRequestException("Cannot update non-existent workspace!");
+        }
+        if (!oldCardList.get().getArchived() && !entity.getArchived()) {
             throw new BadRequestException("Archived CardList cannot be updated.");
         }
-        if (!oldCardList.getCreatedBy().equals(entity.getCreatedBy())) {
-            throw new BadRequestException("The createdBy field cannot be updated.");
-        }
-        if (!oldCardList.getCreatedDate().equals(entity.getCreatedDate())) {
-            throw new BadRequestException("The createdDate field cannot be updated.");
-        }
-        if (!oldCardList.getBoardId().equals(entity.getBoardId())) {
+        StringBuilder exceptions = helper.checkUpdateEntity(oldCardList.get(), entity);
+        if (!oldCardList.get().getBoardId().equals(entity.getBoardId())) {
             throw new BadRequestException("CardList cannot be transferred to another board.");
         }
-        if (entity.getUpdatedBy() == null) {
-            throw new BadRequestException("The updatedBy field must be filled.");
-        }
-        if (entity.getUpdatedDate() == null) {
-            throw new BadRequestException("The updatedDate field must be filled.");
-        }
-        super.validateUpdateEntity(entity);
+        helper.throwException(exceptions);
     }
 }
