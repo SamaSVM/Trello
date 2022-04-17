@@ -19,15 +19,16 @@ public class UserValidator extends AbstractValidator<User> {
         if (repository.existsByEmail(entity.getEmail())) {
             throw new BadRequestException("Email is already in use!");
         }
-        super.validateSaveEntity(entity);
     }
 
     @Override
     public void validateUpdateEntity(User entity) {
-        User oldUser = repository.getById(entity.getId());
-        if (!oldUser.getEmail().equals(entity.getEmail())) {
+        var oldUser = repository.findById(entity.getId());
+        if (oldUser.isEmpty()) {
+            throw new BadRequestException("Cannot update non-existent user!");
+        }
+        if (!oldUser.get().getEmail().equals(entity.getEmail())) {
             throw new BadRequestException("The email field cannot be updated!");
         }
-        super.validateUpdateEntity(entity);
     }
 }
