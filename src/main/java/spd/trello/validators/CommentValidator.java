@@ -10,38 +10,34 @@ import spd.trello.repository.CommentRepository;
 public class CommentValidator extends AbstractValidator<Comment> {
     private final CardRepository cardRepository;
     private final CommentRepository commentRepository;
+    private final HelperValidator<Comment> helper;
 
-    public CommentValidator(CardRepository cardRepository, CommentRepository commentRepository) {
+    public CommentValidator(CardRepository cardRepository, CommentRepository commentRepository,
+                            HelperValidator<Comment> helper) {
         this.cardRepository = cardRepository;
         this.commentRepository = commentRepository;
+        this.helper = helper;
     }
 
     @Override
     public void validateSaveEntity(Comment entity) {
+        StringBuilder exceptions = helper.checkCreateEntity(entity);
         if (!cardRepository.existsById(entity.getCardId())) {
-            throw new BadRequestException("The cardId field must belong to a card.");
+            exceptions.append("The cardId field must belong to a card. \n");
         }
-        super.validateSaveEntity(entity);
+        helper.throwException(exceptions);
     }
 
     @Override
     public void validateUpdateEntity(Comment entity) {
-        Comment oldComment = commentRepository.getById(entity.getId());
-        if (!oldComment.getCreatedBy().equals(entity.getCreatedBy())) {
-            throw new BadRequestException("The createdBy field cannot be updated.");
+        var oldComment = commentRepository.findById(entity.getId());
+        if (oldComment.isEmpty()) {
+            throw new BadRequestException("Cannot update non-existent comment!");
         }
-        if (!oldComment.getCreatedDate().equals(entity.getCreatedDate())) {
-            throw new BadRequestException("The createdDate field cannot be updated.");
+        StringBuilder exceptions = helper.checkUpdateEntity(oldComment.get(), entity);
+        if (!oldComment.get().getCardId().equals(entity.getCardId())) {
+            exceptions.append("Comment cannot be transferred to another card. \n");
         }
-        if (!oldComment.getCardId().equals(entity.getCardId())) {
-            throw new BadRequestException("Comment cannot be transferred to another card.");
-        }
-        if (entity.getUpdatedBy() == null) {
-            throw new BadRequestException("The updatedBy field must be filled.");
-        }
-        if (entity.getUpdatedDate() == null) {
-            throw new BadRequestException("The updatedDate field must be filled.");
-        }
-        super.validateUpdateEntity(entity);
+        helper.throwException(exceptions);
     }
 }
