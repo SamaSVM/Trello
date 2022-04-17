@@ -155,7 +155,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
                 () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
                 () -> assertTrue(ExceptionMessage.contains(firstNameMessage)),
                 () -> assertTrue(ExceptionMessage.contains(lastNameMessage)),
-                () -> assertTrue(ExceptionMessage.contains( emailMessage))
+                () -> assertTrue(ExceptionMessage.contains(emailMessage))
         );
     }
 
@@ -210,7 +210,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
                 () -> assertEquals(HttpStatus.BAD_REQUEST.value(), firstMvcResult.getResponse().getStatus()),
                 () -> assertTrue(firstExceptionMessage.contains(firstFirstNameMessage)),
                 () -> assertTrue(firstExceptionMessage.contains(firstLastNameMessage)),
-                () -> assertTrue(firstExceptionMessage.contains( firstEmailMessage))
+                () -> assertTrue(firstExceptionMessage.contains(firstEmailMessage))
         );
     }
 

@@ -119,19 +119,22 @@ public class UserTest {
     }
 
     @Test
-    public void validationUpdate() {
-        User user = helper.getNewUser("validationUpdate@UT");
+    public void emailUpdate() {
+        User user = helper.getNewUser("emailUpdate@UT");
         user.setEmail("newValidationUpdate@UT");
         BadRequestException firstExceptions = assertThrows(
                 BadRequestException.class, () -> service.update(user), "no exception"
         );
+        assertEquals("The email field cannot be updated!", firstExceptions.getMessage());
+    }
+
+    @Test
+    public void nonExistentUserUpdate() {
+        User user = helper.getNewUser("nonExistentUser@UT");
         user.setId(UUID.randomUUID());
         BadRequestException secondExceptions = assertThrows(
                 BadRequestException.class, () -> service.update(user), "no exception"
         );
-        assertAll(
-                () -> assertEquals("The email field cannot be updated!", firstExceptions.getMessage()),
-                () -> assertEquals("Cannot update non-existent user!", secondExceptions.getMessage())
-        );
+        assertEquals("Cannot update non-existent user!", secondExceptions.getMessage());
     }
 }
