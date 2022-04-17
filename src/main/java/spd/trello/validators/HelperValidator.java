@@ -3,11 +3,21 @@ package spd.trello.validators;
 import org.springframework.stereotype.Component;
 import spd.trello.domain.perent.Resource;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.repository.MemberRepository;
 
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
 
 @Component
 public class HelperValidator<T extends Resource> {
+
+    private final MemberRepository memberRepository;
+
+    public HelperValidator(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
+    }
+
     public StringBuilder checkCreateEntity(T entity) {
         StringBuilder exceptions = new StringBuilder();
         if (LocalDateTime.now().minusMinutes(1L).isAfter(entity.getCreatedDate()) ||
@@ -45,5 +55,13 @@ public class HelperValidator<T extends Resource> {
         if (exceptions.length() != 0) {
             throw new BadRequestException(exceptions.toString());
         }
+    }
+
+    public void validMembersId(StringBuilder exceptions, Set<UUID> membersId) {
+        membersId.forEach(id -> {
+            if (!memberRepository.existsById(id)) {
+                exceptions.append(id).append(" - memberId must belong to the member. \n");
+            }
+        });
     }
 }

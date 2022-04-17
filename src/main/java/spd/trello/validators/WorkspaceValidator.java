@@ -12,13 +12,10 @@ import java.util.UUID;
 @Component
 public class WorkspaceValidator extends AbstractValidator<Workspace> {
 
-    private final MemberRepository memberRepository;
     private final WorkspaceRepository workspaceRepository;
     private final HelperValidator<Workspace> helper;
 
-    public WorkspaceValidator(MemberRepository memberRepository, WorkspaceRepository workspaceRepository,
-                              HelperValidator<Workspace> helper) {
-        this.memberRepository = memberRepository;
+    public WorkspaceValidator( WorkspaceRepository workspaceRepository, HelperValidator<Workspace> helper) {
         this.workspaceRepository = workspaceRepository;
         this.helper = helper;
     }
@@ -26,7 +23,7 @@ public class WorkspaceValidator extends AbstractValidator<Workspace> {
     @Override
     public void validateSaveEntity(Workspace entity) {
         StringBuilder exceptions = helper.checkCreateEntity(entity);
-        validMembersId(exceptions, entity.getMembersId());
+        helper.validMembersId(exceptions, entity.getMembersId());
         helper.throwException(exceptions);
     }
 
@@ -37,15 +34,9 @@ public class WorkspaceValidator extends AbstractValidator<Workspace> {
             throw new BadRequestException("Cannot update non-existent workspace!");
         }
         StringBuilder exceptions = helper.checkUpdateEntity(oldWorkspace.get(), entity);
-        validMembersId(exceptions, entity.getMembersId());
+        helper.validMembersId(exceptions, entity.getMembersId());
         helper.throwException(exceptions);
     }
 
-    private void validMembersId(StringBuilder exceptions, Set<UUID> membersId) {
-        membersId.forEach(id -> {
-            if (memberRepository.existsById(id)) {
-                exceptions.append(id).append(" - memberId must belong to the member.");
-            }
-        });
-    }
+
 }
