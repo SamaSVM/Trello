@@ -11,38 +11,34 @@ public class MemberValidator extends AbstractValidator<Member> {
 
     private final UserRepository userRepository;
     private final MemberRepository memberRepository;
+    private final HelperValidator<Member> helper;
 
-    public MemberValidator(UserRepository userRepository, MemberRepository memberRepository) {
+    public MemberValidator
+            (UserRepository userRepository, MemberRepository memberRepository, HelperValidator<Member> helper) {
         this.userRepository = userRepository;
         this.memberRepository = memberRepository;
+        this.helper = helper;
     }
 
     @Override
     public void validateSaveEntity(Member entity) {
+        StringBuilder exceptions = helper.checkCreateEntity(entity);
         if (!userRepository.existsById(entity.getUserId())) {
-            throw new BadRequestException("The userId field must belong to a user.");
+            exceptions.append("The userId field must belong to a user. \n");
         }
-        super.validateSaveEntity(entity);
+        helper.throwException(exceptions);
     }
 
     @Override
     public void validateUpdateEntity(Member entity) {
-        Member oldMember = memberRepository.getById(entity.getId());
-        if (!oldMember.getCreatedBy().equals(entity.getCreatedBy())) {
-            throw new BadRequestException("The createdBy field cannot be updated.");
+        var oldMember = memberRepository.findById(entity.getId());
+        if (oldMember.isEmpty()) {
+            throw new BadRequestException("Cannot update non-existent member!");
         }
-        if (!oldMember.getCreatedDate().equals(entity.getCreatedDate())) {
-            throw new BadRequestException("The createdDate field cannot be updated.");
+        StringBuilder exceptions = helper.checkUpdateEntity(oldMember.get(), entity);
+        if (!oldMember.get().getUserId().equals(entity.getUserId())) {
+            exceptions.append("Member cannot be transferred to another user. \n");
         }
-        if (!oldMember.getUserId().equals(entity.getUserId())) {
-            throw new BadRequestException("Member cannot be transferred to another user.");
-        }
-        if (entity.getUpdatedBy() == null) {
-            throw new BadRequestException("The updatedBy field must be filled.");
-        }
-        if (entity.getUpdatedDate() == null) {
-            throw new BadRequestException("The updatedDate field must be filled.");
-        }
-        super.validateUpdateEntity(entity);
+        helper.throwException(exceptions);
     }
 }
