@@ -3,6 +3,7 @@ package spd.trello.validators;
 import org.springframework.stereotype.Component;
 import spd.trello.domain.Member;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.MemberRepository;
 import spd.trello.repository.UserRepository;
 
@@ -33,7 +34,7 @@ public class MemberValidator extends AbstractValidator<Member> {
     public void validateUpdateEntity(Member entity) {
         var oldMember = memberRepository.findById(entity.getId());
         if (oldMember.isEmpty()) {
-            throw new BadRequestException("Cannot update non-existent member!");
+            throw new ResourceNotFoundException("Cannot update non-existent member!");
         }
         StringBuilder exceptions = helper.checkUpdateEntity(oldMember.get(), entity);
         if (!oldMember.get().getUserId().equals(entity.getUserId())) {

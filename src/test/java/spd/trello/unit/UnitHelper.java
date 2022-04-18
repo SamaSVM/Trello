@@ -51,7 +51,7 @@ public class UnitHelper {
         User user = getNewUser(email);
         member.setUserId(user.getId());
         member.setCreatedBy(user.getEmail());
-        member.setCreatedDate(LocalDateTime.now());
+        member.setCreatedDate(LocalDateTime.now().withNano(0));
         member.setMemberRole(MemberRole.ADMIN);
         return memberService.save(member);
     }

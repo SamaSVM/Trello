@@ -29,8 +29,11 @@ public class HelperValidator<T extends Resource> {
 
     public StringBuilder checkUpdateEntity(T oldEntity, T newEntity) {
         StringBuilder exceptions = new StringBuilder();
-        if(newEntity.getUpdatedBy() == null || newEntity.getUpdatedDate() == null){
-            throw new BadRequestException("Fields createdBy and createdDate must be filled.");
+        if (newEntity.getUpdatedBy() == null) {
+            throw new BadRequestException("The updatedBy field must be filled. \n");
+        }
+        if (newEntity.getUpdatedDate() == null) {
+            throw new BadRequestException("The updatedDate field must be filled. \n");
         }
         if (LocalDateTime.now().minusMinutes(1L).isAfter(newEntity.getUpdatedDate()) ||
                 LocalDateTime.now().plusMinutes(1L).isBefore(newEntity.getUpdatedDate())) {
@@ -41,12 +44,6 @@ public class HelperValidator<T extends Resource> {
         }
         if (!oldEntity.getCreatedDate().equals(newEntity.getCreatedDate())) {
             exceptions.append("The createdDate field cannot be updated. \n");
-        }
-        if (newEntity.getUpdatedBy() == null) {
-            exceptions.append("The updatedBy field must be filled. \n");
-        }
-        if (newEntity.getUpdatedDate() == null) {
-            exceptions.append("The updatedDate field must be filled. \n");
         }
         return exceptions;
     }
