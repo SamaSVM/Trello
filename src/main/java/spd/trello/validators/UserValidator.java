@@ -3,6 +3,7 @@ package spd.trello.validators;
 import org.springframework.stereotype.Component;
 import spd.trello.domain.User;
 import spd.trello.exeption.BadRequestException;
+import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.UserRepository;
 
 @Component
@@ -25,7 +26,7 @@ public class UserValidator extends AbstractValidator<User> {
     public void validateUpdateEntity(User entity) {
         var oldUser = repository.findById(entity.getId());
         if (oldUser.isEmpty()) {
-            throw new BadRequestException("Cannot update non-existent user!");
+            throw new ResourceNotFoundException("Cannot update non-existent user!");
         }
         if (!oldUser.get().getEmail().equals(entity.getEmail())) {
             throw new BadRequestException("The email field cannot be updated!");

@@ -253,12 +253,12 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void nonExistentUserUpdate() throws Exception {
-        User testUser = helper.getNewUser("nonexistentuser@uit");
-        MvcResult fourthMvcResult = super.update(URL_TEMPLATE, UUID.randomUUID(), testUser);
+        User user = helper.getNewUser("nonexistentuser@uit");
+        MvcResult fourthMvcResult = super.update(URL_TEMPLATE, UUID.randomUUID(), user);
         String fourthExceptionMessage = Objects.requireNonNull(fourthMvcResult.getResolvedException()).getMessage();
 
         assertAll(
-                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), fourthMvcResult.getResponse().getStatus()),
+                () -> assertEquals(HttpStatus.NOT_FOUND.value(), fourthMvcResult.getResponse().getStatus()),
                 () -> assertEquals("Cannot update non-existent user!", fourthExceptionMessage)
         );
     }

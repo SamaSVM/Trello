@@ -132,8 +132,8 @@ public class UserTest {
     public void nonExistentUserUpdate() {
         User user = helper.getNewUser("nonExistentUser@UT");
         user.setId(UUID.randomUUID());
-        BadRequestException secondExceptions = assertThrows(
-                BadRequestException.class, () -> service.update(user), "no exception"
+        ResourceNotFoundException secondExceptions = assertThrows(
+                ResourceNotFoundException.class, () -> service.update(user), "no exception"
         );
         assertEquals("Cannot update non-existent user!", secondExceptions.getMessage());
     }

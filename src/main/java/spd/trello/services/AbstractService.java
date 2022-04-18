@@ -21,22 +21,14 @@ public abstract class AbstractService<E extends Domain, R extends AbstractReposi
 
     @Override
     public E save(E entity) {
-        try {
-            validator.validateSaveEntity(entity);
-            return repository.save(entity);
-        } catch (RuntimeException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        validator.validateSaveEntity(entity);
+        return repository.save(entity);
     }
 
     @Override
     public E update(E entity) {
-        try {
-            validator.validateUpdateEntity(entity);
-            return repository.save(entity);
-        } catch (RuntimeException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        validator.validateUpdateEntity(entity);
+        return repository.save(entity);
     }
 
     @Override
