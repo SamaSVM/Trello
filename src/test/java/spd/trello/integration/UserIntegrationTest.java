@@ -10,7 +10,6 @@ import spd.trello.domain.User;
 
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -26,13 +25,13 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
     @Test
     public void create() throws Exception {
         User firstUser = new User();
-        firstUser.setEmail("1create@UIT");
+        firstUser.setEmail("1create@UIT.com.com");
         firstUser.setFirstName("first name");
         firstUser.setLastName("last name");
         MvcResult firstMvcResult = super.create(URL_TEMPLATE, firstUser);
 
         User secondUser = new User();
-        secondUser.setEmail("2create@UIT");
+        secondUser.setEmail("2create@UIT.com");
         secondUser.setFirstName("first name");
         secondUser.setLastName("last name");
         secondUser.setTimeZone("Europe/Paris");
@@ -41,16 +40,14 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
         assertAll(
                 () -> assertEquals(HttpStatus.CREATED.value(), firstMvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(firstMvcResult, "$.id")),
-                () -> assertEquals(firstUser.getEmail().toLowerCase(Locale.ROOT),
-                        getValue(firstMvcResult, "$.email")),
+                () -> assertEquals(firstUser.getEmail(), getValue(firstMvcResult, "$.email")),
                 () -> assertEquals(firstUser.getFirstName(), getValue(firstMvcResult, "$.firstName")),
                 () -> assertEquals(firstUser.getLastName(), getValue(firstMvcResult, "$.lastName")),
                 () -> assertEquals(ZoneId.systemDefault().toString(), getValue(firstMvcResult, "$.timeZone")),
 
                 () -> assertEquals(HttpStatus.CREATED.value(), secondMvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(secondMvcResult, "$.id")),
-                () -> assertEquals(secondUser.getEmail().toLowerCase(Locale.ROOT),
-                        getValue(secondMvcResult, "$.email")),
+                () -> assertEquals(secondUser.getEmail(), getValue(secondMvcResult, "$.email")),
                 () -> assertEquals(secondUser.getFirstName(), getValue(secondMvcResult, "$.firstName")),
                 () -> assertEquals(secondUser.getLastName(), getValue(secondMvcResult, "$.lastName")),
                 () -> assertEquals(secondUser.getTimeZone(), getValue(secondMvcResult, "$.timeZone"))
@@ -67,8 +64,8 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void findAll() throws Exception {
-        User firsUser = helper.getNewUser("1findAll@UIT");
-        User secondUser = helper.getNewUser("2findAll@UIT");
+        User firsUser = helper.getNewUser("1findAll@UIT.com");
+        User secondUser = helper.getNewUser("2findAll@UIT.com");
         MvcResult mvcResult = super.findAll(URL_TEMPLATE);
         List<User> testUsers = helper.getUsersArray(mvcResult);
 
@@ -82,7 +79,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void findById() throws Exception {
-        User user = helper.getNewUser("findById@UIT");
+        User user = helper.getNewUser("findById@UIT.com");
         MvcResult mvcResult = super.findById(URL_TEMPLATE, user.getId());
 
         assertAll(
@@ -104,7 +101,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void deleteById() throws Exception {
-        User user = helper.getNewUser("deleteById@UIT");
+        User user = helper.getNewUser("deleteById@UIT.com");
         MvcResult mvcResult = super.deleteById(URL_TEMPLATE, user.getId());
         MvcResult deleteMvcResult = super.findAll(URL_TEMPLATE);
         List<User> testUsers = helper.getUsersArray(deleteMvcResult);
@@ -126,7 +123,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void update() throws Exception {
-        User user = helper.getNewUser("update@uit");
+        User user = helper.getNewUser("update@UIT.com");
         user.setFirstName("new first name");
         user.setLastName("new last name");
         user.setTimeZone("Europe/Paris");
@@ -146,16 +143,12 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
     public void nullFieldsCreate() throws Exception {
         User user = new User();
         MvcResult mvcResult = super.create(URL_TEMPLATE, user);
-        String firstNameMessage = "The firstname field must be filled.";
-        String lastNameMessage = "The lastname field must be filled.";
-        String emailMessage = "The email field must be filled.";
-        String ExceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
+        String exceptionMessage = "The firstname, lastname and email fields must be filled.";
 
         assertAll(
                 () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
-                () -> assertTrue(ExceptionMessage.contains(firstNameMessage)),
-                () -> assertTrue(ExceptionMessage.contains(lastNameMessage)),
-                () -> assertTrue(ExceptionMessage.contains(emailMessage))
+                () -> assertEquals(exceptionMessage,
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
         );
     }
 
@@ -175,7 +168,6 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
         String exceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
 
         assertAll(
-
                 () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
                 () -> assertTrue(exceptionMessage.contains(firstNameMessage)),
                 () -> assertTrue(exceptionMessage.contains(lastNameMessage)),
@@ -186,7 +178,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void repeatedEmailCreate() throws Exception {
-        User user = helper.getNewUser("repeatedemailcreate@uit");
+        User user = helper.getNewUser("repeatedemailcreate@UIT.com");
         user.setId(UUID.randomUUID());
         MvcResult thirdMvcResult = super.create(URL_TEMPLATE, user);
         String thirdExceptionMessage = Objects.requireNonNull(thirdMvcResult.getResolvedException()).getMessage();
@@ -199,49 +191,45 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void nullFieldsUpdate() throws Exception {
-        User user = new User();
-        MvcResult firstMvcResult = super.update(URL_TEMPLATE, user.getId(), user);
-        String firstFirstNameMessage = "The firstname field must be filled.";
-        String firstLastNameMessage = "The lastname field must be filled.";
-        String firstEmailMessage = "The email field must be filled.";
-        String firstExceptionMessage = Objects.requireNonNull(firstMvcResult.getResolvedException()).getMessage();
+        User user = helper.getNewUser("nullFieldsUpdate@ut.com");
+        User testUser = new User();
+        MvcResult mvcResult = super.update(URL_TEMPLATE, user.getId(), testUser);
+        String exceptionMessage = "The firstname, lastname and email fields must be filled.";
 
         assertAll(
-                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), firstMvcResult.getResponse().getStatus()),
-                () -> assertTrue(firstExceptionMessage.contains(firstFirstNameMessage)),
-                () -> assertTrue(firstExceptionMessage.contains(firstLastNameMessage)),
-                () -> assertTrue(firstExceptionMessage.contains(firstEmailMessage))
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals(exceptionMessage,
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
         );
     }
 
     @Test
     public void badFieldsUpdate() throws Exception {
-        User user = new User();
-        user.setFirstName("f");
-        user.setLastName("l");
-        user.setEmail("email");
-        user.setTimeZone("zone");
-        MvcResult secondMvcResult = super.update(URL_TEMPLATE, user.getId(), user);
-        String secondFirstNameMessage = "The firstname field must be between 2 and 20 characters long.";
-        String secondLastNameMessage = "The lastname field must be between 2 and 20 characters long.";
-        String secondEmailMessage = "The email field should look like email.";
-        String secondTimeZoneMessage = "The TimeZone field must be in TimeZone format!";
-        String secondExceptionMessage = Objects.requireNonNull(secondMvcResult.getResolvedException()).getMessage();
+        User user = helper.getNewUser("badFieldsUpdate@UT.com");
+        User testUser = new User();
+        testUser.setFirstName("f");
+        testUser.setLastName("l");
+        testUser.setEmail(user.getEmail());
+        testUser.setTimeZone("zone");
+        MvcResult mvcResult = super.update(URL_TEMPLATE, user.getId(), testUser);
+        String firstNameMessage = "The firstname field must be between 2 and 20 characters long.";
+        String lastNameMessage = "The lastname field must be between 2 and 20 characters long.";
+        String timeZoneMessage = "The TimeZone field must be in TimeZone format!";
+        String exceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
 
 
         assertAll(
-                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), secondMvcResult.getResponse().getStatus()),
-                () -> assertTrue(secondExceptionMessage.contains(secondFirstNameMessage)),
-                () -> assertTrue(secondExceptionMessage.contains(secondLastNameMessage)),
-                () -> assertTrue(secondExceptionMessage.contains(secondEmailMessage)),
-                () -> assertTrue(secondExceptionMessage.contains(secondTimeZoneMessage))
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertTrue(exceptionMessage.contains(firstNameMessage)),
+                () -> assertTrue(exceptionMessage.contains(lastNameMessage)),
+                () -> assertTrue(exceptionMessage.contains(timeZoneMessage))
         );
     }
 
     @Test
     public void emailUpdate() throws Exception {
-        User testUser = helper.getNewUser("emailupdate@uit");
-        testUser.setEmail("new@uit");
+        User testUser = helper.getNewUser("emailupdate@UIT.com");
+        testUser.setEmail("new@UIT.com");
         MvcResult thirdMvcResult = super.update(URL_TEMPLATE, testUser.getId(), testUser);
         String thirdExceptionMessage = Objects.requireNonNull(thirdMvcResult.getResolvedException()).getMessage();
 
@@ -253,7 +241,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void nonExistentUserUpdate() throws Exception {
-        User user = helper.getNewUser("nonexistentuser@uit");
+        User user = helper.getNewUser("nonexistentuser@UIT.com");
         MvcResult fourthMvcResult = super.update(URL_TEMPLATE, UUID.randomUUID(), user);
         String fourthExceptionMessage = Objects.requireNonNull(fourthMvcResult.getResolvedException()).getMessage();
 

@@ -20,13 +20,11 @@ public class UserService extends AbstractService<User, UserRepository, UserValid
 
     @Override
     public User save(User entity) {
-        entity.setEmail(entity.getEmail().toLowerCase(Locale.ROOT));
         return super.save(entity);
     }
 
     @Override
     public User update(User entity) {
-        entity.setEmail(entity.getEmail().toLowerCase(Locale.ROOT));
         return super.update(entity);
     }
 
