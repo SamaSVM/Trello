@@ -10,8 +10,6 @@ import spd.trello.domain.Member;
 import spd.trello.domain.User;
 import spd.trello.domain.enums.MemberRole;
 
-import java.sql.Date;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -28,7 +26,7 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void create() throws Exception {
-        User user = helper.getNewUser("create@MIT");
+        User user = helper.getNewUser("create@MIT.com");
         Member member = new Member();
         member.setUserId(user.getId());
         member.setCreatedBy(user.getEmail());
@@ -50,8 +48,8 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void findAll() throws Exception {
-        Member firstMember = helper.getNewMember("1findAll@MIT");
-        Member secondMember = helper.getNewMember("2findAll@MIT");
+        Member firstMember = helper.getNewMember("1findAll@MIT.com");
+        Member secondMember = helper.getNewMember("2findAll@MIT.com");
         MvcResult mvcResult = super.findAll(URL_TEMPLATE);
         List<Member> testMembers = helper.getMembersArray(mvcResult);
 
@@ -65,7 +63,7 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void findById() throws Exception {
-        Member member = helper.getNewMember("findById@MIT");
+        Member member = helper.getNewMember("findById@MIT.com");
         MvcResult mvcResult = super.findById(URL_TEMPLATE, member.getId());
 
         assertAll(
@@ -89,7 +87,7 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void deleteById() throws Exception {
-        Member member = helper.getNewMember("deleteById@MIT");
+        Member member = helper.getNewMember("deleteById@MIT.com");
         MvcResult mvcResult = super.deleteById(URL_TEMPLATE, member.getId());
         MvcResult deleteMvcResult = super.findAll(URL_TEMPLATE);
         List<Member> testMembers = helper.getMembersArray(deleteMvcResult);
@@ -111,7 +109,7 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void update() throws Exception {
-        Member member = helper.getNewMember("update@MIT");
+        Member member = helper.getNewMember("update@MIT.com");
         member.setUpdatedBy(member.getCreatedBy());
         member.setUpdatedDate(LocalDateTime.now().withNano(0));
         member.setMemberRole(MemberRole.ADMIN);
@@ -133,39 +131,18 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
     public void nullFieldsCreate() throws Exception {
         Member member = new Member();
         MvcResult mvcResult = super.create(URL_TEMPLATE, member);
-        String userIdMessage = "The userId field must be filled.";
-        String createdByMessage = "The createdBy field must be filled.";
-        String createdDataMessage = "The createdData field must be filled.";
-        String exceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
 
         assertAll(
-                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
-                () -> assertTrue(exceptionMessage.contains(userIdMessage)),
-                () -> assertTrue(exceptionMessage.contains(createdByMessage)),
-                () -> assertTrue(exceptionMessage.contains(createdDataMessage))
-        );
-    }
-
-    @Test
-    public void badFieldsCreate() throws Exception {
-        Member member = new Member();
-        member.setUserId(UUID.randomUUID());
-        member.setCreatedDate(LocalDateTime.now());
-        member.setCreatedBy("c");
-        MvcResult mvcResult = super.create(URL_TEMPLATE, member);
-
-        String exceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
-
-        assertAll(
-                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
-                () -> assertEquals("CreatedBy should be between 2 and 30 characters!\n", exceptionMessage)
+                () -> assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The userId field must be filled.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
         );
     }
 
     @Test
     public void badRequestCreate() throws Exception {
         Member member = new Member();
-        member.setCreatedBy("badRequestCreate@MIT");
+        member.setCreatedBy("badRequestCreate@MIT.com");
         member.setCreatedDate(LocalDateTime.now().minusMinutes(2L).withNano(0));
         member.setUserId(UUID.randomUUID());
 
@@ -182,30 +159,15 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
         );
     }
 
-
-    @Test
-    public void nullFieldsUpdate() throws Exception {
-        Member member = helper.getNewMember("nullFieldsUpdate@MIT");
-        Member testMember = new Member();
-        MvcResult mvcResult = super.update(URL_TEMPLATE,member.getId(), testMember);
-        String userIdMessage = "The userId field must be filled.";
-        String createdByMessage = "The createdBy field must be filled.";
-        String createdDataMessage = "The createdData field must be filled.";
-        String exceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
-
-        assertAll(
-                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
-                () -> assertTrue(exceptionMessage.contains(userIdMessage)),
-                () -> assertTrue(exceptionMessage.contains(createdByMessage)),
-                () -> assertTrue(exceptionMessage.contains(createdDataMessage))
-        );
-    }
-
     @Test
     public void badFieldsUpdate() throws Exception {
-        Member member = helper.getNewMember("badFieldsUpdate@MIT");
+        Member member = helper.getNewMember("badFieldsUpdate@MIT.com");
         Member testMember = new Member();
         testMember.setCreatedBy("c");
+        testMember.setCreatedDate(LocalDateTime.now());
+        testMember.setUpdatedBy(member.getCreatedBy());
+        testMember.setUpdatedDate(LocalDateTime.now());
+        testMember.setUserId(member.getUserId());
         MvcResult mvcResult = super.update(URL_TEMPLATE, member.getId(), testMember);
         String createdByMessage = "CreatedBy should be between 2 and 30 characters!";
 
@@ -219,7 +181,7 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void badRequestUpdate() throws Exception {
-        Member member = helper.getNewMember("badrequestupdate@mit");
+        Member member = helper.getNewMember("badrequestupdate@MIT.com");
         member.setUserId(UUID.randomUUID());
         member.setUpdatedDate(LocalDateTime.now().minusMinutes(2L).withNano(0));
         member.setCreatedBy("newCreatedBy");

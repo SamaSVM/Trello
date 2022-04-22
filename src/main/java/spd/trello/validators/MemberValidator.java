@@ -23,6 +23,7 @@ public class MemberValidator extends AbstractValidator<Member> {
 
     @Override
     public void validateSaveEntity(Member entity) {
+        checkMemberFields(entity);
         StringBuilder exceptions = helper.checkCreateEntity(entity);
         if (!userRepository.existsById(entity.getUserId())) {
             exceptions.append("The userId field must belong to a user. \n");
@@ -32,6 +33,7 @@ public class MemberValidator extends AbstractValidator<Member> {
 
     @Override
     public void validateUpdateEntity(Member entity) {
+        checkMemberFields(entity);
         var oldMember = memberRepository.findById(entity.getId());
         if (oldMember.isEmpty()) {
             throw new ResourceNotFoundException("Cannot update non-existent member!");
@@ -41,5 +43,11 @@ public class MemberValidator extends AbstractValidator<Member> {
             exceptions.append("Member cannot be transferred to another user. \n");
         }
         helper.throwException(exceptions);
+    }
+
+    private void checkMemberFields(Member entity) {
+        if (entity.getUserId() == null) {
+            throw new ResourceNotFoundException("The userId field must be filled.");
+        }
     }
 }

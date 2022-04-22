@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.services.*;
+import spd.trello.repository.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,27 +14,27 @@ import java.util.UUID;
 @Component
 public class UnitHelper {
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
     @Autowired
-    private MemberService memberService;
+    private MemberRepository memberRepository;
     @Autowired
-    private WorkspaceService workspaceService;
+    private WorkspaceRepository workspaceRepository;
     @Autowired
-    private BoardService boardService;
+    private BoardRepository boardRepository;
     @Autowired
-    private CardListService cardListService;
+    private CardListRepository cardListRepository;
     @Autowired
-    private CardService cardService;
+    private CardRepository cardRepository;
     @Autowired
-    private CommentService commentService;
+    private CommentRepository commentRepository;
     @Autowired
-    private ChecklistService checklistService;
+    private ChecklistRepository checklistRepository;
     @Autowired
-    private LabelService labelService;
+    private LabelRepository labelRepository;
     @Autowired
-    private AttachmentService attachmentService;
+    private AttachmentRepository attachmentRepository;
     @Autowired
-    private CheckableItemService checkableItemService;
+    private CheckableItemRepository checkableItemRepository;
 
 
     public User getNewUser(String email) {
@@ -43,7 +43,7 @@ public class UnitHelper {
         user.setLastName("testLastName");
         user.setTimeZone("Europe/Kiev");
         user.setEmail(email);
-        return userService.save(user);
+        return userRepository.save(user);
     }
 
     public Member getNewMember(String email) {
@@ -53,20 +53,20 @@ public class UnitHelper {
         member.setCreatedBy(user.getEmail());
         member.setCreatedDate(LocalDateTime.now().withNano(0));
         member.setMemberRole(MemberRole.ADMIN);
-        return memberService.save(member);
+        return memberRepository.save(member);
     }
 
     public Workspace getNewWorkspace(String email) {
         Workspace workspace = new Workspace();
         Member member = getNewMember(email);
         workspace.setCreatedBy(member.getCreatedBy());
-        workspace.setCreatedDate(LocalDateTime.now());
+        workspace.setCreatedDate(LocalDateTime.now().withNano(0));
         workspace.setName("MemberName");
         workspace.setDescription("description");
         Set<UUID> membersId = new HashSet<>();
         membersId.add(member.getId());
         workspace.setMembersId(membersId);
-        return workspaceService.save(workspace);
+        return workspaceRepository.save(workspace);
     }
 
     public Board getNewBoard(String email) {
@@ -79,7 +79,7 @@ public class UnitHelper {
         board.setCreatedDate(LocalDateTime.now());
         Set<UUID> membersId = workspace.getMembersId();
         board.setMembersId(membersId);
-        return boardService.save(board);
+        return boardRepository.save(board);
     }
 
     public CardList getNewCardList(String email) {
@@ -89,7 +89,7 @@ public class UnitHelper {
         cardList.setName("CardListName");
         cardList.setCreatedBy(board.getCreatedBy());
         cardList.setCreatedDate(LocalDateTime.now());
-        return cardListService.save(cardList);
+        return cardListRepository.save(cardList);
     }
 
     public Card getNewCard(String email) {
@@ -102,9 +102,9 @@ public class UnitHelper {
         card.setCardListId(cardList.getId());
         card.setCreatedBy(cardList.getCreatedBy());
         card.setCreatedDate(LocalDateTime.now());
-        Set<UUID> membersId = boardService.getById(cardList.getBoardId()).getMembersId();
+        Set<UUID> membersId = boardRepository.getById(cardList.getBoardId()).getMembersId();
         card.setMembersId(membersId);
-        return cardService.save(card);
+        return cardRepository.save(card);
     }
 
     public Reminder getNewReminder(String email) {
@@ -124,7 +124,7 @@ public class UnitHelper {
         comment.setCardId(card.getId());
         comment.setCreatedBy(card.getCreatedBy());
         comment.setCreatedDate(LocalDateTime.now());
-        return commentService.save(comment);
+        return commentRepository.save(comment);
     }
 
     public Checklist getNewChecklist(String email) {
@@ -134,7 +134,7 @@ public class UnitHelper {
         checklist.setCardId(card.getId());
         checklist.setCreatedBy(card.getCreatedBy());
         checklist.setCreatedDate(LocalDateTime.now());
-        return checklistService.save(checklist);
+        return checklistRepository.save(checklist);
     }
 
     public CheckableItem getNewCheckableItem(String email) {
@@ -143,7 +143,7 @@ public class UnitHelper {
         CheckableItem checkableItem = new CheckableItem();
         checkableItem.setChecklistId(checklist.getId());
         checkableItem.setName("Name");
-        return checkableItemService.save(checkableItem);
+        return checkableItemRepository.save(checkableItem);
     }
 
     public Label getNewLabel(String email) {
@@ -152,7 +152,7 @@ public class UnitHelper {
         label.setName("Label");
         label.setCardId(card.getId());
         label.setColor(getNewColor());
-        return labelService.save(label);
+        return labelRepository.save(label);
     }
 
     public Color getNewColor() {
@@ -171,6 +171,6 @@ public class UnitHelper {
         attachment.setName("name");
         attachment.setCreatedBy(card.getCreatedBy());
         attachment.setCreatedDate(LocalDateTime.now());
-        return attachmentService.save(attachment);
+        return attachmentRepository.save(attachment);
     }
 }

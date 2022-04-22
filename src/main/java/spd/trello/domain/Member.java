@@ -19,7 +19,6 @@ public class Member extends Resource {
     private MemberRole memberRole = MemberRole.GUEST;
 
     @Column(name = "user_id")
-    @NotNull(message = "The userId field must be filled.")
     private UUID userId;
 }
 

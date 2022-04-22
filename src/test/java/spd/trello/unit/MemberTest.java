@@ -27,7 +27,7 @@ public class MemberTest {
 
     @Test
     public void successCreate() {
-        User user = helper.getNewUser("test@MT");
+        User user = helper.getNewUser("test@MT.com");
 
         Member member = new Member();
         member.setCreatedBy(user.getEmail());
@@ -48,8 +48,8 @@ public class MemberTest {
 
     @Test
     public void findAll() {
-        Member firstMember = helper.getNewMember("1findAll@MT");
-        Member secondMember = helper.getNewMember("2findAll@MT");
+        Member firstMember = helper.getNewMember("1findAll@MT.com");
+        Member secondMember = helper.getNewMember("2findAll@MT.com");
 
         assertNotNull(firstMember);
         assertNotNull(secondMember);
@@ -62,7 +62,7 @@ public class MemberTest {
 
     @Test
     public void findById() {
-        Member member = helper.getNewMember("findById@MT");
+        Member member = helper.getNewMember("findById@MT.com");
 
         Member testMember = service.getById(member.getId());
         assertEquals(member, testMember);
@@ -70,7 +70,7 @@ public class MemberTest {
 
     @Test
     public void delete() {
-        Member member = helper.getNewMember("delete@MT");
+        Member member = helper.getNewMember("delete@MT.com");
 
         assertNotNull(member);
         service.delete(member.getId());
@@ -79,7 +79,7 @@ public class MemberTest {
 
     @Test
     public void update() {
-        Member member = helper.getNewMember("update@MT");
+        Member member = helper.getNewMember("update@MT.com");
         assertNotNull(member);
         member.setMemberRole(MemberRole.MEMBER);
         member.setUpdatedBy(member.getCreatedBy());
@@ -122,7 +122,7 @@ public class MemberTest {
 
     @Test
     public void validationCreate() {
-        User user = helper.getNewUser("validationCreate@MT");
+        User user = helper.getNewUser("validationCreate@MT.com");
         Member member = new Member();
         member.setCreatedBy(user.getEmail());
         member.setCreatedDate(LocalDateTime.now().minusMinutes(2L));
@@ -137,7 +137,7 @@ public class MemberTest {
 
     @Test
     public void nonExistentMemberUpdate() {
-        Member member = helper.getNewMember("nonExistentMember@MT");
+        Member member = helper.getNewMember("nonExistentMember@MT.com");
         member.setId(UUID.randomUUID());
 
         ResourceNotFoundException ex = assertThrows(
@@ -148,7 +148,7 @@ public class MemberTest {
 
     @Test
     public void validationUpdate() {
-        Member member = helper.getNewMember("validationUpdate@MT");
+        Member member = helper.getNewMember("validationUpdate@MT.com");
         member.setUserId(UUID.randomUUID());
         member.setUpdatedBy(member.getCreatedBy());
         member.setUpdatedDate(LocalDateTime.now().minusMinutes(2L));
@@ -166,7 +166,7 @@ public class MemberTest {
 
     @Test
     public void nullUpdatedByFieldUpdate() {
-        Member member = helper.getNewMember("nullUpdatedByField@MT");
+        Member member = helper.getNewMember("nullUpdatedByField@MT.com");
         member.setUpdatedDate(LocalDateTime.now());
 
         BadRequestException ex = assertThrows(
@@ -177,7 +177,7 @@ public class MemberTest {
 
     @Test
     public void nullUpdatedDateFieldUpdate() {
-        Member member = helper.getNewMember("nullUpdatedDateFieldUpdate@MT");
+        Member member = helper.getNewMember("nullUpdatedDateFieldUpdate@MT.com");
         member.setUpdatedBy(member.getCreatedBy());
 
         BadRequestException ex = assertThrows(
