@@ -18,16 +18,12 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public class Resource extends Domain {
     @Column(name = "created_by")
-    @NotNull(message = "The createdBy field must be filled.")
-    @Size(min = 2, max = 30, message = "CreatedBy should be between 2 and 30 characters!")
     private String createdBy;
 
     @Column(name = "updated_by")
-    @Size(min = 2, max = 30, message = "UpdatedBy should be between 2 and 30 characters!")
     private String updatedBy;
 
     @Column(name = "created_date")
-    @NotNull(message = "The createdData field must be filled.")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime createdDate;
