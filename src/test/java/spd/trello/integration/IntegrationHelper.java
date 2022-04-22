@@ -57,7 +57,7 @@ public class IntegrationHelper {
         User user = getNewUser(email);
         Member member = new Member();
         member.setCreatedBy(user.getEmail());
-        member.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        member.setCreatedDate(LocalDateTime.now().withNano(0));
         member.setUserId(user.getId());
         return memberRepository.save(member);
     }
@@ -72,7 +72,7 @@ public class IntegrationHelper {
         Member member = getNewMember(email);
         Workspace workspace = new Workspace();
         workspace.setCreatedBy(member.getCreatedBy());
-        workspace.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        workspace.setCreatedDate(LocalDateTime.now().withNano(0));
         workspace.setName("name");
         Set<UUID> membersId = new HashSet<>();
         membersId.add(member.getId());

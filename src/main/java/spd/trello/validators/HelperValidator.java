@@ -35,10 +35,10 @@ public class HelperValidator<T extends Resource> {
         StringBuilder exceptions = new StringBuilder();
         checkResourceFields(exceptions, newEntity);
         if (newEntity.getUpdatedBy() == null) {
-            throw new BadRequestException("The updatedBy field must be filled. \n");
+            throw new BadRequestException("The updatedBy field must be filled.");
         }
         if (newEntity.getUpdatedDate() == null) {
-            throw new BadRequestException("The updatedDate field must be filled. \n");
+            throw new BadRequestException("The updatedDate field must be filled.");
         }
         if (LocalDateTime.now().minusMinutes(1L).isAfter(newEntity.getUpdatedDate()) ||
                 LocalDateTime.now().plusMinutes(1L).isBefore(newEntity.getUpdatedDate())) {
@@ -50,8 +50,8 @@ public class HelperValidator<T extends Resource> {
         if (!oldEntity.getCreatedDate().equals(newEntity.getCreatedDate())) {
             exceptions.append("The createdDate field cannot be updated. \n");
         }
-        if (newEntity.getCreatedBy().length() < 2 || newEntity.getCreatedBy().length() > 20) {
-            exceptions.append("UpdatedBy should be between 2 and 30 characters!");
+        if (newEntity.getUpdatedBy().length() < 2 || newEntity.getUpdatedBy().length() > 20) {
+            exceptions.append("UpdatedBy should be between 2 and 30 characters! \n");
         }
         return exceptions;
     }
@@ -67,13 +67,13 @@ public class HelperValidator<T extends Resource> {
             throw new BadRequestException("The createdBy, createdDate fields must be filled.");
         }
         if (entity.getCreatedBy().length() < 2 || entity.getCreatedBy().length() > 20) {
-            exceptions.append("CreatedBy should be between 2 and 30 characters!");
+            exceptions.append("CreatedBy should be between 2 and 30 characters! \n");
         }
     }
 
     public void validMembersId(StringBuilder exceptions, Set<UUID> membersId) {
         if (membersId.isEmpty()) {
-            throw new ResourceNotFoundException("The resource must belong to at least one member!");
+            throw new ResourceNotFoundException("The resource must belong to at least one member! \n");
         }
         membersId.forEach(id -> {
             if (!memberRepository.existsById(id)) {
