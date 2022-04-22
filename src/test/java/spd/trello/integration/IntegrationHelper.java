@@ -90,7 +90,7 @@ public class IntegrationHelper {
         Workspace workspace = getNewWorkspace(email);
         Board board = new Board();
         board.setCreatedBy(workspace.getCreatedBy());
-        board.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        board.setCreatedDate(LocalDateTime.now().withNano(0));
         board.setName("name");
         board.setWorkspaceId(workspace.getId());
         board.setMembersId(workspace.getMembersId());
@@ -108,7 +108,7 @@ public class IntegrationHelper {
         CardList cardList = new CardList();
         cardList.setBoardId(board.getId());
         cardList.setCreatedBy(board.getCreatedBy());
-        cardList.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        cardList.setCreatedDate(LocalDateTime.now().withNano(0));
         cardList.setName("name");
         return cardListRepository.save(cardList);
     }
@@ -122,16 +122,11 @@ public class IntegrationHelper {
     public Card getNewCard(String email) {
         CardList cardList = getNewCardList(email);
 
-        Reminder reminder = new Reminder();
-        reminder.setCreatedBy(cardList.getCreatedBy());
-        reminder.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setRemindOn(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setStart(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setEnd(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        Reminder reminder = getNewReminder(email);
 
         Card card = new Card();
         card.setCreatedBy(cardList.getCreatedBy());
-        card.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        card.setCreatedDate(LocalDateTime.now().withNano(0));
         card.setCardListId(cardList.getId());
         card.setName("name");
         card.setReminder(reminder);
@@ -148,7 +143,7 @@ public class IntegrationHelper {
         Card card = getNewCard(email);
         Comment comment = new Comment();
         comment.setCardId(card.getId());
-        comment.setCreatedBy(card.getCreatedBy());
+        comment.setCreatedDate(LocalDateTime.now().withNano(0));
         comment.setCreatedDate(card.getCreatedDate());
         comment.setText("text");
         return commentRepository.save(comment);
@@ -164,7 +159,7 @@ public class IntegrationHelper {
         Card card = getNewCard(email);
         Checklist checklist = new Checklist();
         checklist.setCardId(card.getId());
-        checklist.setCreatedBy(card.getCreatedBy());
+        checklist.setCreatedDate(LocalDateTime.now().withNano(0));
         checklist.setCreatedDate(card.getCreatedDate());
         checklist.setName("name");
         return checklistRepository.save(checklist);

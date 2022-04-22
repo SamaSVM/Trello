@@ -50,7 +50,7 @@ public class HelperValidator<T extends Resource> {
         if (!oldEntity.getCreatedDate().equals(newEntity.getCreatedDate())) {
             exceptions.append("The createdDate field cannot be updated. \n");
         }
-        if (newEntity.getUpdatedBy().length() < 2 || newEntity.getUpdatedBy().length() > 20) {
+        if (newEntity.getUpdatedBy().length() < 2 || newEntity.getUpdatedBy().length() > 30) {
             exceptions.append("UpdatedBy should be between 2 and 30 characters! \n");
         }
         return exceptions;
@@ -66,14 +66,14 @@ public class HelperValidator<T extends Resource> {
         if (entity.getCreatedBy() == null || entity.getCreatedDate() == null) {
             throw new BadRequestException("The createdBy, createdDate fields must be filled.");
         }
-        if (entity.getCreatedBy().length() < 2 || entity.getCreatedBy().length() > 20) {
+        if (entity.getCreatedBy().length() < 2 || entity.getCreatedBy().length() > 30) {
             exceptions.append("CreatedBy should be between 2 and 30 characters! \n");
         }
     }
 
     public void validMembersId(StringBuilder exceptions, Set<UUID> membersId) {
         if (membersId.isEmpty()) {
-            throw new ResourceNotFoundException("The resource must belong to at least one member! \n");
+            throw new ResourceNotFoundException("The resource must belong to at least one member!");
         }
         membersId.forEach(id -> {
             if (!memberRepository.existsById(id)) {

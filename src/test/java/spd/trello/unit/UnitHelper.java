@@ -76,7 +76,7 @@ public class UnitHelper {
         board.setDescription("description");
         board.setWorkspaceId(workspace.getId());
         board.setCreatedBy(workspace.getCreatedBy());
-        board.setCreatedDate(LocalDateTime.now());
+        board.setCreatedDate(LocalDateTime.now().withNano(0));
         Set<UUID> membersId = workspace.getMembersId();
         board.setMembersId(membersId);
         return boardRepository.save(board);
