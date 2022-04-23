@@ -88,7 +88,7 @@ public class UnitHelper {
         cardList.setBoardId(board.getId());
         cardList.setName("CardListName");
         cardList.setCreatedBy(board.getCreatedBy());
-        cardList.setCreatedDate(LocalDateTime.now());
+        cardList.setCreatedDate(LocalDateTime.now().withNano(0));
         return cardListRepository.save(cardList);
     }
 
