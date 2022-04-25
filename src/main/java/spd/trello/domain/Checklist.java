@@ -18,8 +18,6 @@ import java.util.UUID;
 @Table(name = "checklists")
 public class Checklist extends Resource {
     @Column(name = "name")
-    @NotNull(message = "The name field must be filled.")
-    @Size(min = 2, max = 20, message = "The name field must be between 2 and 20 characters long.")
     private String name;
 
     @Column(name = "card_id")

@@ -133,7 +133,7 @@ public class UnitHelper {
         checklist.setName("testChecklist");
         checklist.setCardId(card.getId());
         checklist.setCreatedBy(card.getCreatedBy());
-        checklist.setCreatedDate(LocalDateTime.now());
+        checklist.setCreatedDate(LocalDateTime.now().withNano(0));
         return checklistRepository.save(checklist);
     }
 

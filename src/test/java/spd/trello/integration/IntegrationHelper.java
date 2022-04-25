@@ -159,7 +159,7 @@ public class IntegrationHelper {
         Checklist checklist = new Checklist();
         checklist.setCardId(card.getId());
         checklist.setCreatedDate(LocalDateTime.now().withNano(0));
-        checklist.setCreatedDate(card.getCreatedDate());
+        checklist.setCreatedBy(card.getCreatedBy());
         checklist.setName("name");
         return checklistRepository.save(checklist);
     }
