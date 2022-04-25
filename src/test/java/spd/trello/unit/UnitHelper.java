@@ -123,7 +123,7 @@ public class UnitHelper {
         comment.setText("testComment");
         comment.setCardId(card.getId());
         comment.setCreatedBy(card.getCreatedBy());
-        comment.setCreatedDate(LocalDateTime.now());
+        comment.setCreatedDate(LocalDateTime.now().withNano(0));
         return commentRepository.save(comment);
     }
 

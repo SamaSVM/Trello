@@ -142,8 +142,8 @@ public class IntegrationHelper {
         Card card = getNewCard(email);
         Comment comment = new Comment();
         comment.setCardId(card.getId());
+        comment.setCreatedBy(card.getCreatedBy());
         comment.setCreatedDate(LocalDateTime.now().withNano(0));
-        comment.setCreatedDate(card.getCreatedDate());
         comment.setText("text");
         return commentRepository.save(comment);
     }
