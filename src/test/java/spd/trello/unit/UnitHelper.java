@@ -167,10 +167,10 @@ public class UnitHelper {
         Card card = getNewCard(email);
         Attachment attachment = new Attachment();
         attachment.setCardId(card.getId());
-        attachment.setLink("link");
+        attachment.setLink("http://www.example.com/product");
         attachment.setName("name");
         attachment.setCreatedBy(card.getCreatedBy());
-        attachment.setCreatedDate(LocalDateTime.now());
+        attachment.setCreatedDate(LocalDateTime.now().withNano(0));
         return attachmentRepository.save(attachment);
     }
 }

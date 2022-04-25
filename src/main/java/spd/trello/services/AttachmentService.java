@@ -33,6 +33,7 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             Attachment attachment = objectMapper.readValue(entity, Attachment.class);
+            validator.validateSaveEntity(attachment);
             attachment.setName(StringUtils.cleanPath(file.getOriginalFilename()));
             attachment.setType(file.getContentType());
 

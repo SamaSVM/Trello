@@ -189,9 +189,9 @@ public class IntegrationHelper {
         Attachment attachment = new Attachment();
         attachment.setCardId(card.getId());
         attachment.setCreatedBy(card.getCreatedBy());
-        attachment.setCreatedDate(card.getCreatedDate());
+        attachment.setCreatedDate(LocalDateTime.now().withNano(0));
         attachment.setName("name");
-        attachment.setLink("link");
+        attachment.setLink("http://www.example.com/product");
         return attachmentRepository.save(attachment);
     }
 
