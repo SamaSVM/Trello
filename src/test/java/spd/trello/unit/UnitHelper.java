@@ -141,6 +141,7 @@ public class UnitHelper {
         Checklist checklist = getNewChecklist(email);
 
         CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setChecked(false);
         checkableItem.setChecklistId(checklist.getId());
         checkableItem.setName("Name");
         return checkableItemRepository.save(checkableItem);

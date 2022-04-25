@@ -3,12 +3,16 @@ package spd.trello.unit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.web.servlet.MvcResult;
 import spd.trello.domain.*;
 import spd.trello.exeption.BadRequestException;
 import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.services.CheckableItemService;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +27,7 @@ public class CheckableItemTest {
 
     @Test
     public void create() {
-        Checklist checklist = helper.getNewChecklist("create@CheckableItemTest");
+        Checklist checklist = helper.getNewChecklist("create@ChecIT.com");
 
         CheckableItem checkableItem = new CheckableItem();
         checkableItem.setChecklistId(checklist.getId());
@@ -40,8 +44,8 @@ public class CheckableItemTest {
 
     @Test
     public void findAll() {
-        CheckableItem firstCheckableItem = helper.getNewCheckableItem("findAll@CheckableItemTest");
-        CheckableItem secondCheckableItem = helper.getNewCheckableItem("2findAll@CheckableItemTest");
+        CheckableItem firstCheckableItem = helper.getNewCheckableItem("findAll@ChecIT.com");
+        CheckableItem secondCheckableItem = helper.getNewCheckableItem("2findAll@ChecIT.com");
 
         assertNotNull(firstCheckableItem);
         assertNotNull(secondCheckableItem);
@@ -55,7 +59,7 @@ public class CheckableItemTest {
 
     @Test
     public void findById() {
-        Checklist checklist = helper.getNewChecklist("findById@CheckableItemTest");
+        Checklist checklist = helper.getNewChecklist("findById@ChecIT.com");
 
         CheckableItem checkableItem = new CheckableItem();
         checkableItem.setChecklistId(checklist.getId());
@@ -68,7 +72,7 @@ public class CheckableItemTest {
 
     @Test
     public void delete() {
-        Checklist checklist = helper.getNewChecklist("delete@CheckableItemTest");
+        Checklist checklist = helper.getNewChecklist("delete@ChecIT.com");
 
         CheckableItem checkableItem = new CheckableItem();
         checkableItem.setChecklistId(checklist.getId());
@@ -82,7 +86,7 @@ public class CheckableItemTest {
 
     @Test
     public void update() {
-        CheckableItem checkableItem = helper.getNewCheckableItem("update@CheckableItemTest");
+        CheckableItem checkableItem = helper.getNewCheckableItem("update@ChecIT.com");
 
         assertNotNull(checkableItem);
         checkableItem.setName("newName");
@@ -93,16 +97,6 @@ public class CheckableItemTest {
                 () -> assertEquals(checkableItem.getName(), testCheckableItem.getName()),
                 () -> assertTrue(testCheckableItem.getChecked())
         );
-    }
-
-    @Test
-    public void createFailure() {
-        BadRequestException ex = assertThrows(
-                BadRequestException.class,
-                () -> service.save(new CheckableItem()),
-                "no exception"
-        );
-        assertTrue(ex.getMessage().contains("could not execute statement;"));
     }
 
     @Test
@@ -123,6 +117,74 @@ public class CheckableItemTest {
                 () -> service.delete(id),
                 "no exception"
         );
-        assertEquals("No class spd.trello.domain.CheckableItem entity with id " + id + " exists!", ex.getMessage());
+        assertEquals("No class spd.trello.domain.CheckableItem entity with id " + id + " exists!",
+                ex.getMessage());
+    }
+
+    @Test
+    public void nullCheckListCreate() {
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setName("name");
+        checkableItem.setChecklistId(UUID.randomUUID());
+        BadRequestException ex = assertThrows(
+                BadRequestException.class, () -> service.save(checkableItem), "no exception"
+        );
+        assertEquals("The checklistId field must belong to a checklist.", ex.getMessage());
+    }
+
+    @Test
+    public void nullNameFieldCreate() {
+        Checklist checklist = helper.getNewChecklist("nullNameFieldCreate@ChecIT.com");
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setChecklistId(checklist.getId());
+        BadRequestException ex = assertThrows(
+                BadRequestException.class, () -> service.save(checkableItem), "no exception"
+        );
+        assertEquals("The name field must be filled.", ex.getMessage());
+    }
+
+    @Test
+    public void badNameFieldCreate() {
+        Checklist checklist = helper.getNewChecklist("badNameFieldCreate@ChecIT.com");
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setChecklistId(checklist.getId());
+        checkableItem.setName("n");
+        BadRequestException ex = assertThrows(
+                BadRequestException.class, () -> service.save(checkableItem), "no exception"
+        );
+        assertEquals("The name field must be between 2 and 20 characters long. \n", ex.getMessage());
+    }
+
+    @Test
+    public void nonExistentCheckableItemUpdate() {
+        CheckableItem checkableItem = helper.getNewCheckableItem("nonExistCIU@ChecIT.com");
+        checkableItem.setChecklistId(UUID.randomUUID());
+
+        BadRequestException ex = assertThrows(
+                BadRequestException.class, () -> service.update(checkableItem), "no exception"
+        );
+        assertEquals("CheckableItem cannot be transferred to another checklist.", ex.getMessage());
+    }
+
+    @Test
+    public void nullNameFieldsUpdate() {
+        CheckableItem checkableItem = helper.getNewCheckableItem("nonExistentCIU@ChecIT.com");
+        checkableItem.setName(null);
+
+        BadRequestException ex = assertThrows(
+                BadRequestException.class, () -> service.update(checkableItem), "no exception"
+        );
+        assertEquals("The name field must be filled.", ex.getMessage());
+    }
+
+    @Test
+    public void badNameFieldsUpdate() {
+        CheckableItem checkableItem = helper.getNewCheckableItem("badNameFieldsU@ChecIT.com");
+        checkableItem.setName("n");
+
+        BadRequestException ex = assertThrows(
+                BadRequestException.class, () -> service.update(checkableItem), "no exception"
+        );
+        assertEquals("The name field must be between 2 and 20 characters long. \n", ex.getMessage());
     }
 }
