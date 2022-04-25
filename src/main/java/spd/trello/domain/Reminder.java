@@ -37,5 +37,5 @@ public class Reminder extends Resource {
     private LocalDateTime remindOn;
 
     @Column(name = "active")
-    private Boolean active = false;
+    private Boolean active = true;
 }

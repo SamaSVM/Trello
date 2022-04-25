@@ -121,7 +121,6 @@ public class IntegrationHelper {
 
     public Card getNewCard(String email) {
         CardList cardList = getNewCardList(email);
-
         Reminder reminder = getNewReminder(email);
 
         Card card = new Card();
@@ -234,10 +233,10 @@ public class IntegrationHelper {
     public Reminder getNewReminder(String email) {
         Reminder reminder = new Reminder();
         reminder.setCreatedBy(email);
-        reminder.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setRemindOn(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setStart(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setEnd(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setCreatedDate(LocalDateTime.now().withNano(0));
+        reminder.setRemindOn(LocalDateTime.now().plusHours(1).withNano(0));
+        reminder.setStart(LocalDateTime.now().withNano(0));
+        reminder.setEnd(LocalDateTime.now().plusHours(2).withNano(0));
         return reminder;
     }
 

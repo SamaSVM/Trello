@@ -27,22 +27,22 @@ public class ReminderValidator extends AbstractValidator<Reminder> {
     public void validateUpdateEntity(Reminder entity) {
         var oldReminder = repository.findById(entity.getId());
         if (oldReminder.isEmpty()) {
-            throw new BadRequestException("Cannot update non-existent workspace!");
+            throw new BadRequestException("Cannot update non-existent reminder!");
         }
         StringBuilder exceptions = helper.checkUpdateEntity(oldReminder.get(), entity);
         if (!oldReminder.get().getActive() && !entity.getActive()) {
-            exceptions.append("Cannot update an inactive remainder.");
+            exceptions.append("Cannot update an inactive remainder. \n");
         }
         checkTime(exceptions, entity);
         helper.throwException(exceptions);
     }
 
     public void checkTime(StringBuilder exceptions, Reminder entity) {
-        if (entity.getStart().isBefore(entity.getEnd())) {
-            exceptions.append("Start cannot be later than end.");
+        if (entity.getStart().isAfter(entity.getEnd())) {
+            exceptions.append("Start cannot be later than end. \n");
         }
         if (entity.getStart().isAfter(entity.getRemindOn()) || entity.getEnd().isBefore(entity.getRemindOn())) {
-            exceptions.append("The remindOn should be between start and end.");
+            exceptions.append("The remindOn should be between start and end. \n");
         }
     }
 }

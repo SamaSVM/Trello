@@ -101,8 +101,8 @@ public class UnitHelper {
         card.setDescription("description");
         card.setCardListId(cardList.getId());
         card.setCreatedBy(cardList.getCreatedBy());
-        card.setCreatedDate(LocalDateTime.now());
-        Set<UUID> membersId = boardRepository.getById(cardList.getBoardId()).getMembersId();
+        card.setCreatedDate(LocalDateTime.now().withNano(0));
+        Set<UUID> membersId = boardRepository.findById(cardList.getBoardId()).get().getMembersId();
         card.setMembersId(membersId);
         return cardRepository.save(card);
     }
@@ -110,10 +110,10 @@ public class UnitHelper {
     public Reminder getNewReminder(String email) {
         Reminder reminder = new Reminder();
         reminder.setCreatedBy(email);
-        reminder.setCreatedDate(LocalDateTime.now());
-        reminder.setRemindOn(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setStart(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setEnd(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setCreatedDate(LocalDateTime.now().withNano(0));
+        reminder.setRemindOn(LocalDateTime.now().plusHours(1));
+        reminder.setStart(LocalDateTime.now());
+        reminder.setEnd(LocalDateTime.now().plusHours(2));
         return reminder;
     }
 
