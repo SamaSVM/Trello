@@ -7,10 +7,12 @@ import org.hibernate.annotations.LazyCollectionOption;
 import spd.trello.domain.perent.Resource;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "cards")
 public class Card extends Resource {
@@ -30,7 +32,7 @@ public class Card extends Resource {
     @LazyCollection(LazyCollectionOption.FALSE)
     @CollectionTable(
             name = "member_card",
-            joinColumns=@JoinColumn(name= "card_id")
+            joinColumns = @JoinColumn(name = "card_id")
     )
     @Column(name = "member_id")
     @EqualsAndHashCode.Exclude
@@ -45,7 +47,7 @@ public class Card extends Resource {
     @LazyCollection(LazyCollectionOption.FALSE)
     @CollectionTable(
             name = "checklists",
-            joinColumns=@JoinColumn(name= "card_id")
+            joinColumns = @JoinColumn(name = "card_id")
     )
     @Column(name = "id")
     @EqualsAndHashCode.Exclude
@@ -56,7 +58,7 @@ public class Card extends Resource {
     @LazyCollection(LazyCollectionOption.FALSE)
     @CollectionTable(
             name = "labels",
-            joinColumns=@JoinColumn(name= "card_id")
+            joinColumns = @JoinColumn(name = "card_id")
     )
     @Column(name = "id")
     @EqualsAndHashCode.Exclude
@@ -66,7 +68,7 @@ public class Card extends Resource {
     @LazyCollection(LazyCollectionOption.FALSE)
     @CollectionTable(
             name = "comments",
-            joinColumns=@JoinColumn(name= "card_id")
+            joinColumns = @JoinColumn(name = "card_id")
     )
     @Column(name = "id")
     @EqualsAndHashCode.Exclude
@@ -76,7 +78,7 @@ public class Card extends Resource {
     @LazyCollection(LazyCollectionOption.FALSE)
     @CollectionTable(
             name = "attachments",
-            joinColumns=@JoinColumn(name= "card_id")
+            joinColumns = @JoinColumn(name = "card_id")
     )
     @Column(name = "id")
     @EqualsAndHashCode.Exclude

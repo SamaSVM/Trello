@@ -5,4 +5,5 @@ import spd.trello.domain.User;
 
 @Repository
 public interface UserRepository extends AbstractRepository<User> {
+    boolean existsByEmail(String email);
 }

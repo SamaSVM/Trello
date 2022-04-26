@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "labels")
 public class Label extends Domain {

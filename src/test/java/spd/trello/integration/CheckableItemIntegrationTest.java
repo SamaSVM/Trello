@@ -10,10 +10,10 @@ import spd.trello.domain.CheckableItem;
 import spd.trello.domain.Checklist;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class CheckableItemIntegrationTest extends AbstractIntegrationTest<CheckableItem> {
@@ -24,7 +24,7 @@ public class CheckableItemIntegrationTest extends AbstractIntegrationTest<Checka
 
     @Test
     public void create() throws Exception {
-        Checklist checklist = helper.getNewChecklist("create@CheckableItemIntegrationTest");
+        Checklist checklist = helper.getNewChecklist("create@ChecIIT.com");
 
         CheckableItem checkableItem = new CheckableItem();
         checkableItem.setChecklistId(checklist.getId());
@@ -42,17 +42,9 @@ public class CheckableItemIntegrationTest extends AbstractIntegrationTest<Checka
     }
 
     @Test
-    public void createFailure() throws Exception {
-        CheckableItem checkableItem = new CheckableItem();
-        MvcResult mvcResult = super.create(URL_TEMPLATE, checkableItem);
-
-        assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus());
-    }
-
-    @Test
     public void findAll() throws Exception {
-        CheckableItem firstCheckableItem = helper.getNewCheckableItem("1findAll@CheckableItemIntegrationTest");
-        CheckableItem secondCheckableItem = helper.getNewCheckableItem("2findAll@CheckableItemIntegrationTest");
+        CheckableItem firstCheckableItem = helper.getNewCheckableItem("1findAll@ChecIIT.com");
+        CheckableItem secondCheckableItem = helper.getNewCheckableItem("2findAll@ChecIIT.com");
         MvcResult mvcResult = super.findAll(URL_TEMPLATE);
         List<CheckableItem> testLabels = helper.getCheckableItemsArray(mvcResult);
 
@@ -66,7 +58,7 @@ public class CheckableItemIntegrationTest extends AbstractIntegrationTest<Checka
 
     @Test
     public void findById() throws Exception {
-        CheckableItem checkableItem = helper.getNewCheckableItem("findById@CheckableItemIntegrationTest");
+        CheckableItem checkableItem = helper.getNewCheckableItem("findById@ChecIIT.com");
         MvcResult mvcResult = super.findById(URL_TEMPLATE, checkableItem.getId());
 
         assertAll(
@@ -88,7 +80,7 @@ public class CheckableItemIntegrationTest extends AbstractIntegrationTest<Checka
 
     @Test
     public void deleteById() throws Exception {
-        CheckableItem checkableItem = helper.getNewCheckableItem("deleteById@CheckableItemIntegrationTest");
+        CheckableItem checkableItem = helper.getNewCheckableItem("deleteById@ChecIIT.com");
         MvcResult mvcResult = super.deleteById(URL_TEMPLATE, checkableItem.getId());
         MvcResult deleteMvcResult = super.findAll(URL_TEMPLATE);
         List<CheckableItem> testCheckableItems = helper.getCheckableItemsArray(deleteMvcResult);
@@ -110,7 +102,7 @@ public class CheckableItemIntegrationTest extends AbstractIntegrationTest<Checka
 
     @Test
     public void update() throws Exception {
-        CheckableItem checkableItem = helper.getNewCheckableItem("update@CheckableItemIntegrationTest");
+        CheckableItem checkableItem = helper.getNewCheckableItem("update@ChecIIT.com");
         checkableItem.setName("newName");
         checkableItem.setChecked(true);
         MvcResult mvcResult = super.update(URL_TEMPLATE, checkableItem.getId(), checkableItem);
@@ -126,13 +118,91 @@ public class CheckableItemIntegrationTest extends AbstractIntegrationTest<Checka
     }
 
     @Test
-    public void updateFailure() throws Exception {
-        CheckableItem checkableItem = helper.getNewCheckableItem("updateFailure@CheckableItemIntegrationTest");
+    public void nullCheckListCreate() throws Exception {
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setName("name");
+        checkableItem.setChecklistId(UUID.randomUUID());
+
+        MvcResult mvcResult = super.create(URL_TEMPLATE, checkableItem);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The checklistId field must belong to a checklist.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nullNameFieldCreate() throws Exception {
+        Checklist checklist = helper.getNewChecklist("nullNameFieldCreate@ChecIIT.com");
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setChecklistId(checklist.getId());
+
+        MvcResult mvcResult = super.create(URL_TEMPLATE, checkableItem);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The name field must be filled.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void badNameFieldCreate() throws Exception {
+        Checklist checklist = helper.getNewChecklist("badNameFieldCreate@ChecIIT.com");
+        CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setChecklistId(checklist.getId());
+        checkableItem.setName("n");
+
+        MvcResult mvcResult = super.create(URL_TEMPLATE, checkableItem);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The name field must be between 2 and 20 characters long. \n",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nonExistentCheckableItemUpdate() throws Exception {
+        CheckableItem checkableItem = helper.getNewCheckableItem("nonExistCIU@ChecIIT.com");
+        checkableItem.setChecklistId(UUID.randomUUID());
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, checkableItem.getId(), checkableItem);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("CheckableItem cannot be transferred to another checklist.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nullNameFieldsUpdate() throws Exception {
+        CheckableItem checkableItem = helper.getNewCheckableItem("nonExistentCIU@ChecIIT.com");
         checkableItem.setName(null);
 
         MvcResult mvcResult = super.update(URL_TEMPLATE, checkableItem.getId(), checkableItem);
 
-        assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The name field must be filled.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void badNameFieldsUpdate() throws Exception {
+        CheckableItem checkableItem = helper.getNewCheckableItem("badNameFieldsU@ChecIIT.com");
+        checkableItem.setName("n");
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, checkableItem.getId(), checkableItem);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The name field must be between 2 and 20 characters long. \n",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
     }
 }
 

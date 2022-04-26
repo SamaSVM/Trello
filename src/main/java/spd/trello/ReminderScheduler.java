@@ -23,7 +23,7 @@ public class ReminderScheduler {
     @Scheduled(cron = "0 0/5 * * * ?")//every 5 min
     public void runReminder() {
         List<Reminder> activeReminders =
-                repository.findAllByRemindOnBeforeAndActive(LocalDateTime.now(), true);
+                repository.getAllByRemindOnBeforeAndActive(LocalDateTime.now(), true);
         activeReminders.forEach(reminder -> {
             System.out.println("Hallo! Wake Up! " + reminder.getId());
             reminder.setActive(false);

@@ -1,6 +1,7 @@
 package spd.trello.controllers;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import spd.trello.domain.User;
 import spd.trello.services.UserService;
 

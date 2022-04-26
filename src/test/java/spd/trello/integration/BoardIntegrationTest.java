@@ -11,13 +11,8 @@ import spd.trello.domain.Member;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.BoardVisibility;
 
-import java.sql.Date;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,51 +24,17 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<Board> {
     private IntegrationHelper helper;
 
     @Test
-    public void createWithoutArg() throws Exception {
-        Workspace workspace = helper.getNewWorkspace("createWithoutArg@BIT");
+    public void create() throws Exception {
+        Workspace workspace = helper.getNewWorkspace("create1@BIT.com");
+        Member secondMember = helper.getNewMember("create2@BIT.com");
         Board board = new Board();
         board.setCreatedBy(workspace.getCreatedBy());
-        board.setName("name");
-        board.setWorkspaceId(workspace.getId());
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(workspace.getMembersId().iterator().next());
-        board.setMembersId(membersId);
-        MvcResult mvcResult = super.create(URL_TEMPLATE, board);
-        Set<UUID> testMembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
-
-        assertAll(
-                () -> assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus()),
-                () -> assertNotNull(getValue(mvcResult, "$.id")),
-                () -> assertEquals(board.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertTrue(getValue(mvcResult, "$.createdDate").toString().
-                        contains(Date.valueOf(LocalDate.now()).toString())),
-                () -> assertNull(getValue(mvcResult, "$.updatedBy")),
-                () -> assertNull(getValue(mvcResult, "$.updatedDate")),
-                () -> assertEquals(board.getName(), getValue(mvcResult, "$.name")),
-                () -> assertNull(getValue(mvcResult, "$.description")),
-                () -> assertEquals(board.getVisibility().toString(), getValue(mvcResult, "$.visibility")),
-                () -> assertFalse((Boolean) getValue(mvcResult, "$.favourite")),
-                () -> assertFalse((Boolean) getValue(mvcResult, "$.archived")),
-                () -> assertEquals(workspace.getId().toString(), getValue(mvcResult, "$.workspaceId")),
-                () -> assertTrue(testMembersId.contains(workspace.getMembersId().iterator().next())),
-                () -> assertEquals(1, testMembersId.size())
-        );
-    }
-
-    @Test
-    public void createFromArg() throws Exception {
-        Workspace workspace = helper.getNewWorkspace("createFromArg1@BIT");
-        Member secondMember = helper.getNewMember("createFromArg2@BIT");
-        Board board = new Board();
-        board.setCreatedBy(workspace.getCreatedBy());
+        board.setCreatedDate(LocalDateTime.now().withNano(0));
         board.setName("name");
         board.setDescription("description");
         board.setVisibility(BoardVisibility.PUBLIC);
-        board.setFavourite(true);
-        board.setArchived(true);
         board.setWorkspaceId(workspace.getId());
-        Set<UUID> membersId = new HashSet<>();
-        membersId.add(workspace.getMembersId().iterator().next());
+        Set<UUID> membersId = workspace.getMembersId();
         membersId.add(secondMember.getId());
         board.setMembersId(membersId);
         MvcResult mvcResult = super.create(URL_TEMPLATE, board);
@@ -83,15 +44,15 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<Board> {
                 () -> assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(board.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertTrue(getValue(mvcResult, "$.createdDate").toString().
-                        contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertEquals(board.getCreatedDate().toString(),
+                        getValue(mvcResult, "$.createdDate").toString()),
                 () -> assertNull(getValue(mvcResult, "$.updatedBy")),
                 () -> assertNull(getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(board.getName(), getValue(mvcResult, "$.name")),
                 () -> assertEquals(board.getDescription(), getValue(mvcResult, "$.description")),
                 () -> assertEquals(board.getVisibility().toString(), getValue(mvcResult, "$.visibility")),
-                () -> assertTrue((Boolean) getValue(mvcResult, "$.favourite")),
-                () -> assertTrue((Boolean) getValue(mvcResult, "$.archived")),
+                () -> assertFalse((Boolean) getValue(mvcResult, "$.favourite")),
+                () -> assertFalse((Boolean) getValue(mvcResult, "$.archived")),
                 () -> assertEquals(workspace.getId().toString(), getValue(mvcResult, "$.workspaceId")),
                 () -> assertTrue(testMembersId.contains(membersId.iterator().next())),
                 () -> assertTrue(testMembersId.contains(membersId.iterator().next())),
@@ -100,17 +61,9 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<Board> {
     }
 
     @Test
-    public void createFailure() throws Exception {
-        Board entity = new Board();
-        MvcResult mvcResult = super.create(URL_TEMPLATE, entity);
-
-        assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus());
-    }
-
-    @Test
     public void findAll() throws Exception {
-        Board firstBoard = helper.getNewBoard("1findAll@BIT");
-        Board secondBoard = helper.getNewBoard("2findAll@BIT");
+        Board firstBoard = helper.getNewBoard("1findAll@BIT.com");
+        Board secondBoard = helper.getNewBoard("2findAll@BIT.com");
         MvcResult mvcResult = super.findAll(URL_TEMPLATE);
         List<Board> testWorkspaces = helper.getBoardsArray(mvcResult);
 
@@ -124,7 +77,7 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<Board> {
 
     @Test
     public void findById() throws Exception {
-        Board board = helper.getNewBoard("findById@BIT");
+        Board board = helper.getNewBoard("findById@BIT.com");
         MvcResult mvcResult = super.findById(URL_TEMPLATE, board.getId());
         Set<UUID> testMembersId = helper.getIdsFromJson(getValue(mvcResult, "$.membersId").toString());
 
@@ -132,8 +85,7 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<Board> {
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(board.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(LocalDateTime.of(2022, 2, 2, 2, 2, 2).toString(),
-                        getValue(mvcResult, "$.createdDate")),
+                () -> assertEquals(board.getCreatedDate().toString(), getValue(mvcResult, "$.createdDate")),
                 () -> assertNull(getValue(mvcResult, "$.updatedBy")),
                 () -> assertNull(getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(board.getName(), getValue(mvcResult, "$.name")),
@@ -156,7 +108,7 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<Board> {
 
     @Test
     public void deleteById() throws Exception {
-        Board board = helper.getNewBoard("deleteById@BIT");
+        Board board = helper.getNewBoard("deleteById@BIT.com");
         MvcResult mvcResult = super.deleteById(URL_TEMPLATE, board.getId());
         MvcResult deleteMvcResult = super.findAll(URL_TEMPLATE);
         List<Board> testBoards = helper.getBoardsArray(deleteMvcResult);
@@ -171,16 +123,15 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<Board> {
     public void deleteByIdFailure() throws Exception {
         MvcResult mvcResult = super.deleteById(URL_TEMPLATE, UUID.randomUUID());
 
-        assertAll(
-                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus())
-        );
+        assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus());
     }
 
     @Test
     public void update() throws Exception {
-        Board board = helper.getNewBoard("1update@WIT");
-        Member secondMember = helper.getNewMember("2update@WIT");
+        Board board = helper.getNewBoard("1update@BIT.com");
+        Member secondMember = helper.getNewMember("2update@BIT.com");
         board.setUpdatedBy(board.getCreatedBy());
+        board.setUpdatedDate(LocalDateTime.now().withNano(0));
         board.setName("new name");
         board.setDescription("new description");
         board.setVisibility(BoardVisibility.PUBLIC);
@@ -196,11 +147,10 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<Board> {
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(board.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(LocalDateTime.of(2022, 2, 2, 2, 2, 2).toString(),
-                        getValue(mvcResult, "$.createdDate")),
+                () -> assertEquals(board.getCreatedDate().toString(), getValue(mvcResult, "$.createdDate")),
                 () -> assertEquals(board.getUpdatedBy(), getValue(mvcResult, "$.updatedBy")),
-                () -> assertTrue(getValue(mvcResult, "$.updatedDate").toString().
-                        contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertEquals(board.getUpdatedDate().toString(),
+                        getValue(mvcResult, "$.updatedDate").toString()),
                 () -> assertEquals(board.getName(), getValue(mvcResult, "$.name")),
                 () -> assertEquals(board.getDescription(), getValue(mvcResult, "$.description")),
                 () -> assertEquals(board.getVisibility().toString(), getValue(mvcResult, "$.visibility")),
@@ -214,20 +164,316 @@ public class BoardIntegrationTest extends AbstractIntegrationTest<Board> {
     }
 
     @Test
-    public void updateFailure() throws Exception {
-        Board firstBoard = helper.getNewBoard("1updateFailure@BoardIntegrationTest");
-        firstBoard.setName(null);
-        firstBoard.setUpdatedBy(firstBoard.getCreatedBy());
+    public void badFieldsCreate() throws Exception {
+        Workspace workspace = helper.getNewWorkspace("badFieldsCreate@BIT.com");
+        Board board = new Board();
+        board.setCreatedBy("c");
+        board.setCreatedDate(LocalDateTime.now().minusMinutes(2));
+        board.setName("n");
+        board.setDescription("d");
+        board.setWorkspaceId(workspace.getId());
+        Set<UUID> membersId = workspace.getMembersId();
+        membersId.add(UUID.randomUUID());
+        board.setMembersId(membersId);
 
-        Board secondBoard = new Board();
-        secondBoard.setId(firstBoard.getId());
+        String createdByException = "CreatedBy should be between 2 and 30 characters! \n";
+        String createdDateException = "The createdDate should not be past or future. \n";
+        String nameException = "The name field must be between 2 and 20 characters long. \n";
+        String descriptionException = "The description field must be between 2 and 255 characters long. \n";
+        String memberIdException = "- memberId must belong to the member.";
 
-        MvcResult firstMvcResult = super.update(URL_TEMPLATE, firstBoard.getId(), firstBoard);
-        MvcResult secondMvcResult = super.update(URL_TEMPLATE, secondBoard.getId(), secondBoard);
+        MvcResult mvcResult = super.create(URL_TEMPLATE, board);
+        String exceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
 
         assertAll(
-                () -> assertEquals(HttpStatus.NOT_FOUND.value(), firstMvcResult.getResponse().getStatus()),
-                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), secondMvcResult.getResponse().getStatus())
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertTrue(exceptionMessage.contains(createdByException)),
+                () -> assertTrue(exceptionMessage.contains(createdDateException)),
+                () -> assertTrue(exceptionMessage.contains(nameException)),
+                () -> assertTrue(exceptionMessage.contains(descriptionException)),
+                () -> assertTrue(exceptionMessage.contains(memberIdException))
+        );
+    }
+
+    @Test
+    public void archivedBoardCreate() throws Exception {
+        Workspace workspace = helper.getNewWorkspace("archivedBoardC@BIT.com");
+        Board board = new Board();
+        board.setArchived(true);
+        board.setCreatedBy(workspace.getCreatedBy());
+        board.setCreatedDate(LocalDateTime.now().withNano(0));
+        board.setName("name");
+        board.setDescription("description");
+        board.setWorkspaceId(workspace.getId());
+        board.setMembersId(workspace.getMembersId());
+
+        MvcResult mvcResult = super.create(URL_TEMPLATE, board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("You cannot create an archived board.",
+                        mvcResult.getResolvedException().getMessage())
+        );
+    }
+
+    @Test
+    public void badWorkspaceIdCreate() throws Exception {
+        Workspace workspace = helper.getNewWorkspace("badWorkspaceIdCreate@BIT.com");
+        Board board = new Board();
+        board.setCreatedBy(workspace.getCreatedBy());
+        board.setCreatedDate(LocalDateTime.now().withNano(0));
+        board.setName("name");
+        board.setDescription("description");
+        board.setWorkspaceId(UUID.randomUUID());
+        board.setMembersId(workspace.getMembersId());
+
+        MvcResult mvcResult = super.create(URL_TEMPLATE, board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("WorkspaceId must be owned by Workspace.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nullCreatedByFieldCreate() throws Exception {
+        Workspace workspace = helper.getNewWorkspace("archivedBoardCreate@BIT.com");
+        Board board = new Board();
+        board.setCreatedDate(LocalDateTime.now().withNano(0));
+        board.setName("name");
+        board.setDescription("description");
+        board.setWorkspaceId(workspace.getId());
+        board.setMembersId(workspace.getMembersId());
+
+        MvcResult mvcResult = super.create(URL_TEMPLATE, board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The createdBy, createdDate fields must be filled.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nullCreatedDateFieldCreate() throws Exception {
+        Workspace workspace = helper.getNewWorkspace("nullCreatedDateFieldCreate@BIT.com");
+        Board board = new Board();
+        board.setCreatedBy(workspace.getCreatedBy());
+        board.setName("name");
+        board.setDescription("description");
+        board.setWorkspaceId(workspace.getId());
+        board.setMembersId(workspace.getMembersId());
+
+        MvcResult mvcResult = super.create(URL_TEMPLATE, board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The createdBy, createdDate fields must be filled.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nullNameFieldCreate() throws Exception {
+        Workspace workspace = helper.getNewWorkspace("nullNameFieldCreate@BIT.com");
+        Board board = new Board();
+        board.setCreatedBy(workspace.getCreatedBy());
+        board.setCreatedDate(LocalDateTime.now().withNano(0));
+        board.setDescription("description");
+        board.setWorkspaceId(workspace.getId());
+        board.setMembersId(workspace.getMembersId());
+
+        MvcResult mvcResult = super.create(URL_TEMPLATE, board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The name field must be filled.",
+                        mvcResult.getResolvedException().getMessage())
+        );
+    }
+
+    @Test
+    public void nullMembersCreate() throws Exception {
+        Workspace workspace = helper.getNewWorkspace("nullMembersCreate@BIT.com");
+        Board board = new Board();
+        board.setCreatedBy(workspace.getCreatedBy());
+        board.setCreatedDate(LocalDateTime.now().withNano(0));
+        board.setName("name");
+        board.setDescription("description");
+        board.setWorkspaceId(workspace.getId());
+        board.setMembersId(new HashSet<>());
+
+        MvcResult mvcResult = super.create(URL_TEMPLATE, board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The resource must belong to at least one member!",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void badFieldsUpdate() throws Exception {
+        Board board = helper.getNewBoard("badFieldsUpdate@BIT.com");
+        board.setUpdatedDate(LocalDateTime.now().minusMinutes(2));
+        board.setCreatedBy("newCreateBy");
+        board.setCreatedDate(LocalDateTime.now());
+        board.setUpdatedBy("u");
+        board.setName("n");
+        board.setDescription("d");
+        board.setWorkspaceId(UUID.randomUUID());
+        Set<UUID> memberId = board.getMembersId();
+        memberId.add(UUID.randomUUID());
+
+        String updatedDateException = "The updatedDate should not be past or future. \n";
+        String createdByException = "The createdBy field cannot be updated. \n";
+        String createdDateException = "The createdDate field cannot be updated. \n";
+        String updatedByException = "UpdatedBy should be between 2 and 30 characters! \n";
+        String nameException = "The name field must be between 2 and 20 characters long. \n";
+        String descriptionException = "The description field must be between 2 and 255 characters long. \n";
+        String transferException = "Board cannot be transferred to another workspace. \n";
+        String memberIdException = " - memberId must belong to the member. \n";
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, board.getId(), board);
+        String exceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertTrue(exceptionMessage.contains(updatedDateException)),
+                () -> assertTrue(exceptionMessage.contains(createdByException)),
+                () -> assertTrue(exceptionMessage.contains(createdDateException)),
+                () -> assertTrue(exceptionMessage.contains(updatedByException)),
+                () -> assertTrue(exceptionMessage.contains(nameException)),
+                () -> assertTrue(exceptionMessage.contains(descriptionException)),
+                () -> assertTrue(exceptionMessage.contains(transferException)),
+                () -> assertTrue(exceptionMessage.contains(memberIdException))
+        );
+    }
+
+    @Test
+    public void nonExistentWorkspaceUpdate() throws Exception {
+        Board board = helper.getNewBoard("nonExistentWU@BIT.com");
+        board.setUpdatedBy(board.getCreatedBy());
+        board.setUpdatedDate(LocalDateTime.now());
+        board.setId(UUID.randomUUID());
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, board.getId(), board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("Cannot update non-existent board!",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void archivedBoardUpdate() throws Exception {
+        Board board = helper.getNewBoard("nonExistentWorkspaceU@BIT.com");
+        board.setUpdatedBy(board.getCreatedBy());
+        board.setUpdatedDate(LocalDateTime.now());
+        board.setArchived(true);
+        super.update(URL_TEMPLATE, board.getId(), board);
+        board.setName("newName");
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, board.getId(), board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("Archived board cannot be updated.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nullCreatedByFieldUpdate() throws Exception {
+        Board board = helper.getNewBoard("nullCreatedByFieldUpdate@BIT.com");
+        board.setUpdatedBy(board.getCreatedBy());
+        board.setUpdatedDate(LocalDateTime.now());
+        board.setCreatedBy(null);
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, board.getId(), board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The createdBy, createdDate fields must be filled.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nullCreatedDateFieldUpdate() throws Exception {
+        Board board = helper.getNewBoard("nullCreatedDateFieldUpdate@BIT.com");
+        board.setUpdatedBy(board.getCreatedBy());
+        board.setUpdatedDate(LocalDateTime.now());
+        board.setCreatedDate(null);
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, board.getId(), board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The createdBy, createdDate fields must be filled.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nullUpdatedByFieldUpdate() throws Exception {
+        Board board = helper.getNewBoard("nullUpdatedByFieldU@BIT.com");
+        board.setUpdatedDate(LocalDateTime.now());
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, board.getId(), board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The updatedBy field must be filled.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nullUpdatedDateFieldUpdate() throws Exception {
+        Board board = helper.getNewBoard("nullUpdatedDateFieldU@BIT.com");
+        board.setUpdatedBy(board.getCreatedBy());
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, board.getId(), board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The updatedDate field must be filled.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nullNameFieldUpdate() throws Exception {
+        Board board = helper.getNewBoard("nullNameFieldUpdate@BIT.com");
+        board.setUpdatedBy(board.getCreatedBy());
+        board.setUpdatedDate(LocalDateTime.now());
+        board.setName(null);
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, board.getId(), board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The name field must be filled.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void nullMembersUpdate() throws Exception {
+        Board board = helper.getNewBoard("nullMembersUpdate@BIT.com");
+        board.setUpdatedBy(board.getCreatedBy());
+        board.setUpdatedDate(LocalDateTime.now());
+        board.setMembersId(new HashSet<>());
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, board.getId(), board);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The resource must belong to at least one member!",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
         );
     }
 }

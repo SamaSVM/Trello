@@ -2,59 +2,36 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.User;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.UserRepository;
+import spd.trello.validators.UserValidator;
 
-import java.time.ZoneId;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
-public class UserService extends AbstractService<User, UserRepository> {
-
-    public UserService(UserRepository repository, MemberService memberService) {
-        super(repository);
-        this.memberService = memberService;
-    }
+public class UserService extends AbstractService<User, UserRepository, UserValidator> {
 
     private final MemberService memberService;
 
+    public UserService(UserRepository repository, UserValidator validator, MemberService memberService) {
+        super(repository, validator);
+        this.memberService = memberService;
+    }
+
     @Override
     public User save(User entity) {
-        if (entity.getTimeZone() == null) {
-            entity.setTimeZone(ZoneId.systemDefault().toString());
+        if (entity.getEmail() != null) {
+            entity.setEmail(entity.getEmail().toLowerCase(Locale.ROOT));
         }
-
-        try {
-            return repository.save(entity);
-        } catch (RuntimeException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        return super.save(entity);
     }
 
     @Override
     public User update(User entity) {
-        User oldUser = getById(entity.getId());
-        if (entity.getEmail() == null && entity.getLastName() == null && entity.getFirstName() == null) {
-            throw new ResourceNotFoundException();
+        if (entity.getEmail() != null) {
+            entity.setEmail(entity.getEmail().toLowerCase(Locale.ROOT));
         }
-
-        entity.setEmail(oldUser.getEmail());
-        if (entity.getFirstName() == null) {
-            entity.setFirstName(oldUser.getFirstName());
-        }
-        if (entity.getLastName() == null) {
-            entity.setLastName(oldUser.getLastName());
-        }
-        if (entity.getTimeZone() == null) {
-            entity.setTimeZone(oldUser.getTimeZone());
-        }
-
-        try {
-            return repository.save(entity);
-        } catch (RuntimeException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        return super.update(entity);
     }
 
     @Override

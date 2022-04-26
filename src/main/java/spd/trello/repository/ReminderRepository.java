@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ReminderRepository extends AbstractRepository<Reminder> {
-    List<Reminder> findAllByRemindOnBeforeAndActive(LocalDateTime remindOn, Boolean active);
+    List<Reminder> getAllByRemindOnBeforeAndActive(LocalDateTime remindOn, Boolean active);
 }
 

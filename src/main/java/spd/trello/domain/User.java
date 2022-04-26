@@ -4,7 +4,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import spd.trello.domain.perent.Domain;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import java.time.ZoneId;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -21,5 +24,5 @@ public class User extends Domain {
     private String email;
 
     @Column(name = "time_zone")
-    private String timeZone;
+    private String timeZone = ZoneId.systemDefault().toString();
 }

@@ -7,6 +7,7 @@ import spd.trello.domain.perent.Domain;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import java.util.UUID;
 
 @Data

@@ -10,10 +10,9 @@ import spd.trello.domain.Member;
 import spd.trello.domain.User;
 import spd.trello.domain.enums.MemberRole;
 
-import java.sql.Date;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,54 +26,30 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void create() throws Exception {
-        User user = helper.getNewUser("create@MIT");
-        Member firstMember = new Member();
-        firstMember.setUserId(user.getId());
-        firstMember.setCreatedBy(user.getEmail());
-        firstMember.setMemberRole(MemberRole.ADMIN);
-        MvcResult firstMvcResult = super.create(URL_TEMPLATE, firstMember);
-
-        Member secondMember = new Member();
-        secondMember.setUserId(user.getId());
-        secondMember.setCreatedBy(user.getEmail());
-        MvcResult secondMvcResult = super.create(URL_TEMPLATE, secondMember);
+        User user = helper.getNewUser("create@MIT.com");
+        Member member = new Member();
+        member.setUserId(user.getId());
+        member.setCreatedBy(user.getEmail());
+        member.setCreatedDate(LocalDateTime.now().withNano(0));
+        member.setMemberRole(MemberRole.ADMIN);
+        MvcResult mvcResult = super.create(URL_TEMPLATE, member);
 
         assertAll(
-                () -> assertEquals(HttpStatus.CREATED.value(), firstMvcResult.getResponse().getStatus()),
-                () -> assertNotNull(getValue(firstMvcResult, "$.id")),
-                () -> assertEquals(firstMember.getCreatedBy(), getValue(firstMvcResult, "$.createdBy")),
-                () -> assertTrue(getValue(firstMvcResult, "$.createdDate").toString().
-                        contains(Date.valueOf(LocalDate.now()).toString())),
-                () -> assertNull(getValue(firstMvcResult, "$.updatedBy")),
-                () -> assertNull(getValue(firstMvcResult, "$.updatedDate")),
-                () -> assertEquals(user.getId().toString(), getValue(firstMvcResult, "$.userId")),
-                () -> assertEquals(firstMember.getMemberRole().toString(),
-                        getValue(firstMvcResult, "$.memberRole")),
-
-                () -> assertEquals(HttpStatus.CREATED.value(), secondMvcResult.getResponse().getStatus()),
-                () -> assertNotNull(getValue(secondMvcResult, "$.id")),
-                () -> assertEquals(secondMember.getCreatedBy(), getValue(secondMvcResult, "$.createdBy")),
-                () -> assertTrue(getValue(firstMvcResult, "$.createdDate").toString().
-                        contains(Date.valueOf(LocalDate.now()).toString())),
-                () -> assertNull(getValue(secondMvcResult, "$.updatedBy")),
-                () -> assertNull(getValue(secondMvcResult, "$.updatedDate")),
-                () -> assertEquals(user.getId().toString(), getValue(secondMvcResult, "$.userId")),
-                () -> assertEquals(MemberRole.GUEST.toString(), getValue(secondMvcResult, "$.memberRole"))
+                () -> assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus()),
+                () -> assertNotNull(getValue(mvcResult, "$.id")),
+                () -> assertEquals(member.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
+                () -> assertEquals(member.getCreatedDate().toString(), getValue(mvcResult, "$.createdDate")),
+                () -> assertNull(getValue(mvcResult, "$.updatedBy")),
+                () -> assertNull(getValue(mvcResult, "$.updatedDate")),
+                () -> assertEquals(user.getId().toString(), getValue(mvcResult, "$.userId")),
+                () -> assertEquals(member.getMemberRole().toString(), getValue(mvcResult, "$.memberRole"))
         );
     }
 
     @Test
-    public void createFailure() throws Exception {
-        Member entity = new Member();
-        MvcResult mvcResult = super.create(URL_TEMPLATE, entity);
-
-        assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus());
-    }
-
-    @Test
     public void findAll() throws Exception {
-        Member firstMember = helper.getNewMember("1findAll@MIT");
-        Member secondMember = helper.getNewMember("2findAll@MIT");
+        Member firstMember = helper.getNewMember("1findAll@MIT.com");
+        Member secondMember = helper.getNewMember("2findAll@MIT.com");
         MvcResult mvcResult = super.findAll(URL_TEMPLATE);
         List<Member> testMembers = helper.getMembersArray(mvcResult);
 
@@ -88,15 +63,14 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void findById() throws Exception {
-        Member member = helper.getNewMember("findById@MIT");
+        Member member = helper.getNewMember("findById@MIT.com");
         MvcResult mvcResult = super.findById(URL_TEMPLATE, member.getId());
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(member.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(LocalDateTime.of(2022, 2, 2, 2, 2, 2).toString(),
-                        getValue(mvcResult, "$.createdDate")),
+                () -> assertEquals(member.getCreatedDate().toString(), getValue(mvcResult, "$.createdDate")),
                 () -> assertNull(getValue(mvcResult, "$.updatedBy")),
                 () -> assertNull(getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(member.getUserId().toString(), getValue(mvcResult, "$.userId")),
@@ -113,7 +87,7 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void deleteById() throws Exception {
-        Member member = helper.getNewMember("deleteById@MIT");
+        Member member = helper.getNewMember("deleteById@MIT.com");
         MvcResult mvcResult = super.deleteById(URL_TEMPLATE, member.getId());
         MvcResult deleteMvcResult = super.findAll(URL_TEMPLATE);
         List<Member> testMembers = helper.getMembersArray(deleteMvcResult);
@@ -135,8 +109,9 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void update() throws Exception {
-        Member member = helper.getNewMember("update@MIT");
+        Member member = helper.getNewMember("update@MIT.com");
         member.setUpdatedBy(member.getCreatedBy());
+        member.setUpdatedDate(LocalDateTime.now().withNano(0));
         member.setMemberRole(MemberRole.ADMIN);
         MvcResult mvcResult = super.update(URL_TEMPLATE, member.getId(), member);
 
@@ -144,30 +119,128 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(mvcResult, "$.id")),
                 () -> assertEquals(member.getCreatedBy(), getValue(mvcResult, "$.createdBy")),
-                () -> assertEquals(LocalDateTime.of(2022, 2, 2, 2, 2, 2).toString(),
-                        getValue(mvcResult, "$.createdDate")),
+                () -> assertEquals(member.getCreatedDate().toString(), getValue(mvcResult, "$.createdDate")),
                 () -> assertEquals(member.getUpdatedBy(), getValue(mvcResult, "$.updatedBy")),
-                () -> assertTrue(getValue(mvcResult, "$.updatedDate").toString().
-                        contains(Date.valueOf(LocalDate.now()).toString())),
+                () -> assertEquals(member.getUpdatedDate().toString(), getValue(mvcResult, "$.updatedDate")),
                 () -> assertEquals(member.getUserId().toString(), getValue(mvcResult, "$.userId")),
                 () -> assertEquals(member.getMemberRole().toString(), getValue(mvcResult, "$.memberRole"))
         );
     }
 
     @Test
-    public void updateFailure() throws Exception {
-        Member firstMember = helper.getNewMember("updateFuilure@MIT");
-        firstMember.setUpdatedBy(firstMember.getCreatedBy());
-
-        Member secondMember = new Member();
-        secondMember.setId(firstMember.getId());
-
-        MvcResult firstMvcResult = super.update(URL_TEMPLATE, firstMember.getId(), firstMember);
-        MvcResult secondMvcResult = super.update(URL_TEMPLATE, secondMember.getId(), secondMember);
+    public void nullFieldsCreate() throws Exception {
+        Member member = new Member();
+        MvcResult mvcResult = super.create(URL_TEMPLATE, member);
 
         assertAll(
-                () -> assertEquals(HttpStatus.NOT_FOUND.value(), firstMvcResult.getResponse().getStatus()),
-                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), secondMvcResult.getResponse().getStatus())
+                () -> assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus()),
+                () -> assertEquals("The userId field must be filled.",
+                        Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        );
+    }
+
+    @Test
+    public void badRequestCreate() throws Exception {
+        Member member = new Member();
+        member.setCreatedBy("badRequestCreate@MIT.com");
+        member.setCreatedDate(LocalDateTime.now().minusMinutes(2L).withNano(0));
+        member.setUserId(UUID.randomUUID());
+
+        MvcResult mvcResult = super.create(URL_TEMPLATE, member);
+        String createdDateMessage = "The createdDate should not be past or future.";
+        String userIdMessage = "The userId field must belong to a user.";
+
+        String exceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertTrue(exceptionMessage.contains(createdDateMessage)),
+                () -> assertTrue(exceptionMessage.contains(userIdMessage))
+        );
+    }
+
+    @Test
+    public void badFieldsUpdate() throws Exception {
+        Member member = helper.getNewMember("badFieldsUpdate@MIT.com");
+        Member testMember = new Member();
+        testMember.setCreatedBy("c");
+        testMember.setCreatedDate(LocalDateTime.now());
+        testMember.setUpdatedBy(member.getCreatedBy());
+        testMember.setUpdatedDate(LocalDateTime.now());
+        testMember.setUserId(member.getUserId());
+        MvcResult mvcResult = super.update(URL_TEMPLATE, member.getId(), testMember);
+        String createdByMessage = "CreatedBy should be between 2 and 30 characters!";
+
+        String exceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertTrue(exceptionMessage.contains(createdByMessage))
+        );
+    }
+
+    @Test
+    public void badRequestUpdate() throws Exception {
+        Member member = helper.getNewMember("badrequestupdate@mit.com");
+        member.setUserId(UUID.randomUUID());
+        member.setUpdatedBy("u");
+        member.setUpdatedDate(LocalDateTime.now().minusMinutes(2L).withNano(0));
+        member.setCreatedBy("newCreatedBy");
+        member.setUpdatedDate(LocalDateTime.now().withNano(0));
+
+        MvcResult mvcResult = super.update(URL_TEMPLATE, member.getId(), member);
+        String createdByMessage = "The createdBy field cannot be updated.";
+        String updatedByMessage = "UpdatedBy should be between 2 and 30 characters!";
+        String memberMessage = "Member cannot be transferred to another user.";
+
+        String exceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
+                () -> assertTrue(exceptionMessage.contains(createdByMessage)),
+                () -> assertTrue(exceptionMessage.contains(updatedByMessage)),
+                () -> assertTrue(exceptionMessage.contains(memberMessage))
+        );
+    }
+
+    @Test
+    public void nonExistentMemberUpdate() throws Exception {
+        Member member = helper.getNewMember("nonexistentmemberu@uit.com");
+        member.setId(UUID.randomUUID());
+        member.setUpdatedBy(member.getUpdatedBy());
+        member.setUpdatedDate(LocalDateTime.now());
+        MvcResult fourthMvcResult = super.update(URL_TEMPLATE, member.getId(), member);
+        String fourthExceptionMessage = Objects.requireNonNull(fourthMvcResult.getResolvedException()).getMessage();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND.value(), fourthMvcResult.getResponse().getStatus()),
+                () -> assertEquals("Cannot update non-existent member!", fourthExceptionMessage)
+        );
+    }
+
+    @Test
+    public void nullUpdatedByFieldUpdate() throws Exception {
+        Member member = helper.getNewMember("nullupdatedbyfield@uit");
+        member.setUpdatedDate(LocalDateTime.now());
+        MvcResult fourthMvcResult = super.update(URL_TEMPLATE, member.getId(), member);
+        String fourthExceptionMessage = Objects.requireNonNull(fourthMvcResult.getResolvedException()).getMessage();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), fourthMvcResult.getResponse().getStatus()),
+                () -> assertEquals("The updatedBy field must be filled.", fourthExceptionMessage)
+        );
+    }
+
+    @Test
+    public void nullUpdatedDateFieldUpdate() throws Exception {
+        Member member = helper.getNewMember("nullupdateddatefield@uit");
+        member.setUpdatedBy(member.getCreatedBy());
+        MvcResult fourthMvcResult = super.update(URL_TEMPLATE, member.getId(), member);
+        String fourthExceptionMessage = Objects.requireNonNull(fourthMvcResult.getResolvedException()).getMessage();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST.value(), fourthMvcResult.getResponse().getStatus()),
+                () -> assertEquals("The updatedDate field must be filled.", fourthExceptionMessage)
         );
     }
 }

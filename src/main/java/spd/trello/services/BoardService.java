@@ -2,65 +2,21 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Board;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.BoardRepository;
+import spd.trello.validators.BoardValidator;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 @Service
-public class BoardService extends AbstractService<Board, BoardRepository> {
-    public BoardService(BoardRepository repository, CardListService cardListService) {
-        super(repository);
+public class BoardService extends AbstractService<Board, BoardRepository, BoardValidator> {
+    public BoardService(BoardRepository repository, CardListService cardListService, BoardValidator validator) {
+        super(repository, validator);
         this.cardListService = cardListService;
     }
 
     private final CardListService cardListService;
-
-    @Override
-    public Board save(Board entity) {
-        entity.setCreatedDate(LocalDateTime.now());
-        try {
-            return repository.save(entity);
-        } catch (RuntimeException e) {
-            throw new BadRequestException(e.getMessage());
-        }
-    }
-
-    @Override
-    public Board update(Board entity) {
-        Board oldBoard = getById(entity.getId());
-
-        if (entity.getUpdatedBy() == null) {
-            throw new BadRequestException("Not found updated by!");
-        }
-
-        if (entity.getName() == null && entity.getDescription() == null
-                && entity.getFavourite() == oldBoard.getFavourite() && entity.getArchived() == oldBoard.getArchived()
-                && entity.getMembersId().equals(oldBoard.getMembersId())
-                && entity.getVisibility().equals(oldBoard.getVisibility())) {
-            throw new ResourceNotFoundException();
-        }
-
-        entity.setUpdatedDate(LocalDateTime.now());
-        entity.setCreatedBy(oldBoard.getCreatedBy());
-        entity.setCreatedDate(oldBoard.getCreatedDate());
-        entity.setWorkspaceId(oldBoard.getWorkspaceId());
-        if (entity.getName() == null) {
-            entity.setName(oldBoard.getName());
-        }
-        if (entity.getDescription() == null && oldBoard.getDescription() != null) {
-            entity.setDescription(oldBoard.getDescription());
-        }
-        try {
-            return repository.save(entity);
-        } catch (RuntimeException e) {
-            throw new BadRequestException(e.getMessage());
-        }
-    }
 
     @Override
     public void delete(UUID id) {
@@ -73,7 +29,7 @@ public class BoardService extends AbstractService<Board, BoardRepository> {
     }
 
     public void deleteMemberInBoards(UUID memberId) {
-        List<Board> boards = repository.findAllBymembersIdEquals(memberId);
+        List<Board> boards = repository.findAllByMembersIdEquals(memberId);
         for (Board board : boards) {
             Set<UUID> membersId = board.getMembersId();
             membersId.remove(memberId);

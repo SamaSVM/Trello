@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "boards")
 public class Board extends Resource {
@@ -40,7 +40,7 @@ public class Board extends Resource {
     @LazyCollection(LazyCollectionOption.FALSE)
     @CollectionTable(
             name = "member_board",
-            joinColumns=@JoinColumn(name= "board_id")
+            joinColumns = @JoinColumn(name = "board_id")
     )
     @Column(name = "member_id")
     private Set<UUID> membersId = new HashSet<>();

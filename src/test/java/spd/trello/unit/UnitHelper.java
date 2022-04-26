@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spd.trello.domain.*;
 import spd.trello.domain.enums.MemberRole;
-import spd.trello.services.*;
+import spd.trello.repository.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,35 +14,36 @@ import java.util.UUID;
 @Component
 public class UnitHelper {
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
     @Autowired
-    private MemberService memberService;
+    private MemberRepository memberRepository;
     @Autowired
-    private WorkspaceService workspaceService;
+    private WorkspaceRepository workspaceRepository;
     @Autowired
-    private BoardService boardService;
+    private BoardRepository boardRepository;
     @Autowired
-    private CardListService cardListService;
+    private CardListRepository cardListRepository;
     @Autowired
-    private CardService cardService;
+    private CardRepository cardRepository;
     @Autowired
-    private CommentService commentService;
+    private CommentRepository commentRepository;
     @Autowired
-    private ChecklistService checklistService;
+    private ChecklistRepository checklistRepository;
     @Autowired
-    private LabelService labelService;
+    private LabelRepository labelRepository;
     @Autowired
-    private AttachmentService attachmentService;
+    private AttachmentRepository attachmentRepository;
     @Autowired
-    private CheckableItemService checkableItemService;
+    private CheckableItemRepository checkableItemRepository;
 
 
     public User getNewUser(String email) {
         User user = new User();
         user.setFirstName("testFirstName");
         user.setLastName("testLastName");
+        user.setTimeZone("Europe/Kiev");
         user.setEmail(email);
-        return userService.save(user);
+        return userRepository.save(user);
     }
 
     public Member getNewMember(String email) {
@@ -50,21 +51,22 @@ public class UnitHelper {
         User user = getNewUser(email);
         member.setUserId(user.getId());
         member.setCreatedBy(user.getEmail());
+        member.setCreatedDate(LocalDateTime.now().withNano(0));
         member.setMemberRole(MemberRole.ADMIN);
-        return memberService.save(member);
+        return memberRepository.save(member);
     }
 
     public Workspace getNewWorkspace(String email) {
         Workspace workspace = new Workspace();
         Member member = getNewMember(email);
         workspace.setCreatedBy(member.getCreatedBy());
+        workspace.setCreatedDate(LocalDateTime.now().withNano(0));
         workspace.setName("MemberName");
         workspace.setDescription("description");
-        workspace.setCreatedBy(member.getId().toString());
         Set<UUID> membersId = new HashSet<>();
         membersId.add(member.getId());
         workspace.setMembersId(membersId);
-        return workspaceService.save(workspace);
+        return workspaceRepository.save(workspace);
     }
 
     public Board getNewBoard(String email) {
@@ -74,9 +76,10 @@ public class UnitHelper {
         board.setDescription("description");
         board.setWorkspaceId(workspace.getId());
         board.setCreatedBy(workspace.getCreatedBy());
+        board.setCreatedDate(LocalDateTime.now().withNano(0));
         Set<UUID> membersId = workspace.getMembersId();
         board.setMembersId(membersId);
-        return boardService.save(board);
+        return boardRepository.save(board);
     }
 
     public CardList getNewCardList(String email) {
@@ -85,7 +88,8 @@ public class UnitHelper {
         cardList.setBoardId(board.getId());
         cardList.setName("CardListName");
         cardList.setCreatedBy(board.getCreatedBy());
-        return cardListService.save(cardList);
+        cardList.setCreatedDate(LocalDateTime.now().withNano(0));
+        return cardListRepository.save(cardList);
     }
 
     public Card getNewCard(String email) {
@@ -97,18 +101,19 @@ public class UnitHelper {
         card.setDescription("description");
         card.setCardListId(cardList.getId());
         card.setCreatedBy(cardList.getCreatedBy());
-        Set<UUID> membersId = boardService.getById(cardList.getBoardId()).getMembersId();
+        card.setCreatedDate(LocalDateTime.now().withNano(0));
+        Set<UUID> membersId = boardRepository.findById(cardList.getBoardId()).get().getMembersId();
         card.setMembersId(membersId);
-        return cardService.save(card);
+        return cardRepository.save(card);
     }
 
     public Reminder getNewReminder(String email) {
         Reminder reminder = new Reminder();
         reminder.setCreatedBy(email);
-        reminder.setRemindOn(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setStart(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setEnd(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setCreatedDate(LocalDateTime.now());
+        reminder.setCreatedDate(LocalDateTime.now().withNano(0));
+        reminder.setRemindOn(LocalDateTime.now().plusHours(1));
+        reminder.setStart(LocalDateTime.now());
+        reminder.setEnd(LocalDateTime.now().plusHours(2));
         return reminder;
     }
 
@@ -118,7 +123,8 @@ public class UnitHelper {
         comment.setText("testComment");
         comment.setCardId(card.getId());
         comment.setCreatedBy(card.getCreatedBy());
-        return commentService.save(comment);
+        comment.setCreatedDate(LocalDateTime.now().withNano(0));
+        return commentRepository.save(comment);
     }
 
     public Checklist getNewChecklist(String email) {
@@ -127,16 +133,18 @@ public class UnitHelper {
         checklist.setName("testChecklist");
         checklist.setCardId(card.getId());
         checklist.setCreatedBy(card.getCreatedBy());
-        return checklistService.save(checklist);
+        checklist.setCreatedDate(LocalDateTime.now().withNano(0));
+        return checklistRepository.save(checklist);
     }
 
     public CheckableItem getNewCheckableItem(String email) {
         Checklist checklist = getNewChecklist(email);
 
         CheckableItem checkableItem = new CheckableItem();
+        checkableItem.setChecked(false);
         checkableItem.setChecklistId(checklist.getId());
         checkableItem.setName("Name");
-        return checkableItemService.save(checkableItem);
+        return checkableItemRepository.save(checkableItem);
     }
 
     public Label getNewLabel(String email) {
@@ -145,7 +153,7 @@ public class UnitHelper {
         label.setName("Label");
         label.setCardId(card.getId());
         label.setColor(getNewColor());
-        return labelService.save(label);
+        return labelRepository.save(label);
     }
 
     public Color getNewColor() {
@@ -160,9 +168,10 @@ public class UnitHelper {
         Card card = getNewCard(email);
         Attachment attachment = new Attachment();
         attachment.setCardId(card.getId());
-        attachment.setLink("link");
+        attachment.setLink("http://www.example.com/product");
         attachment.setName("name");
         attachment.setCreatedBy(card.getCreatedBy());
-        return attachmentService.save(attachment);
+        attachment.setCreatedDate(LocalDateTime.now().withNano(0));
+        return attachmentRepository.save(attachment);
     }
 }

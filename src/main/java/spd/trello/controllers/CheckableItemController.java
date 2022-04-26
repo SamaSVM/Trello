@@ -7,7 +7,7 @@ import spd.trello.services.CheckableItemService;
 
 @RestController
 @RequestMapping("/checkableitems")
-public class CheckableItemController extends AbstractController<CheckableItem, CheckableItemService>{
+public class CheckableItemController extends AbstractController<CheckableItem, CheckableItemService> {
     public CheckableItemController(CheckableItemService service) {
         super(service);
     }

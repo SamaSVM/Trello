@@ -2,55 +2,20 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Checklist;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.ChecklistRepository;
+import spd.trello.validators.ChecklistValidator;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-public class ChecklistService extends AbstractService<Checklist, ChecklistRepository> {
-    public ChecklistService(ChecklistRepository repository, CheckableItemService checkableItemService) {
-        super(repository);
+public class ChecklistService extends AbstractService<Checklist, ChecklistRepository, ChecklistValidator> {
+    public ChecklistService
+            (ChecklistRepository repository, CheckableItemService checkableItemService, ChecklistValidator validator) {
+        super(repository, validator);
         this.checkableItemService = checkableItemService;
     }
 
     private final CheckableItemService checkableItemService;
-
-    @Override
-    public Checklist save(Checklist entity) {
-        entity.setCreatedDate(LocalDateTime.now());
-        try {
-            return repository.save(entity);
-        } catch (RuntimeException e) {
-            throw new BadRequestException(e.getMessage());
-        }
-    }
-
-    @Override
-    public Checklist update(Checklist entity) {
-        Checklist oldChecklist = getById(entity.getId());
-
-        if (entity.getUpdatedBy() == null) {
-            throw new BadRequestException("Not found updated by!");
-        }
-
-        if (entity.getName() == null) {
-            throw new ResourceNotFoundException();
-        }
-
-        entity.setCreatedBy(oldChecklist.getCreatedBy());
-        entity.setCreatedDate(oldChecklist.getCreatedDate());
-        entity.setUpdatedDate(LocalDateTime.now());
-        entity.setCardId(oldChecklist.getCardId());
-
-        try {
-            return repository.save(entity);
-        } catch (RuntimeException e) {
-            throw new BadRequestException(e.getMessage());
-        }
-    }
 
     @Override
     public void delete(UUID id) {

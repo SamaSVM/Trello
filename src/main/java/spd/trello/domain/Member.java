@@ -6,6 +6,7 @@ import spd.trello.domain.enums.MemberRole;
 import spd.trello.domain.perent.Resource;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Data

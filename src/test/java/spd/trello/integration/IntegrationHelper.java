@@ -57,7 +57,7 @@ public class IntegrationHelper {
         User user = getNewUser(email);
         Member member = new Member();
         member.setCreatedBy(user.getEmail());
-        member.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        member.setCreatedDate(LocalDateTime.now().withNano(0));
         member.setUserId(user.getId());
         return memberRepository.save(member);
     }
@@ -72,7 +72,7 @@ public class IntegrationHelper {
         Member member = getNewMember(email);
         Workspace workspace = new Workspace();
         workspace.setCreatedBy(member.getCreatedBy());
-        workspace.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        workspace.setCreatedDate(LocalDateTime.now().withNano(0));
         workspace.setName("name");
         Set<UUID> membersId = new HashSet<>();
         membersId.add(member.getId());
@@ -90,7 +90,7 @@ public class IntegrationHelper {
         Workspace workspace = getNewWorkspace(email);
         Board board = new Board();
         board.setCreatedBy(workspace.getCreatedBy());
-        board.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        board.setCreatedDate(LocalDateTime.now().withNano(0));
         board.setName("name");
         board.setWorkspaceId(workspace.getId());
         board.setMembersId(workspace.getMembersId());
@@ -108,7 +108,7 @@ public class IntegrationHelper {
         CardList cardList = new CardList();
         cardList.setBoardId(board.getId());
         cardList.setCreatedBy(board.getCreatedBy());
-        cardList.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        cardList.setCreatedDate(LocalDateTime.now().withNano(0));
         cardList.setName("name");
         return cardListRepository.save(cardList);
     }
@@ -121,17 +121,11 @@ public class IntegrationHelper {
 
     public Card getNewCard(String email) {
         CardList cardList = getNewCardList(email);
-
-        Reminder reminder = new Reminder();
-        reminder.setCreatedBy(cardList.getCreatedBy());
-        reminder.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setRemindOn(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setStart(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setEnd(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        Reminder reminder = getNewReminder(email);
 
         Card card = new Card();
         card.setCreatedBy(cardList.getCreatedBy());
-        card.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        card.setCreatedDate(LocalDateTime.now().withNano(0));
         card.setCardListId(cardList.getId());
         card.setName("name");
         card.setReminder(reminder);
@@ -149,7 +143,7 @@ public class IntegrationHelper {
         Comment comment = new Comment();
         comment.setCardId(card.getId());
         comment.setCreatedBy(card.getCreatedBy());
-        comment.setCreatedDate(card.getCreatedDate());
+        comment.setCreatedDate(LocalDateTime.now().withNano(0));
         comment.setText("text");
         return commentRepository.save(comment);
     }
@@ -164,8 +158,8 @@ public class IntegrationHelper {
         Card card = getNewCard(email);
         Checklist checklist = new Checklist();
         checklist.setCardId(card.getId());
+        checklist.setCreatedDate(LocalDateTime.now().withNano(0));
         checklist.setCreatedBy(card.getCreatedBy());
-        checklist.setCreatedDate(card.getCreatedDate());
         checklist.setName("name");
         return checklistRepository.save(checklist);
     }
@@ -195,9 +189,9 @@ public class IntegrationHelper {
         Attachment attachment = new Attachment();
         attachment.setCardId(card.getId());
         attachment.setCreatedBy(card.getCreatedBy());
-        attachment.setCreatedDate(card.getCreatedDate());
+        attachment.setCreatedDate(LocalDateTime.now().withNano(0));
         attachment.setName("name");
-        attachment.setLink("link");
+        attachment.setLink("http://www.example.com/product");
         return attachmentRepository.save(attachment);
     }
 
@@ -239,10 +233,10 @@ public class IntegrationHelper {
     public Reminder getNewReminder(String email) {
         Reminder reminder = new Reminder();
         reminder.setCreatedBy(email);
-        reminder.setCreatedDate(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setRemindOn(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setStart(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
-        reminder.setEnd(LocalDateTime.of(2022, 2, 2, 2, 2, 2));
+        reminder.setCreatedDate(LocalDateTime.now().withNano(0));
+        reminder.setRemindOn(LocalDateTime.now().plusHours(1).withNano(0));
+        reminder.setStart(LocalDateTime.now().withNano(0));
+        reminder.setEnd(LocalDateTime.now().plusHours(2).withNano(0));
         return reminder;
     }
 

@@ -17,12 +17,15 @@ import java.time.LocalDateTime;
 public class Resource extends Domain {
     @Column(name = "created_by")
     private String createdBy;
+
     @Column(name = "updated_by")
     private String updatedBy;
+
     @Column(name = "created_date")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime createdDate;
+
     @Column(name = "updated_date")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)

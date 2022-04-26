@@ -2,52 +2,16 @@ package spd.trello.services;
 
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Comment;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.CommentRepository;
+import spd.trello.validators.CommentValidator;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-public class CommentService extends AbstractService<Comment, CommentRepository> {
+public class CommentService extends AbstractService<Comment, CommentRepository, CommentValidator> {
 
-    public CommentService(CommentRepository repository) {
-        super(repository);
-    }
-
-    @Override
-    public Comment save(Comment entity) {
-        entity.setCreatedDate(LocalDateTime.now());
-        try {
-            return repository.save(entity);
-        } catch (RuntimeException e) {
-            throw new BadRequestException(e.getMessage());
-        }
-    }
-
-    @Override
-    public Comment update(Comment entity) {
-        Comment oldCard = getById(entity.getId());
-
-        if (entity.getUpdatedBy() == null) {
-            throw new BadRequestException("Not found updated by!");
-        }
-
-        if (entity.getText() == null) {
-            throw new ResourceNotFoundException();
-        }
-
-        entity.setCreatedBy(oldCard.getCreatedBy());
-        entity.setCreatedDate(oldCard.getCreatedDate());
-        entity.setUpdatedDate(LocalDateTime.now());
-        entity.setCardId(oldCard.getCardId());
-
-        try {
-            return repository.save(entity);
-        } catch (RuntimeException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+    public CommentService(CommentRepository repository, CommentValidator validator) {
+        super(repository, validator);
     }
 
     public void deleteCommentsForCard(UUID cardId) {
