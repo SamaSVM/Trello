@@ -194,7 +194,7 @@ public class CardIntegrationTest extends AbstractIntegrationTest<Card> {
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus()),
-                () -> assertFalse((Boolean) getValue(mvcResult, "$.reminder.active"))
+                () -> assertTrue((Boolean) getValue(mvcResult, "$.reminder.active"))
         );
     }
 

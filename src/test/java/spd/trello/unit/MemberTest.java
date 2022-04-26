@@ -172,7 +172,7 @@ public class MemberTest {
         BadRequestException ex = assertThrows(
                 BadRequestException.class, () -> service.update(member), "no exception"
         );
-        assertEquals("The updatedBy field must be filled. \n", ex.getMessage());
+        assertEquals("The updatedBy field must be filled.", ex.getMessage());
     }
 
     @Test
@@ -183,6 +183,6 @@ public class MemberTest {
         BadRequestException ex = assertThrows(
                 BadRequestException.class, () -> service.update(member), "no exception"
         );
-        assertEquals("The updatedDate field must be filled. \n", ex.getMessage());
+        assertEquals("The updatedDate field must be filled.", ex.getMessage());
     }
 }

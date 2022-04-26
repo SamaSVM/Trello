@@ -170,7 +170,7 @@ public class WorkspaceTest {
         ResourceNotFoundException ex = assertThrows(
                 ResourceNotFoundException.class, () -> service.save(workspace), "no exception"
         );
-        assertEquals("The resource must belong to at least one member! \n", ex.getMessage());
+        assertEquals("The resource must belong to at least one member!", ex.getMessage());
     }
 
     @Test

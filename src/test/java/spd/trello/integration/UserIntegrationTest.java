@@ -25,13 +25,13 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
     @Test
     public void create() throws Exception {
         User firstUser = new User();
-        firstUser.setEmail("1create@UIT.com.com");
+        firstUser.setEmail("1create@uit.com");
         firstUser.setFirstName("first name");
         firstUser.setLastName("last name");
         MvcResult firstMvcResult = super.create(URL_TEMPLATE, firstUser);
 
         User secondUser = new User();
-        secondUser.setEmail("2create@UIT.com");
+        secondUser.setEmail("2create@uit.com");
         secondUser.setFirstName("first name");
         secondUser.setLastName("last name");
         secondUser.setTimeZone("Europe/Paris");
@@ -43,7 +43,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
                 () -> assertEquals(firstUser.getEmail(), getValue(firstMvcResult, "$.email")),
                 () -> assertEquals(firstUser.getFirstName(), getValue(firstMvcResult, "$.firstName")),
                 () -> assertEquals(firstUser.getLastName(), getValue(firstMvcResult, "$.lastName")),
-                () -> assertEquals(ZoneId.systemDefault().toString(), getValue(firstMvcResult, "$.timeZone")),
+                () -> assertEquals(firstUser.getTimeZone(), getValue(firstMvcResult, "$.timeZone")),
 
                 () -> assertEquals(HttpStatus.CREATED.value(), secondMvcResult.getResponse().getStatus()),
                 () -> assertNotNull(getValue(secondMvcResult, "$.id")),
@@ -123,7 +123,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void update() throws Exception {
-        User user = helper.getNewUser("update@UIT.com");
+        User user = helper.getNewUser("update@uit.com");
         user.setFirstName("new first name");
         user.setLastName("new last name");
         user.setTimeZone("Europe/Paris");
@@ -178,7 +178,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void repeatedEmailCreate() throws Exception {
-        User user = helper.getNewUser("repeatedemailcreate@UIT.com");
+        User user = helper.getNewUser("repeatedemailcreate@uit.com");
         user.setId(UUID.randomUUID());
         MvcResult thirdMvcResult = super.create(URL_TEMPLATE, user);
         String thirdExceptionMessage = Objects.requireNonNull(thirdMvcResult.getResolvedException()).getMessage();
@@ -191,7 +191,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void nullFieldsUpdate() throws Exception {
-        User user = helper.getNewUser("nullFieldsUpdate@ut.com");
+        User user = helper.getNewUser("nullFieldsUpdate@uit.com");
         User testUser = new User();
         MvcResult mvcResult = super.update(URL_TEMPLATE, user.getId(), testUser);
         String exceptionMessage = "The firstname, lastname and email fields must be filled.";
@@ -205,7 +205,7 @@ public class UserIntegrationTest extends AbstractIntegrationTest<User> {
 
     @Test
     public void badFieldsUpdate() throws Exception {
-        User user = helper.getNewUser("badFieldsUpdate@UT.com");
+        User user = helper.getNewUser("badFieldsUpdate@uit.com");
         User testUser = new User();
         testUser.setFirstName("f");
         testUser.setLastName("l");

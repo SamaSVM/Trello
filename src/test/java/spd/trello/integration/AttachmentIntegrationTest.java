@@ -164,7 +164,7 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
 
     @Test
     public void nullCreatedByFieldCreate() throws Exception {
-        Card card = helper.getNewCard("nullCreatedByFC@AT.com");
+        Card card = helper.getNewCard("nullCreatedByFC@AIT.com");
         Attachment attachment = new Attachment();
         attachment.setCardId(card.getId());
         attachment.setCreatedDate(LocalDateTime.now().withNano(0));
@@ -182,7 +182,7 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
 
     @Test
     public void nullCreatedDateFieldCreate() throws Exception {
-        Card card = helper.getNewCard("nullCreatedDateFC@AT.com");
+        Card card = helper.getNewCard("nullCreatedDateFC@AIT.com");
         Attachment attachment = new Attachment();
         attachment.setCardId(card.getId());
         attachment.setCreatedBy(card.getCreatedBy());
@@ -200,7 +200,7 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
 
     @Test
     public void nullNameFieldCreate() throws Exception {
-        Card card = helper.getNewCard("nullNameFieldC@AT.com");
+        Card card = helper.getNewCard("nullNameFieldC@AIT.com");
         Attachment attachment = new Attachment();
         attachment.setCardId(card.getId());
         attachment.setCreatedBy(card.getCreatedBy());
@@ -218,7 +218,7 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
 
     @Test
     public void validationUpdate() throws Exception {
-        Attachment attachment = helper.getNewAttachment("validationUpdate@AT.com");
+        Attachment attachment = helper.getNewAttachment("validationUpdate@AIT.com");
         attachment.setCreatedBy("c");
         attachment.setCreatedDate(LocalDateTime.now());
         attachment.setUpdatedBy("u");
@@ -254,7 +254,7 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
 
     @Test
     public void nonExistentAttachmentUpdate() throws Exception {
-        Attachment attachment = helper.getNewAttachment("nonExistentCardLU@AT.com");
+        Attachment attachment = helper.getNewAttachment("nonExistentCardLU@AIT.com");
         attachment.setId(UUID.randomUUID());
 
         MvcResult mvcResult = super.update(URL_TEMPLATE, attachment.getId(), attachment);
@@ -268,7 +268,7 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
 
     @Test
     public void nullCreatedByFieldsUpdate() throws Exception {
-        Attachment attachment = helper.getNewAttachment("nullCreatedByFU@AT.com");
+        Attachment attachment = helper.getNewAttachment("nullCreatedByFU@AIT.com");
         attachment.setCreatedBy(null);
         attachment.setUpdatedBy(attachment.getCreatedBy());
         attachment.setUpdatedDate(LocalDateTime.now());
@@ -284,7 +284,7 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
 
     @Test
     public void nullCreatedDateFieldsUpdate() throws Exception {
-        Attachment attachment = helper.getNewAttachment("nullCreatedDFU@AT.com");
+        Attachment attachment = helper.getNewAttachment("nullCreatedDFU@AIT.com");
         attachment.setCreatedDate(null);
         attachment.setUpdatedBy(attachment.getCreatedBy());
         attachment.setUpdatedDate(LocalDateTime.now());
@@ -300,7 +300,7 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
 
     @Test
     public void nullUpdatedByFieldsUpdate() throws Exception {
-        Attachment attachment = helper.getNewAttachment("nullUpdatedByFieldsUpdate@AT.com");
+        Attachment attachment = helper.getNewAttachment("nullUpdatedByFieldsUpdate@AIT.com");
         attachment.setUpdatedDate(LocalDateTime.now());
 
         MvcResult mvcResult = super.update(URL_TEMPLATE, attachment.getId(), attachment);
@@ -314,7 +314,7 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
 
     @Test
     public void nullUpdatedDateFieldsUpdate() throws Exception {
-        Attachment attachment = helper.getNewAttachment("nullUpdatedDateFU@AT.com");
+        Attachment attachment = helper.getNewAttachment("nullUpdatedDateFU@AIT.com");
         attachment.setUpdatedBy(attachment.getCreatedBy());
 
         MvcResult mvcResult = super.update(URL_TEMPLATE, attachment.getId(), attachment);
@@ -328,7 +328,7 @@ public class AttachmentIntegrationTest extends AbstractIntegrationTest<Attachmen
 
     @Test
     public void nullNameUpdate() throws Exception {
-        Attachment attachment = helper.getNewAttachment("nullTextUpdate@AT.com");
+        Attachment attachment = helper.getNewAttachment("nullTextUpdate@AIT.com");
         attachment.setUpdatedBy(attachment.getCreatedBy());
         attachment.setUpdatedDate(LocalDateTime.now());
         attachment.setName(null);

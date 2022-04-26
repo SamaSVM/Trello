@@ -181,29 +181,34 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void badRequestUpdate() throws Exception {
-        Member member = helper.getNewMember("badrequestupdate@MIT.com");
+        Member member = helper.getNewMember("badrequestupdate@mit.com");
         member.setUserId(UUID.randomUUID());
+        member.setUpdatedBy("u");
         member.setUpdatedDate(LocalDateTime.now().minusMinutes(2L).withNano(0));
         member.setCreatedBy("newCreatedBy");
         member.setUpdatedDate(LocalDateTime.now().withNano(0));
 
-        MvcResult mvcResult = super.create(URL_TEMPLATE, member);
-        String createdDateMessage = "The createdDate should not be past or future.";
-        String userIdMessage = "The userId field must belong to a user.";
+        MvcResult mvcResult = super.update(URL_TEMPLATE, member.getId(), member);
+        String createdByMessage = "The createdBy field cannot be updated.";
+        String updatedByMessage = "UpdatedBy should be between 2 and 30 characters!";
+        String memberMessage = "Member cannot be transferred to another user.";
 
         String exceptionMessage = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
 
         assertAll(
                 () -> assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus()),
-                () -> assertTrue(exceptionMessage.contains(createdDateMessage)),
-                () -> assertTrue(exceptionMessage.contains(userIdMessage))
+                () -> assertTrue(exceptionMessage.contains(createdByMessage)),
+                () -> assertTrue(exceptionMessage.contains(updatedByMessage)),
+                () -> assertTrue(exceptionMessage.contains(memberMessage))
         );
     }
 
     @Test
     public void nonExistentMemberUpdate() throws Exception {
-        Member member = helper.getNewMember("nonExistentMember@uit");
+        Member member = helper.getNewMember("nonexistentmemberu@uit.com");
         member.setId(UUID.randomUUID());
+        member.setUpdatedBy(member.getUpdatedBy());
+        member.setUpdatedDate(LocalDateTime.now());
         MvcResult fourthMvcResult = super.update(URL_TEMPLATE, member.getId(), member);
         String fourthExceptionMessage = Objects.requireNonNull(fourthMvcResult.getResolvedException()).getMessage();
 
@@ -215,27 +220,27 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
 
     @Test
     public void nullUpdatedByFieldUpdate() throws Exception {
-        Member member = helper.getNewMember("nullUpdatedByField@uit");
+        Member member = helper.getNewMember("nullupdatedbyfield@uit");
         member.setUpdatedDate(LocalDateTime.now());
         MvcResult fourthMvcResult = super.update(URL_TEMPLATE, member.getId(), member);
         String fourthExceptionMessage = Objects.requireNonNull(fourthMvcResult.getResolvedException()).getMessage();
 
         assertAll(
                 () -> assertEquals(HttpStatus.BAD_REQUEST.value(), fourthMvcResult.getResponse().getStatus()),
-                () -> assertEquals("The updatedBy field must be filled. \n", fourthExceptionMessage)
+                () -> assertEquals("The updatedBy field must be filled.", fourthExceptionMessage)
         );
     }
 
     @Test
     public void nullUpdatedDateFieldUpdate() throws Exception {
-        Member member = helper.getNewMember("nullUpdatedDateField@uit");
+        Member member = helper.getNewMember("nullupdateddatefield@uit");
         member.setUpdatedBy(member.getCreatedBy());
         MvcResult fourthMvcResult = super.update(URL_TEMPLATE, member.getId(), member);
         String fourthExceptionMessage = Objects.requireNonNull(fourthMvcResult.getResolvedException()).getMessage();
 
         assertAll(
                 () -> assertEquals(HttpStatus.BAD_REQUEST.value(), fourthMvcResult.getResponse().getStatus()),
-                () -> assertEquals("The updatedDate field must be filled. \n", fourthExceptionMessage)
+                () -> assertEquals("The updatedDate field must be filled.", fourthExceptionMessage)
         );
     }
 }

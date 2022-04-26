@@ -72,7 +72,7 @@ public class UserTest {
 
     @Test
     public void update() {
-        User user = helper.getNewUser("update@UT.com");
+        User user = helper.getNewUser("update@ut.com");
         assertNotNull(user);
         user.setFirstName("newFirstName");
         user.setLastName("newLastName");
@@ -111,7 +111,7 @@ public class UserTest {
 
     @Test
     public void validationCreate() {
-        User user = helper.getNewUser("validationCreate@UT.com");
+        User user = helper.getNewUser("validationcreate@ut.com");
         BadRequestException ex = assertThrows(
                 BadRequestException.class, () -> service.save(user), "no exception"
         );
@@ -233,6 +233,9 @@ public class UserTest {
         BadRequestException ex = assertThrows(
                 BadRequestException.class, () -> service.update(user), "no exception"
         );
-        assertEquals("The TimeZone field must be in TimeZone format!", ex.getMessage());
+        assertAll(
+                () -> assertTrue(ex.getMessage().contains("The TimeZone field must be in TimeZone format!")),
+                () -> assertTrue(ex.getMessage().contains("The email field cannot be updated!"))
+        );
     }
 }

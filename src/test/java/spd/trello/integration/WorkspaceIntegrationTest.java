@@ -255,7 +255,7 @@ public class WorkspaceIntegrationTest extends AbstractIntegrationTest<Workspace>
 
         assertAll(
                 () -> assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus()),
-                () -> assertEquals("The resource must belong to at least one member! \n",
+                () -> assertEquals("The resource must belong to at least one member!",
                         Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
         );
     }
