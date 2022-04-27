@@ -2,7 +2,7 @@ package spd.trello.validators;
 
 import org.springframework.stereotype.Component;
 import spd.trello.domain.Color;
-import spd.trello.exeption.BadRequestException;
+import spd.trello.exception.BadRequestException;
 
 @Component
 public class ColorValidator extends AbstractValidator<Color> {

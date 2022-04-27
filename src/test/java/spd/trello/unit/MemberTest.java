@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.Member;
 import spd.trello.domain.User;
-import spd.trello.domain.enums.MemberRole;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.domain.enums.Role;
+import spd.trello.exception.BadRequestException;
+import spd.trello.exception.ResourceNotFoundException;
 import spd.trello.services.MemberService;
 
 import java.sql.Date;
@@ -33,7 +33,7 @@ public class MemberTest {
         member.setCreatedBy(user.getEmail());
         member.setCreatedDate(LocalDateTime.now());
         member.setUserId(user.getId());
-        member.setMemberRole(MemberRole.MEMBER);
+        member.setMemberRole(Role.MEMBER);
         Member testMember = service.save(member);
 
         assertNotNull(testMember);
@@ -41,7 +41,7 @@ public class MemberTest {
                 () -> assertEquals(user.getEmail(), testMember.getCreatedBy()),
                 () -> assertTrue(testMember.getCreatedDate().toString()
                         .contains(Date.valueOf(LocalDate.now()).toString())),
-                () -> assertEquals(MemberRole.MEMBER, testMember.getMemberRole()),
+                () -> assertEquals(Role.MEMBER, testMember.getMemberRole()),
                 () -> assertEquals(user.getId(), testMember.getUserId())
         );
     }
@@ -81,7 +81,7 @@ public class MemberTest {
     public void update() {
         Member member = helper.getNewMember("update@MT.com");
         assertNotNull(member);
-        member.setMemberRole(MemberRole.MEMBER);
+        member.setMemberRole(Role.MEMBER);
         member.setUpdatedBy(member.getCreatedBy());
         member.setUpdatedDate(LocalDateTime.now().withNano(0));
         Member testMember = service.update(member);
@@ -94,7 +94,7 @@ public class MemberTest {
                         .contains(Date.valueOf(LocalDate.now()).toString())),
                 () -> assertTrue(testMember.getUpdatedDate().toString()
                         .contains(Date.valueOf(LocalDate.now()).toString())),
-                () -> assertEquals(MemberRole.MEMBER, testMember.getMemberRole()),
+                () -> assertEquals(Role.MEMBER, testMember.getMemberRole()),
                 () -> assertEquals(member.getUserId(), testMember.getUserId())
         );
     }

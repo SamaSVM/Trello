@@ -3,7 +3,7 @@ package spd.trello.unit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spd.trello.domain.*;
-import spd.trello.domain.enums.MemberRole;
+import spd.trello.domain.enums.Role;
 import spd.trello.repository.*;
 
 import java.time.LocalDateTime;
@@ -52,7 +52,7 @@ public class UnitHelper {
         member.setUserId(user.getId());
         member.setCreatedBy(user.getEmail());
         member.setCreatedDate(LocalDateTime.now().withNano(0));
-        member.setMemberRole(MemberRole.ADMIN);
+        member.setMemberRole(Role.ADMIN);
         return memberRepository.save(member);
     }
 

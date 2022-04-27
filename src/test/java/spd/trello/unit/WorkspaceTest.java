@@ -6,8 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import spd.trello.domain.Member;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.WorkspaceVisibility;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.exception.BadRequestException;
+import spd.trello.exception.ResourceNotFoundException;
 import spd.trello.services.WorkspaceService;
 
 import java.time.LocalDateTime;

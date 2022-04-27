@@ -9,8 +9,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import spd.trello.domain.Attachment;
 import spd.trello.domain.Card;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.exception.BadRequestException;
+import spd.trello.exception.ResourceNotFoundException;
 import spd.trello.services.AttachmentService;
 
 import java.sql.Date;

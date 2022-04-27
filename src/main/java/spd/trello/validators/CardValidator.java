@@ -2,8 +2,8 @@ package spd.trello.validators;
 
 import org.springframework.stereotype.Component;
 import spd.trello.domain.Card;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.exception.BadRequestException;
+import spd.trello.exception.ResourceNotFoundException;
 import spd.trello.repository.CardListRepository;
 import spd.trello.repository.CardRepository;
 

@@ -2,7 +2,7 @@ package spd.trello.validators;
 
 import org.springframework.stereotype.Component;
 import spd.trello.domain.CheckableItem;
-import spd.trello.exeption.BadRequestException;
+import spd.trello.exception.BadRequestException;
 import spd.trello.repository.CheckableItemRepository;
 import spd.trello.repository.ChecklistRepository;
 

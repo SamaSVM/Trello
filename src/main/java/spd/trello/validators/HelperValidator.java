@@ -3,8 +3,8 @@ package spd.trello.validators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spd.trello.domain.perent.Resource;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.exception.BadRequestException;
+import spd.trello.exception.ResourceNotFoundException;
 import spd.trello.repository.MemberRepository;
 
 import java.time.LocalDateTime;

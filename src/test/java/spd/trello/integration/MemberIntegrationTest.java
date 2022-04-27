@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import spd.trello.domain.Member;
 import spd.trello.domain.User;
-import spd.trello.domain.enums.MemberRole;
+import spd.trello.domain.enums.Role;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,7 +31,7 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
         member.setUserId(user.getId());
         member.setCreatedBy(user.getEmail());
         member.setCreatedDate(LocalDateTime.now().withNano(0));
-        member.setMemberRole(MemberRole.ADMIN);
+        member.setMemberRole(Role.ADMIN);
         MvcResult mvcResult = super.create(URL_TEMPLATE, member);
 
         assertAll(
@@ -112,7 +112,7 @@ public class MemberIntegrationTest extends AbstractIntegrationTest<Member> {
         Member member = helper.getNewMember("update@MIT.com");
         member.setUpdatedBy(member.getCreatedBy());
         member.setUpdatedDate(LocalDateTime.now().withNano(0));
-        member.setMemberRole(MemberRole.ADMIN);
+        member.setMemberRole(Role.ADMIN);
         MvcResult mvcResult = super.update(URL_TEMPLATE, member.getId(), member);
 
         assertAll(

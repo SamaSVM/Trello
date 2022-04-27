@@ -9,14 +9,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import spd.trello.domain.Attachment;
 import spd.trello.domain.FileDB;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.exception.BadRequestException;
 import spd.trello.repository.AttachmentRepository;
 import spd.trello.repository.FileDBRepository;
 import spd.trello.validators.AttachmentValidator;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service

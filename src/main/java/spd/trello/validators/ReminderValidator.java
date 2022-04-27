@@ -2,7 +2,7 @@ package spd.trello.validators;
 
 import org.springframework.stereotype.Component;
 import spd.trello.domain.Reminder;
-import spd.trello.exeption.BadRequestException;
+import spd.trello.exception.BadRequestException;
 import spd.trello.repository.ReminderRepository;
 
 @Component

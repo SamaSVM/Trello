@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import spd.trello.domain.perent.Domain;
-import spd.trello.exeption.BadRequestException;
+import spd.trello.exception.BadRequestException;
 import spd.trello.services.CommonService;
 
 import javax.validation.Valid;
