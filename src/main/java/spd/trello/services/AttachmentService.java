@@ -1,6 +1,7 @@
 package spd.trello.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -10,15 +11,14 @@ import org.springframework.web.multipart.MultipartFile;
 import spd.trello.domain.Attachment;
 import spd.trello.domain.FileDB;
 import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
 import spd.trello.repository.AttachmentRepository;
 import spd.trello.repository.FileDBRepository;
 import spd.trello.validators.AttachmentValidator;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class AttachmentService extends AbstractService<Attachment, AttachmentRepository, AttachmentValidator> {
     public AttachmentService
@@ -49,6 +49,7 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
     }
 
     public void deleteAttachmentsForCard(UUID cardId) {
+        log.debug("Cascade delete attachments for card with id - {}", cardId);
         repository.findAllByCardId(cardId).forEach(attachment -> delete(attachment.getId()));
     }
 
