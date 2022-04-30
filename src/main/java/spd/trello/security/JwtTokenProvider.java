@@ -20,11 +20,11 @@ public class JwtTokenProvider {
 
     private final UserDetailsService userDetailsService;
 
-    private String authorizationHeader = "Authorization";
+    private final String AUTHORIZATION_HEADER = "Authorization";
 
     private String secretKey = "SPD";
 
-    private final long validityInMilliseconds = 604800000L;
+    private final long VALIDITY_IN_MILLISECONDS = 604800000L;
 
     public JwtTokenProvider(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -39,7 +39,7 @@ public class JwtTokenProvider {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("role", role);
         Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds * 1000);
+        Date validity = new Date(now.getTime() + VALIDITY_IN_MILLISECONDS * 1000);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -68,6 +68,6 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader(authorizationHeader);
+        return request.getHeader(AUTHORIZATION_HEADER);
     }
 }

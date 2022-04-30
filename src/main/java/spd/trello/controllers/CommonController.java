@@ -10,9 +10,9 @@ import java.util.UUID;
 
 public interface CommonController<E extends Domain> {
 
-    ResponseEntity<E> create(E resource, BindingResult bindingResult);
+    ResponseEntity<E> create(E resource);
 
-    ResponseEntity<E> update(UUID id, E resource, BindingResult bindingResult);
+    ResponseEntity<E> update(UUID id, E resource);
 
     HttpStatus delete(UUID id);
 
