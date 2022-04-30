@@ -21,10 +21,8 @@ public class MailSender implements Runnable {
 
     @Override
     public void run() {
-        synchronized (this) {
-            emailSenderService.sendMail(email, "Trello", "Hallo");
-            sendMails.incrementAndGet();
-        }
+        emailSenderService.sendMail(email, "Trello", "Hallo");
+        sendMails.incrementAndGet();
     }
 }
 
