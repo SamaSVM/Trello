@@ -9,8 +9,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import spd.trello.domain.Card;
 import spd.trello.domain.Color;
 import spd.trello.domain.Label;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.Objects;

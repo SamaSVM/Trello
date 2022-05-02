@@ -2,7 +2,7 @@ package spd.trello.validators;
 
 import org.springframework.stereotype.Component;
 import spd.trello.domain.Attachment;
-import spd.trello.exeption.BadRequestException;
+import spd.trello.exception.BadRequestException;
 import spd.trello.repository.AttachmentRepository;
 import spd.trello.repository.CardRepository;
 

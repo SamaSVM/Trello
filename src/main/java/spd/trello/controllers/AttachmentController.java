@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import spd.trello.domain.Attachment;
-import spd.trello.exeption.BadRequestException;
+import spd.trello.exception.BadRequestException;
 import spd.trello.services.AttachmentService;
 
 import java.util.UUID;

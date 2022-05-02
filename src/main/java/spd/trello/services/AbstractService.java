@@ -1,8 +1,8 @@
 package spd.trello.services;
 
 import spd.trello.domain.perent.Domain;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.exception.BadRequestException;
+import spd.trello.exception.ResourceNotFoundException;
 import spd.trello.repository.AbstractRepository;
 import spd.trello.validators.AbstractValidator;
 

@@ -2,11 +2,10 @@ package spd.trello.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import spd.trello.domain.enums.MemberRole;
+import spd.trello.domain.enums.Role;
 import spd.trello.domain.perent.Resource;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Data
@@ -16,7 +15,7 @@ import java.util.UUID;
 public class Member extends Resource {
     @Column(name = "member_role")
     @Enumerated(EnumType.STRING)
-    private MemberRole memberRole = MemberRole.GUEST;
+    private Role memberRole = Role.GUEST;
 
     @Column(name = "user_id")
     private UUID userId;

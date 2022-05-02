@@ -2,12 +2,9 @@ package spd.trello.validators;
 
 import org.springframework.stereotype.Component;
 import spd.trello.domain.Checklist;
-import spd.trello.exeption.BadRequestException;
+import spd.trello.exception.BadRequestException;
 import spd.trello.repository.CardRepository;
 import spd.trello.repository.ChecklistRepository;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @Component
 public class ChecklistValidator extends AbstractValidator<Checklist> {

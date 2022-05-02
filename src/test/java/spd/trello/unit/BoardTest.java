@@ -7,8 +7,8 @@ import spd.trello.domain.Board;
 import spd.trello.domain.Member;
 import spd.trello.domain.Workspace;
 import spd.trello.domain.enums.BoardVisibility;
-import spd.trello.exeption.BadRequestException;
-import spd.trello.exeption.ResourceNotFoundException;
+import spd.trello.exception.BadRequestException;
+import spd.trello.exception.ResourceNotFoundException;
 import spd.trello.services.BoardService;
 
 import java.time.LocalDateTime;

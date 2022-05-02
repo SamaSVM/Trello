@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Workspaces</title>
+</head>
+<body>
+<h1>This is all workspaces</h1>
+<table>
+    <tr>
+        <th>Workspace name</th>
+    </tr>
+    <tr th:each = "workspace: ${workspaces}">
+        <td th:text="${workspace.name}"></td>
+    </tr>
+</table>
+</body>
+</html>
