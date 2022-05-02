@@ -1,5 +1,6 @@
 package spd.trello.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import spd.trello.domain.Card;
 import spd.trello.repository.CardRepository;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class CardService extends AbstractService<Card, CardRepository, CardValidator> {
     public CardService(CardRepository repository, CardValidator validator, ChecklistService checklistService,
@@ -35,6 +37,7 @@ public class CardService extends AbstractService<Card, CardRepository, CardValid
     }
 
     public void deleteMemberInCards(UUID memberId) {
+        log.debug("Cascade delete member in cards with id - {}", memberId);
         List<Card> cards = repository.findAllByMembersIdEquals(memberId);
         for (Card card : cards) {
             Set<UUID> membersId = card.getMembersId();
@@ -46,6 +49,7 @@ public class CardService extends AbstractService<Card, CardRepository, CardValid
     }
 
     public void deleteCardsForCardList(UUID cardListId) {
+        log.debug("Cascade delete cards gor card lists with id - {}", cardListId);
         repository.findAllByCardListId(cardListId).forEach(card -> delete(card.getId()));
     }
 }

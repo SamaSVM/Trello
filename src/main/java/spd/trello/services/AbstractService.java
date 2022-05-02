@@ -1,5 +1,6 @@
 package spd.trello.services;
 
+import lombok.extern.slf4j.Slf4j;
 import spd.trello.domain.perent.Domain;
 import spd.trello.exception.BadRequestException;
 import spd.trello.exception.ResourceNotFoundException;
@@ -9,6 +10,7 @@ import spd.trello.validators.AbstractValidator;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 public abstract class AbstractService<E extends Domain, R extends AbstractRepository<E>, V extends AbstractValidator<E>>
         implements CommonService<E> {
     R repository;
@@ -36,6 +38,7 @@ public abstract class AbstractService<E extends Domain, R extends AbstractReposi
         try {
             repository.deleteById(id);
         } catch (RuntimeException e) {
+            log.debug("Filed to delete resource with id - {}", id);
             throw new BadRequestException(e.getMessage());
         }
     }
