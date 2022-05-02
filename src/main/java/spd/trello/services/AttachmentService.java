@@ -1,6 +1,7 @@
 package spd.trello.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,10 @@ import spd.trello.repository.AttachmentRepository;
 import spd.trello.repository.FileDBRepository;
 import spd.trello.validators.AttachmentValidator;
 
+import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.nio.file.Files;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -27,22 +30,35 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
         this.fileDBRepository = fileDBRepository;
     }
 
+    @Value("${app.saveToDB}")
+    boolean saveToDB;
+
+    @Value("${app.pathToFile}")
+    String pathToFile;
+
     private final FileDBRepository fileDBRepository;
 
     public Attachment save(String entity, MultipartFile file) {
         try {
+
             ObjectMapper objectMapper = new ObjectMapper();
             Attachment attachment = objectMapper.readValue(entity, Attachment.class);
-            validator.validateSaveEntity(attachment);
-            attachment.setName(StringUtils.cleanPath(file.getOriginalFilename()));
+            attachment.setName(StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())));
             attachment.setType(file.getContentType());
 
-            FileDB fileDB = new FileDB();
-            fileDB.setData(file.getBytes());
-            fileDBRepository.save(fileDB);
-            attachment.setFileId(fileDB.getId());
-
-            return repository.save(attachment);
+            if (saveToDB) {
+                FileDB fileDB = new FileDB();
+                fileDB.setData(file.getBytes());
+                fileDBRepository.save(fileDB);
+                attachment.setFileId(fileDB.getId());
+            } else {
+                String path = pathToFile;
+                String name = path + file.getOriginalFilename();
+                attachment.setLink(name);
+                File myFile = new File(name);
+                file.transferTo(myFile);
+            }
+            return super.save(attachment);
         } catch (RuntimeException | IOException e) {
             throw new BadRequestException(e.getMessage());
         }
@@ -55,10 +71,21 @@ public class AttachmentService extends AbstractService<Attachment, AttachmentRep
     @Transactional
     public ResponseEntity<byte[]> getFileResponseEntity(UUID id) {
         Attachment attachment = getById(id);
-        FileDB fileDB = fileDBRepository.getById(attachment.getFileId());
+        byte[] data;
+        if (attachment.getLink() == null) {
+            FileDB fileDB = fileDBRepository.getById(attachment.getFileId());
+            data = fileDB.getData();
+        } else {
+            try {
+                File file = new File(attachment.getLink());
+                data = Files.readAllBytes(file.toPath());
+            } catch (IOException e) {
+                throw new ResourceNotFoundException("File not found!");
+            }
+        }
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + attachment.getName() + "\"")
-                .body(fileDB.getData());
+                .body(data);
     }
 }
